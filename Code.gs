@@ -506,7 +506,7 @@ function farmOut(f) { return { id: f.id, farmer: f.farmer, farm: f.farm, locatio
 function accessSet(u) { if (u.role !== 'viewer') return null; var a = String(u.access || '*').trim(); if (a === '*' || a === '') return null; var o = {}; a.split(',').forEach(function (x) { if (x) o[x.trim()] = 1; }); return o; }
 function canSeeVisit(u, v) {
   if (isAdmin(u)) return true;
-  if (u.role === 'auditor') return v.user_id === u.id;
+  if (u.role === 'auditor') return true;  // reports read every visit; saveVisit and DELETE still limit edits to their own
   var acc = accessSet(u); return !acc || !!acc[v.farm_id];
 }
 function visibleFarms(u, includeArchived) {
