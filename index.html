@@ -1683,7 +1683,7 @@ const AUDL=()=>'l'+(GLIST().length+1);
 function liveSecs(){const K=kpis(D),a=[{n:'Summary',id:'l0'}];GLIST().forEach((g,i)=>{if(K.some(k=>k.grp===g&&k.raw!=null))a.push({n:GSHORT(i),id:'l'+(i+1)})});a.push({n:'Audit',id:AUDL()});return a}
 const SECS=()=>view==='entry'?STEPS.map((x,i)=>({n:x.n,id:'s'+i})):[];
 const hdH=()=>{const m=$('#mini');return m?m.offsetHeight:58};
-function renderVTabs(){$('#vtabs').innerHTML=[['entry','Visit data'],['live','Live readings'],['reports','Reports']].filter(x=>window.FV_APP!=='reports'||x[0]==='reports').map(([k,n])=>`<button data-rc="view" data-arg="${k}" class="${view===k?'on':''}">${n}</button>`).join('')}
+function renderVTabs(){$('#vtabs').innerHTML=[['entry','Visit data'],['live','Live readings'],['reports','Reports']].filter(x=>window.FV_APP==='reports'?x[0]==='reports':x[0]!=='reports').map(([k,n])=>`<button data-rc="view" data-arg="${k}" class="${view===k?'on':''}">${n}</button>`).join('')}
 function renderMain(){
   const y=window.scrollY;
   $('#main').innerHTML=STEPS.map((x,i)=>`<section class="blk" id="s${i}">${x.r()}</section>`).join('');
@@ -1718,7 +1718,7 @@ function mmClose(){$('#mmenu').hidden=true;$('#mback').hidden=true;$('#mmb').set
 function mmToggle(){
   if(mmOpen())return mmClose();
   const S=SECS();
-  $('#mmenu').innerHTML='<h5>View</h5><div class="mv">'+['entry','live','reports'].filter(k=>window.FV_APP!=='reports'||k==='reports').map(k=>`<button type="button" data-rc="view" data-arg="${k}" class="${view===k?'on':''}">${VNAME[k]}</button>`).join('')+'</div>'
+  $('#mmenu').innerHTML='<h5>View</h5><div class="mv">'+['entry','live','reports'].filter(k=>window.FV_APP==='reports'?k==='reports':k!=='reports').map(k=>`<button type="button" data-rc="view" data-arg="${k}" class="${view===k?'on':''}">${VNAME[k]}</button>`).join('')+'</div>'
    +(S.length?'<h5>Sections</h5><div class="mv">'+S.map((x,i)=>`<button type="button" data-jump="${i}" class="${i===step?'on':''}${stepDone(i)?' done':''}"><b>${i+1}</b>${x.n}</button>`).join('')+'</div>':'')
    +'<div class="mr"><button type="button" data-act="history">Saved reports</button><button type="button" data-act="lang">Language</button><button type="button" data-act="settings">Settings</button></div>';
   $('#mmenu').hidden=false;$('#mback').hidden=false;$('#mmb').setAttribute('aria-expanded','true');
@@ -1744,7 +1744,7 @@ function renderLive(){
 }
 function paint(){if(view==='entry')renderMain();else if(view==='live')renderLive();else renderReports();renderRail();renderTop();renderBar()}
 function renderAll(){document.body.classList.toggle('nobar',view==='reports');document.body.classList.toggle('wide',view==='reports');document.documentElement.style.setProperty('--hd',hdH()+'px');renderVTabs();if(view==='entry')renderMain();else if(view==='live')renderLive();else renderReports();renderRail();renderBar();renderTop()}
-function setView(k){if(window.FV_APP==='reports')k='reports';view=k;step=0;renderAll();window.scrollTo(0,0);scrolled()}
+function setView(k){if(window.FV_APP==='reports')k='reports';else if(k==='reports')k='entry';view=k;step=0;renderAll();window.scrollTo(0,0);scrolled()}
 function liveUpdate(){
   renderTop();renderRail();
   $$('[data-live]').forEach(el=>{const t=document.createElement('div');t.innerHTML=live(+el.dataset.live);if(t.firstChild)el.replaceWith(t.firstChild)});
@@ -2223,7 +2223,7 @@ function openSettings(){
   const body=`<div class="lst">${li('lang','Language',{dv:'हिन्दी (देवनागरी)',hi:'Hinglish',en:'English'}[LANG()])}
   ${li('num','Number entry',{auto:'Automatic: wheel on touch screens',wheel:'Scroll wheel',keys:'Keyboard'}[ST.num||'auto'])}
   ${(isAdmin()&&ST.realRole!=='viewer')?li('admin','Admin console','Metrics, baselines, farms, users and all data'):''}
-  ${window.FV_APP==='reports'?li('frm','Visit form','Open the form used on farm visits'):li('rep','Reports','Read-only reports across farms')}
+  ${window.FV_APP==='reports'?li('frm','Visit form','Open the form used on farm visits'):''}
   ${li('me','Signed in as',esc(ST.me)+(ST.roleName?', '+esc(ST.roleName):'')+(ST.orgName?', '+esc(ST.orgName):''))}
   ${li('pw','Change password','')}
   ${li('export','Download a backup','My saved reports, as one file')}
