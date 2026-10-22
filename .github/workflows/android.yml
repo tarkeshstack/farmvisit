@@ -1,0 +1,57 @@
+name: Android app
+
+# Builds the Farm Visit Android app (mobile/) and publishes the APK as a GitHub release,
+# so it can be downloaded straight onto a phone from
+# https://github.com/tarkeshstack/farmvisit/releases/latest/download/FarmVisit.apk
+on:
+  push:
+    branches: [main]
+    paths: ['mobile/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - name: Number this build so phones accept it as an update
+        run: node -e "const f='app.json',j=require('./'+f);j.expo.android.versionCode=${{ github.run_number }};j.expo.version='1.0.${{ github.run_number }}';require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
+      - run: npx expo prebuild --platform android --no-install
+      - name: Build APK
+        working-directory: mobile/android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+      - run: cp android/app/build/outputs/apk/release/app-release.apk FarmVisit.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FarmVisit-apk
+          path: mobile/FarmVisit.apk
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "android-v1.0.${{ github.run_number }}" FarmVisit.apk \
+            --title "Farm Visit app 1.0.${{ github.run_number }}" \
+            --notes "Install FarmVisit.apk on an Android phone (allow installing from your browser when asked)." \
+            --latest

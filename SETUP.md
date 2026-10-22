@@ -50,3 +50,11 @@ To start for real, make a new empty sheet (or delete every row below the headers
 - **Editing the sheet by hand:** safe for reading, filtering and charting. Do not rename tabs or the header row, and avoid editing Users and Sessions. Use **Organisation → Refresh the "KPI readings" tab** for a tidy table of every metric for pivots.
 - **Passwords** are stored salted and hashed in the Users tab, but with a lighter method than a dedicated server. Use strong passwords, and keep the sheet itself shared with as few people as possible, because anyone who can open the sheet can read it.
 - **Daily limits:** a free Google account has daily Apps Script quotas (many thousands of calls), enough for a team of dozens of auditors.
+
+## The Android app (visit form)
+Auditors can use the visit form as an Android app. The Admin console and Reports stay web pages. All three use the same Google Sheet.
+- **Download:** https://github.com/tarkeshstack/farmvisit/releases/latest/download/FarmVisit.apk. Open it on the phone and allow installing from the browser when asked.
+- **How it works:** the app opens the visit form from `https://tarkeshstack.github.io/farmvisit/`, so changes to `index.html` show up in the app without reinstalling. Open it once with internet; after that it also opens without signal. Visits are saved on the phone and sync when it is online.
+- **PDFs and backups** open the phone's share sheet, so you can save them or send them on WhatsApp, Drive or email.
+- **New app builds:** every push to `main` that changes `mobile/` builds a new APK (GitHub → Actions → "Android app"). You can also start one by hand from that page with "Run workflow".
+- **Without an app:** in Chrome on the phone, open the visit form and choose "Add to Home screen".
