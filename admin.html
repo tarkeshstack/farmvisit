@@ -1,0 +1,1244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin console · Farm Visit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#edf2f0;--surface:#fff;--ink:#0d2a25;--mut:#56706a;--line:#d6e0db;--tint:#e1ebe6;--accent:#0b7466;--accent-s:#d4efe9;--on-accent:#fff;--yolk:#f4b324;
+ --good:#17885a;--warn:#b87700;--bad:#cc3d33;--good-s:#dcf2e7;--warn-s:#faedcc;--bad-s:#fadedb;--na:#7f908a;
+ --sh:0 1px 2px rgba(10,40,34,.06),0 6px 16px rgba(10,40,34,.06);
+ --f-body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--f-disp:"Bricolage Grotesque","Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#09130f;--surface:#112320;--ink:#e5f1ed;--mut:#8fa9a1;--line:#21362f;--tint:#172b26;--accent:#4fd1bd;--accent-s:#133b33;--on-accent:#04231d;
+ --good:#4cc98d;--warn:#e5ac2f;--bad:#f0746a;--good-s:#12342a;--warn-s:#3a2d0c;--bad-s:#3c1a18;--sh:0 1px 2px rgba(0,0,0,.5),0 6px 16px rgba(0,0,0,.28)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-body);-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+[hidden]{display:none!important}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+nav.side{position:sticky;top:0;height:100vh;padding:20px 14px;border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:2px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px 16px}
+.brand svg{width:26px;height:30px;flex:none;color:var(--ink)}
+.brand b{font:800 19px/1 var(--f-disp)}
+.brand small{display:block;color:var(--mut);font-size:12px;margin-top:2px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav.side a.nv{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;color:var(--mut);text-decoration:none;font-weight:700;font-size:15px}
+nav.side a.nv:hover{background:var(--tint);color:var(--ink)}
+nav.side a.nv[aria-current=page]{background:var(--accent-s);color:var(--accent)}
+nav.side .sp{flex:1}
+nav.side .me{padding:12px 8px 0;border-top:1px solid var(--line);font-size:14px;color:var(--mut)}
+nav.side .me b{display:block;color:var(--ink)}
+nav.side .me a{display:inline-block;margin:6px 10px 0 0;font-weight:700;font-size:14px}
+main{padding:28px clamp(16px,4vw,44px) 120px;max-width:1180px;width:100%}
+h1{font:800 clamp(26px,3.4vw,34px)/1.1 var(--f-disp);margin:0 0 4px;letter-spacing:-.01em}
+h2{font:800 20px/1.2 var(--f-disp);margin:30px 0 10px}
+h3{font:800 16px/1.2 var(--f-disp);margin:22px 0 8px}
+.lead{margin:0 0 22px;color:var(--mut);max-width:62ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh)}
+.pad{padding:18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:8px}
+.stat{padding:16px 18px}
+.stat b{display:block;font:800 30px/1.1 var(--f-disp)}
+.stat span{color:var(--mut);font-size:14px}
+.tw{overflow:auto;border-radius:18px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{font-weight:700;color:var(--mut);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:14px}
+td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--mut);font-size:13px}
+tr.grp td{background:var(--tint);font-weight:800;font-size:14px;padding:7px 14px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 14px;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.bad{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.55;cursor:default}
+.lnk{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;padding:4px 6px;border-radius:8px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.row.sp{justify-content:space-between}
+.seg{display:inline-flex;padding:4px;gap:2px;background:var(--tint);border-radius:14px}
+.seg button{border:0;background:transparent;color:var(--mut);font-weight:700;padding:8px 16px;border-radius:10px;cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:700;background:var(--tint);color:var(--mut)}
+.pill.ok{background:var(--good-s);color:var(--good)}.pill.warn{background:var(--warn-s);color:var(--warn)}.pill.bad{background:var(--bad-s);color:var(--bad)}
+.egg{width:22px;height:25px;vertical-align:middle;margin-right:8px}
+.egg .shell{fill:none;stroke:var(--ink);stroke-width:7;opacity:.85}
+.sc{display:inline-flex;align-items:center;font-weight:800;font-variant-numeric:tabular-nums}
+.mbar{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--tint);min-width:110px}
+.mbar i{display:block}.mbar .o{background:var(--good)}.mbar .w{background:var(--yolk)}.mbar .b{background:var(--bad)}
+.empty{padding:34px 18px;text-align:center;color:var(--mut)}
+.empty b{display:block;color:var(--ink);font:800 18px var(--f-disp);margin-bottom:4px}
+/* metrics list */
+.mlist{display:flex;flex-direction:column}
+.mr{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line)}
+.mr:last-child{border-bottom:0}
+.mr .mn b{display:block}.mr .mn small{color:var(--mut);font-size:13px}
+.mr.off .mn{opacity:.5}
+.lim{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:6px 0 4px}
+.lim label{font-size:13px;font-weight:700;color:var(--mut)}
+.lim input{display:block;width:96px;margin-top:3px}
+.sw{position:relative;display:inline-block;width:44px;height:26px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:background .15s}
+.sw i:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.sw input:checked+i{background:var(--accent)}.sw input:checked+i:after{transform:translateX(18px)}
+.sw input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+input[type=text],input[type=email],input[type=number],input[type=password],input:not([type]),select,textarea{padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);width:100%}
+input.er{border-color:var(--bad);background:var(--bad-s)}
+textarea{resize:vertical;min-height:84px}
+label.f{display:block;font-weight:700;font-size:14px;margin:0 0 12px}
+label.f>span{display:block;margin-bottom:4px}
+label.f small{font-weight:400;color:var(--mut);display:block;margin-top:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.chk{display:inline-flex;align-items:center;gap:7px;margin-right:16px;font-weight:700;font-size:15px}
+.chk input{width:18px;height:18px;margin:0}
+/* cards list */
+.items{display:grid;gap:10px}
+.it{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;padding:14px 16px}
+.it b{font-size:16px}.it .m{color:var(--mut);font-size:14px}
+.it code,code.fx{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--tint);padding:2px 7px;border-radius:7px;word-break:break-word}
+/* dialog */
+dialog{border:0;border-radius:20px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--ink);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+dialog.wide{width:min(760px,calc(100vw - 24px))}
+dialog::backdrop{background:rgba(5,20,16,.55)}
+.dh{padding:18px 22px 6px}.dh h2{margin:0}
+.db{padding:10px 22px;overflow:auto;max-height:calc(100vh - 190px)}
+.df{display:flex;gap:10px;justify-content:flex-end;padding:14px 22px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.derr{display:none;margin:0 0 12px;padding:9px 12px;border-radius:10px;background:var(--bad-s);color:var(--bad);font-weight:700;font-size:14px}.derr.on{display:block}
+.vars{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow:auto;padding:2px}
+.vars button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:3px 10px;font:13px ui-monospace,Menlo,monospace;cursor:pointer}
+.vars button:hover{border-color:var(--accent);color:var(--accent)}
+.try{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 10px;margin-top:8px}
+.try label{font-size:12px;font-weight:700;color:var(--mut)}
+.res{margin-top:10px;padding:12px 14px;border-radius:12px;background:var(--tint);font-weight:700}
+.hint{color:var(--mut);font-size:14px}
+.pw{font:800 22px ui-monospace,Menlo,monospace;letter-spacing:.04em;padding:14px;border-radius:12px;background:var(--tint);text-align:center;user-select:all;word-break:break-all}
+/* save bar + toast */
+#bar{position:fixed;left:230px;right:0;bottom:0;z-index:20;display:flex;justify-content:center;padding:12px 16px;pointer-events:none;transform:translateY(120%);transition:transform .2s}
+#bar.on{transform:none}
+#bar div{pointer-events:auto;display:flex;gap:12px;align-items:center;background:var(--ink);color:var(--bg);padding:10px 12px 10px 18px;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.35);font-weight:700}
+#bar .btn{border-color:transparent}
+#toast{position:fixed;left:50%;bottom:84px;transform:translate(-50%,20px);opacity:0;z-index:50;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:14px;font-weight:700;pointer-events:none;transition:.2s;max-width:calc(100vw - 32px)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.top{display:none}
+@media (max-width:860px){
+ .app{display:block}
+ nav.side{position:sticky;top:0;z-index:15;height:auto;flex-direction:row;align-items:center;gap:4px;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+ .brand,nav.side .sp,nav.side .me{display:none}
+ nav.side a.nv{padding:8px 12px;flex:none}
+ .top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0;font-size:14px;color:var(--mut)}
+ #bar{left:0}
+ .g2{grid-template-columns:1fr}
+ main{padding-top:18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <nav class="side" id="nav" aria-label="Admin sections"></nav>
+ <div>
+  <div class="top" id="top"></div>
+  <main id="view" tabindex="-1"><p class="hint">Loading…</p></main>
+ </div>
+</div>
+<div id="bar" role="region" aria-label="Unsaved changes"><div><span>You have unsaved changes</span><button class="btn sm" id="discard">Discard</button><button class="btn sm pri" id="save">Save changes</button></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>/* Shared between the server, the farm visit app and the admin panel.
+   Single source of truth for: built-in KPI catalogue, baseline (threshold) engine,
+   input-field catalogue and the safe formula engine used by custom KPIs. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.FV = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+
+  /* ---------- groups ---------- */
+  const G1 = 'Mortality and health', G2 = 'Growth and weight', G3 = 'Feed and water',
+        G4 = 'Egg production', G5 = 'Costs and profit', G6 = 'House conditions',
+        GA = 'Audit checks', GC = 'Custom metrics';
+  const GROUPS = [G1, G2, G3, G4, G5, G6];
+  const TYPES = ['Broiler', 'Layer'];
+
+  /* ---------- built-in KPI catalogue (labels exactly as produced by kpis()) ---------- */
+  const BUILTIN = [
+    [G1, 'Total mortality'], [G1, 'Livability'], [G1, 'Deaths in the last 7 days'],
+    [G2, 'Body weight'], [G2, 'Weight against standard'], [G2, 'Daily gain, whole life'],
+    [G2, 'Gained since last weighing'], [G2, 'Recent daily gain'], [G2, 'Uniformity'], [G2, 'EPEF', 'Broiler'],
+    [G3, 'Feed per bird per day'], [G3, 'Feed against standard'], [G3, 'Feed per bird to date'],
+    [G3, 'Feed per dozen eggs', 'Layer'], [G3, 'FCR, kg feed per kg egg', 'Layer'],
+    [G3, 'FCR, feed per kg of bird', 'Broiler'], [G3, 'Water per bird per day'],
+    [G3, 'Water to feed ratio'], [G3, 'Feed stock left'], [G3, 'Stocking density'],
+    [G4, 'Laying rate, hen-day', 'Layer'], [G4, 'Laying rate against standard', 'Layer'],
+    [G4, 'Broken eggs', 'Layer'], [G4, 'Egg mass per hen per day', 'Layer'], [G4, 'Eggs per hen housed', 'Layer'],
+    [G5, 'Cost per egg', 'Layer'], [G5, 'Feed cost per dozen', 'Layer'], [G5, 'Feed share of cost', 'Layer'],
+    [G5, 'Profit per day', 'Layer'], [G5, 'Profit margin', 'Layer'],
+    [G5, 'Feed cost per bird per day', 'Broiler'], [G5, 'Feed cost per kg of bird', 'Broiler'], [G5, 'Total cost per day', 'Broiler'],
+    [G6, 'House temperature'], [G6, 'Humidity']
+  ].map(([g, k, t]) => ({ g, k, t: t || null }));
+
+  /* audit checks, in the order the app shows them */
+  const AUDIT_ITEMS = [
+    ['Biosecurity', 'Biosecurity measures in place'], ['Biosecurity', 'Rodent sightings during visit'], ['Biosecurity', 'Dead birds left in the shed'],
+    ['Housing', 'House temperature'], ['Housing', 'Humidity'], ['Housing', 'Ammonia level'], ['Housing', 'Litter moisture'], ['Housing', 'Stocking density'],
+    ['Feed and water', 'Feed stock on hand'], ['Feed and water', 'Feed wastage'], ['Feed and water', 'Water to feed ratio'], ['Feed and water', 'Birds per drinker'],
+    ['Health', 'Vaccines given on time'], ['Health', 'Medicine withdrawal breaches'], ['Health', 'Sick birds isolated'], ['Health', 'Total mortality'],
+    ['Records', 'Days of records missing, last 7'], ['Records', 'Purchases without a bill']
+  ].map(([g, k]) => ({ g, k }));
+
+  /* ---------- fields usable as formula variables ---------- */
+  const FIELDS = [
+    ['age', 'Flock age', 'days'], ['placed', 'Birds placed', 'birds'], ['alive', 'Birds alive today', 'birds'],
+    ['mortw', 'Deaths in last 7 days', 'birds'], ['area', 'Shed floor area', 'm²'], ['temp', 'House temperature', '°C'],
+    ['hum', 'Relative humidity', '%'], ['feed', 'Feed used per day', 'kg'], ['stdfeed', 'Standard feed', 'g/bird/day'],
+    ['cumfeed', 'Feed eaten per bird to date', 'kg'], ['cumfeedstd', 'Standard feed to date', 'kg/bird'],
+    ['water', 'Water used per day', 'litres'], ['stock', 'Feed stock on hand', 'kg'], ['price', 'Feed price per kg', 'currency'],
+    ['other', 'Other costs per day', 'currency'], ['eggprice', 'Egg selling price', 'currency'],
+    ['chickwt', 'Day-old chick weight', 'g'], ['wt', 'Average body weight today', 'g'], ['wtstd', 'Breed standard weight', 'g'],
+    ['stdgain', 'Standard daily gain', 'g/day'], ['prevwt', 'Previous weighing', 'g'], ['prevdays', 'Days since previous weighing', 'days'],
+    ['unif', 'Uniformity', '%'], ['eggs', 'Eggs per day', 'eggs'], ['broken', 'Broken eggs per day', 'eggs'],
+    ['eggwt', 'Average egg weight', 'g'], ['stdlay', 'Standard laying rate', '%'], ['cumeggs', 'Total eggs laid to date', 'eggs'],
+    ['bio', 'Biosecurity measures in place', 'of 6'], ['rodents', 'Rodent sightings', 'count'], ['carcass', 'Dead birds left in shed', 'birds'],
+    ['nh3', 'Ammonia level', 'ppm'], ['litter', 'Litter moisture', '%'], ['waste', 'Feed wastage', '%'], ['bpd', 'Birds per drinker', 'birds'],
+    ['vdue', 'Vaccine doses due', 'doses'], ['vdone', 'Vaccine doses given', 'doses'], ['wdraw', 'Withdrawal breaches', 'count'],
+    ['sick', 'Sick birds seen', 'birds'], ['isol', 'Sick birds isolated', 'birds'], ['gaps', 'Days of records missing', 'days'], ['nobill', 'Purchases without a bill', 'count']
+  ].map(([k, l, u]) => ({ k, l, u }));
+
+  /* ---------- baseline (threshold) registry ---------- */
+  const bird = (d, x) => num(d.wt) > 0 ? x / (num(d.wt) / 1000) : null;
+  const eggK = div => (d, x) => num(d.eggwt) > 0 ? x / div / (num(d.eggwt) / 1000) : null;
+  const KB = [
+    { g: G1, k: 'Total mortality', dir: 'max', u: ' %', d: { Broiler: [4, 7], Layer: [5, 8] } },
+    { g: G1, k: 'Livability', dir: 'min', u: ' %', d: { Broiler: [96, 93], Layer: [95, 92] } },
+    { g: G1, k: 'Deaths in the last 7 days', dir: 'max', u: ' %', d: { x: [.5, 1] } },
+    { g: G2, k: 'Weight against standard', dir: 'min', u: ' %', d: { x: [95, 90] } },
+    { g: G2, k: 'Daily gain, whole life', dir: 'min', u: ' % of standard', d: { x: [95, 90] } },
+    { g: G2, k: 'Uniformity', dir: 'min', u: ' %', d: { x: [80, 70] } },
+    { g: G2, t: 'Broiler', k: 'EPEF', dir: 'min', u: '', d: { x: [300, 250] } },
+    { g: G3, k: 'Feed per bird per day', dir: 'band', u: ' % of standard', d: { x: [95, 105, 90, 110] } },
+    { g: G3, k: 'Feed per bird to date', dir: 'band', u: ' % of standard', d: { x: [95, 105, 90, 110] } },
+    { g: G3, t: 'Layer', k: 'Feed per dozen eggs', dir: 'max', u: ' kg', d: { x: [1.6, 1.9] } },
+    { g: G3, t: 'Layer', k: 'FCR, kg feed per kg egg', dir: 'max', u: ' kg feed per kg egg', d: { x: [2.3, 2.7] } },
+    { g: G3, t: 'Broiler', k: 'FCR, feed per kg of bird', dir: 'max', u: ' kg feed per kg bird', d: { x: [1.8, 2.1] } },
+    { g: G3, k: 'Water per bird per day', dir: 'band', u: ' ml', d: null, kg: { u: ' ml per kg of bird', f: bird } },
+    { g: G3, k: 'Water to feed ratio', dir: 'band', u: ' : 1', d: { x: [1.8, 2.4, 1.5, 2.8] } },
+    { g: G3, k: 'Feed stock left', dir: 'min', u: ' days', d: { x: [7, 3] } },
+    { g: G3, k: 'Stocking density', dir: 'max', u: ' birds/m²', d: { Broiler: [10, 12], Layer: [7, 9] } },
+    { g: G4, t: 'Layer', k: 'Laying rate, hen-day', dir: 'min', u: ' %', d: { x: [80, 65] } },
+    { g: G4, t: 'Layer', k: 'Laying rate against standard', dir: 'min', u: ' %', d: { x: [95, 90] } },
+    { g: G4, t: 'Layer', k: 'Broken eggs', dir: 'max', u: ' %', d: { x: [2, 4] } },
+    { g: G4, t: 'Layer', k: 'Egg mass per hen per day', dir: 'min', u: ' g', d: { x: [48, 40] } },
+    { g: G5, t: 'Broiler', k: 'Feed cost per bird per day', dir: 'max', u: '¤', d: null, kg: { u: '¤ per kg of bird', f: bird } },
+    { g: G5, t: 'Broiler', k: 'Feed cost per kg of bird', dir: 'max', u: '¤', d: null },
+    { g: G5, t: 'Broiler', k: 'Total cost per day', dir: 'max', u: '¤', d: null },
+    { g: G5, t: 'Layer', k: 'Cost per egg', dir: 'max', u: '¤', d: null, kg: { u: '¤ per kg of egg', f: eggK(1) } },
+    { g: G5, t: 'Layer', k: 'Feed cost per dozen', dir: 'max', u: '¤', d: null, kg: { u: '¤ per kg of egg', f: eggK(12) } },
+    { g: G5, t: 'Layer', k: 'Feed share of cost', dir: 'band', u: ' %', d: { x: [55, 72, 45, 80] } },
+    { g: G5, t: 'Layer', k: 'Profit margin', dir: 'min', u: ' %', d: { x: [15, 0] } },
+    { g: G6, k: 'House temperature', dir: 'band', u: ' °C', ub: { Broiler: ' °C from target', Layer: ' °C' }, d: { Layer: [18, 27, 15, 30], Broiler: [-2, 2, -4, 4] } },
+    { g: G6, k: 'Humidity', dir: 'band', u: ' %', d: { x: [50, 70, 40, 80] } },
+    { g: GA, k: 'Biosecurity measures in place', dir: 'min', u: ' of 6', d: { x: [5, 3] } },
+    { g: GA, k: 'Rodent sightings during visit', dir: 'max', u: '', d: { x: [0, 2] } },
+    { g: GA, k: 'Dead birds left in the shed', dir: 'max', u: '', d: { x: [0, 2] } },
+    { g: GA, k: 'Ammonia level', dir: 'max', u: ' ppm', d: { x: [10, 25] } },
+    { g: GA, k: 'Litter moisture', dir: 'max', u: ' %', d: { x: [30, 40] } },
+    { g: GA, k: 'Feed wastage', dir: 'max', u: ' %', d: { x: [3, 6] } },
+    { g: GA, k: 'Birds per drinker', dir: 'max', u: '', d: { x: [10, 15] } },
+    { g: GA, k: 'Vaccines given on time', dir: 'min', u: ' %', d: { x: [100, 85] } },
+    { g: GA, k: 'Medicine withdrawal breaches', dir: 'max', u: '', d: { x: [0, 0] } },
+    { g: GA, k: 'Sick birds isolated', dir: 'min', u: ' %', d: { x: [90, 60] } },
+    { g: GA, k: 'Days of records missing, last 7', dir: 'max', u: ' days', d: { x: [0, 1] } },
+    { g: GA, k: 'Purchases without a bill', dir: 'max', u: '', d: { x: [0, 2] } }
+  ];
+  const SPEC = {}; KB.forEach(x => SPEC[x.k] = x);
+  const AL = { 'Feed against standard': 'Feed per bird per day', 'Recent daily gain': 'Daily gain, whole life' };
+  const tyOf = t => t === 'Layer' ? 'Layer' : 'Broiler';
+  const nV = sp => sp.dir === 'band' ? 4 : 2;
+  const mkFn = (dir, v) => dir === 'max' ? (x => x <= v[0] ? 'ok' : x <= v[1] ? 'warn' : 'bad')
+    : dir === 'min' ? (x => x >= v[0] ? 'ok' : x >= v[1] ? 'warn' : 'bad')
+    : (x => x >= v[0] && x <= v[1] ? 'ok' : x >= v[2] && x <= v[3] ? 'warn' : 'bad');
+  const api = { cur: () => '₹' };
+  const fu = (x, u) => u[0] === '¤' ? api.cur() + x + u.slice(1) : x + u;
+  function btxt(dir, v, u) {
+    return dir === 'max' ? '≤ ' + fu(v[0], u) : dir === 'min' ? '≥ ' + fu(v[0], u)
+      : (u[0] === '¤' ? api.cur() : '') + v[0] + '–' + fu(v[1], u);
+  }
+  const okArr = (a, n) => Array.isArray(a) && a.length === n && a.every(x => typeof x === 'number' && isFinite(x));
+  const blGet = (BL, ty, k) => (BL && BL[ty + '|' + k]) || {};
+  function eff(sp, type, d, BL) {
+    const ty = tyOf(type), o = blGet(BL, ty, sp.k), kg = !!(sp.kg && o.kg), arr = kg ? o.vk : o.v;
+    let v = null, custom = false;
+    if (okArr(arr, nV(sp))) { v = arr; custom = true; } else if (!kg && sp.d) v = sp.d[ty] || sp.d.x || null;
+    let fn = v ? mkFn(sp.dir, v) : null;
+    if (fn && kg) { const f0 = fn; fn = x => { const y = sp.kg.f(d || {}, x); return y == null || !isFinite(y) ? 'na' : f0(y); }; }
+    const u = kg ? sp.kg.u : (sp.ub && sp.ub[ty]) || sp.u;
+    return { v, fn, custom, kg, text: kg && !v ? 'Set a per kg target' : custom ? 'Your target: ' + btxt(sp.dir, v, u) : '' };
+  }
+  /* validate and clean a baselines object coming from an admin */
+  function cleanBaselines(BL) {
+    const out = {};
+    if (!BL || typeof BL !== 'object') return out;
+    for (const key of Object.keys(BL)) {
+      const i = key.indexOf('|'); if (i < 0) continue;
+      const ty = key.slice(0, i), k = key.slice(i + 1), sp = SPEC[k];
+      if (!sp || !TYPES.includes(ty)) continue;
+      const o = BL[key] || {}, n = nV(sp), r = {};
+      if (okArr(o.v, n)) r.v = o.v.slice();
+      if (sp.kg) { if (o.kg) r.kg = true; if (okArr(o.vk, n)) r.vk = o.vk.slice(); }
+      if (r.v || r.vk || r.kg) out[key] = r;
+    }
+    return out;
+  }
+
+  /* ---------- formula engine (no eval) ---------- */
+  const FN = {
+    min: { n: [1, 9], f: (...a) => Math.min(...a) }, max: { n: [1, 9], f: (...a) => Math.max(...a) },
+    abs: { n: [1, 1], f: Math.abs }, sqrt: { n: [1, 1], f: Math.sqrt },
+    round: { n: [1, 2], f: (x, n) => { const p = Math.pow(10, n || 0); return Math.round(x * p) / p; } },
+    pct: { n: [2, 2], f: (a, b) => a / b * 100 },
+    avg: { n: [1, 9], f: (...a) => a.reduce((s, x) => s + x, 0) / a.length }
+  };
+  function tokenize(src) {
+    const t = []; let i = 0; const s = String(src);
+    while (i < s.length) {
+      const c = s[i];
+      if (/\s/.test(c)) { i++; continue; }
+      let m;
+      if ((m = /^(\d+\.?\d*|\.\d+)/.exec(s.slice(i)))) { t.push({ t: 'n', v: parseFloat(m[1]) }); i += m[1].length; continue; }
+      if ((m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(s.slice(i)))) { t.push({ t: 'id', v: m[0] }); i += m[0].length; continue; }
+      if ((m = /^(>=|<=|==|!=|&&|\|\|)/.exec(s.slice(i)))) { t.push({ t: 'op', v: m[1] }); i += 2; continue; }
+      if ('+-*/(),<>!'.includes(c)) { t.push({ t: 'op', v: c }); i++; continue; }
+      throw new Error('Unexpected character "' + c + '"');
+    }
+    return t;
+  }
+  function parse(src) {
+    const toks = tokenize(src); let p = 0;
+    const peek = () => toks[p], eat = v => { const k = toks[p]; if (k && k.t === 'op' && k.v === v) { p++; return true; } return false; };
+    function or() { let l = and(); while (peek() && peek().t === 'op' && peek().v === '||') { p++; l = { k: 'b', o: '||', l, r: and() }; } return l; }
+    function and() { let l = cmp(); while (peek() && peek().t === 'op' && peek().v === '&&') { p++; l = { k: 'b', o: '&&', l, r: cmp() }; } return l; }
+    function cmp() { let l = add(); const k = peek(); if (k && k.t === 'op' && ['>', '<', '>=', '<=', '==', '!='].includes(k.v)) { p++; l = { k: 'b', o: k.v, l, r: add() }; } return l; }
+    function add() { let l = mul(); for (;;) { const k = peek(); if (k && k.t === 'op' && (k.v === '+' || k.v === '-')) { p++; l = { k: 'b', o: k.v, l, r: mul() }; } else return l; } }
+    function mul() { let l = un(); for (;;) { const k = peek(); if (k && k.t === 'op' && (k.v === '*' || k.v === '/')) { p++; l = { k: 'b', o: k.v, l, r: un() }; } else return l; } }
+    function un() { if (eat('-')) return { k: 'u', o: '-', e: un() }; if (eat('!')) return { k: 'u', o: '!', e: un() }; return atom(); }
+    function atom() {
+      const k = toks[p++];
+      if (!k) throw new Error('The formula ends too early');
+      if (k.t === 'n') return { k: 'n', v: k.v };
+      if (k.t === 'id') {
+        if (eat('(')) {
+          const f = FN[k.v] || (k.v === 'if' ? { n: [3, 3] } : null);
+          if (!f) throw new Error('Unknown function "' + k.v + '"');
+          const args = [];
+          if (!eat(')')) { do args.push(or()); while (eat(',')); if (!eat(')')) throw new Error('Missing ")"'); }
+          if (args.length < f.n[0] || args.length > f.n[1]) throw new Error(k.v + ' needs ' + (f.n[0] === f.n[1] ? f.n[0] : f.n[0] + ' to ' + f.n[1]) + ' values');
+          return { k: 'f', n: k.v, a: args };
+        }
+        return { k: 'v', n: k.v };
+      }
+      if (k.t === 'op' && k.v === '(') { const e = or(); if (!eat(')')) throw new Error('Missing ")"'); return e; }
+      throw new Error('Unexpected "' + k.v + '"');
+    }
+    const ast = or();
+    if (p < toks.length) throw new Error('Unexpected "' + toks[p].v + '"');
+    return ast;
+  }
+  function vars(ast, out) {
+    out = out || new Set();
+    if (ast.k === 'v') out.add(ast.n);
+    else if (ast.k === 'b') { vars(ast.l, out); vars(ast.r, out); }
+    else if (ast.k === 'u') vars(ast.e, out);
+    else if (ast.k === 'f') ast.a.forEach(a => vars(a, out));
+    return out;
+  }
+  /* get(name) returns a number, or null when the value is missing. Result: number or null. */
+  function evaluate(ast, get) {
+    const E = n => {
+      switch (n.k) {
+        case 'n': return n.v;
+        case 'v': { const x = get(n.n); if (x == null || !isFinite(x)) throw MISS; return x; }
+        case 'u': { const x = E(n.e); return n.o === '-' ? -x : (x ? 0 : 1); }
+        case 'b': {
+          if (n.o === '&&') return E(n.l) && E(n.r) ? 1 : 0;
+          if (n.o === '||') return E(n.l) || E(n.r) ? 1 : 0;
+          const a = E(n.l), b = E(n.r);
+          switch (n.o) {
+            case '+': return a + b; case '-': return a - b; case '*': return a * b;
+            case '/': if (b === 0) throw MISS; return a / b;
+            case '>': return a > b ? 1 : 0; case '<': return a < b ? 1 : 0; case '>=': return a >= b ? 1 : 0;
+            case '<=': return a <= b ? 1 : 0; case '==': return a === b ? 1 : 0; case '!=': return a !== b ? 1 : 0;
+          }
+          return null;
+        }
+        case 'f':
+          if (n.n === 'if') return E(n.a[0]) ? E(n.a[1]) : E(n.a[2]);
+          return FN[n.n].f(...n.a.map(E));
+      }
+      return null;
+    };
+    const MISS = { miss: true };
+    try { const r = E(ast); return isFinite(r) ? r : null; } catch (e) { if (e === MISS) return null; throw e; }
+  }
+  const cache = new Map();
+  function compile(src) { let a = cache.get(src); if (!a) { a = parse(src); if (cache.size > 500) cache.clear(); cache.set(src, a); } return a; }
+
+  /* ---------- org config: defaults, validation, helpers ---------- */
+  const emptyConfig = () => ({ v: 1, disabled: { Broiler: [], Layer: [], audit: [] }, baselines: {}, fields: [], kpis: [] });
+  const CF_TYPES = ['number', 'yesno', 'choice', 'text'];
+  const reserved = new Set(FIELDS.map(f => f.k));
+  const builtinLabels = new Set(BUILTIN.map(b => b.k).concat(AUDIT_ITEMS.map(a => a.k)));
+  /* variables a formula may use: built-in fields + custom number / yes-no fields */
+  function formulaVars(cfg) {
+    const list = FIELDS.map(f => ({ k: f.k, l: f.l, u: f.u, custom: false }));
+    ((cfg && cfg.fields) || []).forEach(f => { if (f.type === 'number' || f.type === 'yesno') list.push({ k: f.id, l: f.label, u: f.unit || '', custom: true }); });
+    return list;
+  }
+  function validateConfig(input) {
+    const errors = [], cfg = emptyConfig();
+    const str = (v, max) => String(v == null ? '' : v).trim().slice(0, max);
+    const inp = input && typeof input === 'object' ? input : {};
+    /* disabled lists */
+    const dis = inp.disabled || {};
+    for (const ty of TYPES) {
+      const valid = new Set(BUILTIN.filter(b => !b.t || b.t === ty).map(b => b.k));
+      cfg.disabled[ty] = [...new Set((Array.isArray(dis[ty]) ? dis[ty] : []).filter(k => valid.has(k)))];
+    }
+    const av = new Set(AUDIT_ITEMS.map(a => a.k));
+    cfg.disabled.audit = [...new Set((Array.isArray(dis.audit) ? dis.audit : []).filter(k => av.has(k)))];
+    cfg.baselines = cleanBaselines(inp.baselines);
+    /* custom fields */
+    const ids = new Set();
+    (Array.isArray(inp.fields) ? inp.fields : []).slice(0, 40).forEach((f, i) => {
+      const id = str(f && f.id, 32), label = str(f && f.label, 60);
+      if (!/^cf_[a-z][a-z0-9_]{0,27}$/.test(id)) { errors.push('Field ' + (i + 1) + ': id must look like cf_name'); return; }
+      if (ids.has(id)) { errors.push('Field id "' + id + '" is used twice'); return; }
+      if (!label) { errors.push('Field ' + id + ': add a name'); return; }
+      const type = CF_TYPES.includes(f.type) ? f.type : 'number';
+      const o = { id, label, type, unit: str(f.unit, 16), types: TYPES.filter(t => !Array.isArray(f.types) || f.types.includes(t)), required: !!f.required, section: str(f.section, 40) };
+      if (!o.types.length) o.types = TYPES.slice();
+      if (type === 'number') {
+        o.dec = Math.max(0, Math.min(4, parseInt(f.dec, 10) || 0));
+        o.min = isFinite(+f.min) && f.min !== '' && f.min != null ? +f.min : 0;
+        o.max = isFinite(+f.max) && f.max !== '' && f.max != null ? +f.max : 100000;
+        if (o.max <= o.min) { errors.push('Field ' + label + ': max must be above min'); return; }
+      }
+      if (type === 'choice') {
+        o.choices = [...new Set((Array.isArray(f.choices) ? f.choices : []).map(c => str(c, 40)).filter(Boolean))].slice(0, 20);
+        if (o.choices.length < 2) { errors.push('Field ' + label + ': add at least two choices'); return; }
+      }
+      ids.add(id); cfg.fields.push(o);
+    });
+    /* custom KPIs */
+    const vset = new Set(formulaVars(cfg).map(v => v.k)), kids = new Set(), klabels = new Set();
+    (Array.isArray(inp.kpis) ? inp.kpis : []).slice(0, 40).forEach((k, i) => {
+      const id = str(k && k.id, 32), label = str(k && k.label, 60), formula = str(k && k.formula, 400);
+      if (!/^ck_[a-z][a-z0-9_]{0,27}$/.test(id)) { errors.push('Metric ' + (i + 1) + ': id must look like ck_name'); return; }
+      if (kids.has(id)) { errors.push('Metric id "' + id + '" is used twice'); return; }
+      if (!label) { errors.push('Metric ' + id + ': add a name'); return; }
+      if (builtinLabels.has(label) || klabels.has(label.toLowerCase())) { errors.push('Metric name "' + label + '" is already used'); return; }
+      let ast; try { ast = parse(formula); } catch (e) { errors.push(label + ': ' + e.message); return; }
+      const unknown = [...vars(ast)].filter(v => !vset.has(v));
+      if (unknown.length) { errors.push(label + ': unknown value ' + unknown.join(', ')); return; }
+      const dir = ['none', 'max', 'min', 'band'].includes(k.dir) ? k.dir : 'none';
+      const o = { id, label, formula, unit: str(k.unit, 24), dec: Math.max(0, Math.min(4, parseInt(k.dec, 10) || 0)), dir, group: str(k.group, 40) || GC,
+        types: TYPES.filter(t => !Array.isArray(k.types) || k.types.includes(t)), off: !!k.off, per: k.unit && /^¤/.test(k.unit) ? 'currency' : '' };
+      if (!o.types.length) o.types = TYPES.slice();
+      if (dir !== 'none') {
+        const n = dir === 'band' ? 4 : 2, v = Array.isArray(k.t) ? k.t.map(Number) : [];
+        if (!okArr(v, n)) { errors.push(label + ': fill every limit box'); return; }
+        const ordered = dir === 'max' ? v[0] <= v[1] : dir === 'min' ? v[0] >= v[1] : (v[2] <= v[0] && v[0] <= v[1] && v[1] <= v[3]);
+        if (!ordered) { errors.push(label + ': limits are in the wrong order'); return; }
+        o.t = v;
+      }
+      kids.add(id); klabels.add(label.toLowerCase()); cfg.kpis.push(o);
+    });
+    return { ok: !errors.length, errors, config: cfg };
+  }
+  /* evaluate one custom KPI for a visit. scope(name) -> number|null */
+  function evalCustom(k, getRaw) {
+    try { return evaluate(compile(k.formula), getRaw); } catch (e) { return null; }
+  }
+  const dirFn = k => k.dir === 'none' || !k.t ? null : mkFn(k.dir, k.t);
+
+  api.constants = { G1, G2, G3, G4, G5, G6, GA, GC, GROUPS, TYPES, CF_TYPES };
+  Object.assign(api, { num, BUILTIN, AUDIT_ITEMS, FIELDS, KB, SPEC, AL, tyOf, nV, mkFn, fu, btxt, eff, blGet, cleanBaselines,
+    parse, compile, vars, evaluate, formulaVars, validateConfig, emptyConfig, evalCustom, dirFn, reserved });
+  return api;
+});
+</script>
+<script>/* To skip the connect step for everyone, paste your Apps Script /exec address between the quotes: */
+window.FV_API_URL = "";</script><script>window.FV_GS="/* === PART 1 of 2: shared engine (metrics, formulas, validation) === */\n/* Shared between the server, the farm visit app and the admin panel.\n   Single source of truth for: built-in KPI catalogue, baseline (threshold) engine,\n   input-field catalogue and the safe formula engine used by custom KPIs. */\n(function (root, factory) {\n  if (typeof module === 'object' && module.exports) module.exports = factory();\n  else root.FV = factory();\n})(typeof self !== 'undefined' ? self : this, function () {\n  'use strict';\n  const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };\n\n  /* ---------- groups ---------- */\n  const G1 = 'Mortality and health', G2 = 'Growth and weight', G3 = 'Feed and water',\n        G4 = 'Egg production', G5 = 'Costs and profit', G6 = 'House conditions',\n        GA = 'Audit checks', GC = 'Custom metrics';\n  const GROUPS = [G1, G2, G3, G4, G5, G6];\n  const TYPES = ['Broiler', 'Layer'];\n\n  /* ---------- built-in KPI catalogue (labels exactly as produced by kpis()) ---------- */\n  const BUILTIN = [\n    [G1, 'Total mortality'], [G1, 'Livability'], [G1, 'Deaths in the last 7 days'],\n    [G2, 'Body weight'], [G2, 'Weight against standard'], [G2, 'Daily gain, whole life'],\n    [G2, 'Gained since last weighing'], [G2, 'Recent daily gain'], [G2, 'Uniformity'], [G2, 'EPEF', 'Broiler'],\n    [G3, 'Feed per bird per day'], [G3, 'Feed against standard'], [G3, 'Feed per bird to date'],\n    [G3, 'Feed per dozen eggs', 'Layer'], [G3, 'FCR, kg feed per kg egg', 'Layer'],\n    [G3, 'FCR, feed per kg of bird', 'Broiler'], [G3, 'Water per bird per day'],\n    [G3, 'Water to feed ratio'], [G3, 'Feed stock left'], [G3, 'Stocking density'],\n    [G4, 'Laying rate, hen-day', 'Layer'], [G4, 'Laying rate against standard', 'Layer'],\n    [G4, 'Broken eggs', 'Layer'], [G4, 'Egg mass per hen per day', 'Layer'], [G4, 'Eggs per hen housed', 'Layer'],\n    [G5, 'Cost per egg', 'Layer'], [G5, 'Feed cost per dozen', 'Layer'], [G5, 'Feed share of cost', 'Layer'],\n    [G5, 'Profit per day', 'Layer'], [G5, 'Profit margin', 'Layer'],\n    [G5, 'Feed cost per bird per day', 'Broiler'], [G5, 'Feed cost per kg of bird', 'Broiler'], [G5, 'Total cost per day', 'Broiler'],\n    [G6, 'House temperature'], [G6, 'Humidity']\n  ].map(([g, k, t]) => ({ g, k, t: t || null }));\n\n  /* audit checks, in the order the app shows them */\n  const AUDIT_ITEMS = [\n    ['Biosecurity', 'Biosecurity measures in place'], ['Biosecurity', 'Rodent sightings during visit'], ['Biosecurity', 'Dead birds left in the shed'],\n    ['Housing', 'House temperature'], ['Housing', 'Humidity'], ['Housing', 'Ammonia level'], ['Housing', 'Litter moisture'], ['Housing', 'Stocking density'],\n    ['Feed and water', 'Feed stock on hand'], ['Feed and water', 'Feed wastage'], ['Feed and water', 'Water to feed ratio'], ['Feed and water', 'Birds per drinker'],\n    ['Health', 'Vaccines given on time'], ['Health', 'Medicine withdrawal breaches'], ['Health', 'Sick birds isolated'], ['Health', 'Total mortality'],\n    ['Records', 'Days of records missing, last 7'], ['Records', 'Purchases without a bill']\n  ].map(([g, k]) => ({ g, k }));\n\n  /* ---------- fields usable as formula variables ---------- */\n  const FIELDS = [\n    ['age', 'Flock age', 'days'], ['placed', 'Birds placed', 'birds'], ['alive', 'Birds alive today', 'birds'],\n    ['mortw', 'Deaths in last 7 days', 'birds'], ['area', 'Shed floor area', 'm²'], ['temp', 'House temperature', '°C'],\n    ['hum', 'Relative humidity', '%'], ['feed', 'Feed used per day', 'kg'], ['stdfeed', 'Standard feed', 'g/bird/day'],\n    ['cumfeed', 'Feed eaten per bird to date', 'kg'], ['cumfeedstd', 'Standard feed to date', 'kg/bird'],\n    ['water', 'Water used per day', 'litres'], ['stock', 'Feed stock on hand', 'kg'], ['price', 'Feed price per kg', 'currency'],\n    ['other', 'Other costs per day', 'currency'], ['eggprice', 'Egg selling price', 'currency'],\n    ['chickwt', 'Day-old chick weight', 'g'], ['wt', 'Average body weight today', 'g'], ['wtstd', 'Breed standard weight', 'g'],\n    ['stdgain', 'Standard daily gain', 'g/day'], ['prevwt', 'Previous weighing', 'g'], ['prevdays', 'Days since previous weighing', 'days'],\n    ['unif', 'Uniformity', '%'], ['eggs', 'Eggs per day', 'eggs'], ['broken', 'Broken eggs per day', 'eggs'],\n    ['eggwt', 'Average egg weight', 'g'], ['stdlay', 'Standard laying rate', '%'], ['cumeggs', 'Total eggs laid to date', 'eggs'],\n    ['bio', 'Biosecurity measures in place', 'of 6'], ['rodents', 'Rodent sightings', 'count'], ['carcass', 'Dead birds left in shed', 'birds'],\n    ['nh3', 'Ammonia level', 'ppm'], ['litter', 'Litter moisture', '%'], ['waste', 'Feed wastage', '%'], ['bpd', 'Birds per drinker', 'birds'],\n    ['vdue', 'Vaccine doses due', 'doses'], ['vdone', 'Vaccine doses given', 'doses'], ['wdraw', 'Withdrawal breaches', 'count'],\n    ['sick', 'Sick birds seen', 'birds'], ['isol', 'Sick birds isolated', 'birds'], ['gaps', 'Days of records missing', 'days'], ['nobill', 'Purchases without a bill', 'count']\n  ].map(([k, l, u]) => ({ k, l, u }));\n\n  /* ---------- baseline (threshold) registry ---------- */\n  const bird = (d, x) => num(d.wt) > 0 ? x / (num(d.wt) / 1000) : null;\n  const eggK = div => (d, x) => num(d.eggwt) > 0 ? x / div / (num(d.eggwt) / 1000) : null;\n  const KB = [\n    { g: G1, k: 'Total mortality', dir: 'max', u: ' %', d: { Broiler: [4, 7], Layer: [5, 8] } },\n    { g: G1, k: 'Livability', dir: 'min', u: ' %', d: { Broiler: [96, 93], Layer: [95, 92] } },\n    { g: G1, k: 'Deaths in the last 7 days', dir: 'max', u: ' %', d: { x: [.5, 1] } },\n    { g: G2, k: 'Weight against standard', dir: 'min', u: ' %', d: { x: [95, 90] } },\n    { g: G2, k: 'Daily gain, whole life', dir: 'min', u: ' % of standard', d: { x: [95, 90] } },\n    { g: G2, k: 'Uniformity', dir: 'min', u: ' %', d: { x: [80, 70] } },\n    { g: G2, t: 'Broiler', k: 'EPEF', dir: 'min', u: '', d: { x: [300, 250] } },\n    { g: G3, k: 'Feed per bird per day', dir: 'band', u: ' % of standard', d: { x: [95, 105, 90, 110] } },\n    { g: G3, k: 'Feed per bird to date', dir: 'band', u: ' % of standard', d: { x: [95, 105, 90, 110] } },\n    { g: G3, t: 'Layer', k: 'Feed per dozen eggs', dir: 'max', u: ' kg', d: { x: [1.6, 1.9] } },\n    { g: G3, t: 'Layer', k: 'FCR, kg feed per kg egg', dir: 'max', u: ' kg feed per kg egg', d: { x: [2.3, 2.7] } },\n    { g: G3, t: 'Broiler', k: 'FCR, feed per kg of bird', dir: 'max', u: ' kg feed per kg bird', d: { x: [1.8, 2.1] } },\n    { g: G3, k: 'Water per bird per day', dir: 'band', u: ' ml', d: null, kg: { u: ' ml per kg of bird', f: bird } },\n    { g: G3, k: 'Water to feed ratio', dir: 'band', u: ' : 1', d: { x: [1.8, 2.4, 1.5, 2.8] } },\n    { g: G3, k: 'Feed stock left', dir: 'min', u: ' days', d: { x: [7, 3] } },\n    { g: G3, k: 'Stocking density', dir: 'max', u: ' birds/m²', d: { Broiler: [10, 12], Layer: [7, 9] } },\n    { g: G4, t: 'Layer', k: 'Laying rate, hen-day', dir: 'min', u: ' %', d: { x: [80, 65] } },\n    { g: G4, t: 'Layer', k: 'Laying rate against standard', dir: 'min', u: ' %', d: { x: [95, 90] } },\n    { g: G4, t: 'Layer', k: 'Broken eggs', dir: 'max', u: ' %', d: { x: [2, 4] } },\n    { g: G4, t: 'Layer', k: 'Egg mass per hen per day', dir: 'min', u: ' g', d: { x: [48, 40] } },\n    { g: G5, t: 'Broiler', k: 'Feed cost per bird per day', dir: 'max', u: '¤', d: null, kg: { u: '¤ per kg of bird', f: bird } },\n    { g: G5, t: 'Broiler', k: 'Feed cost per kg of bird', dir: 'max', u: '¤', d: null },\n    { g: G5, t: 'Broiler', k: 'Total cost per day', dir: 'max', u: '¤', d: null },\n    { g: G5, t: 'Layer', k: 'Cost per egg', dir: 'max', u: '¤', d: null, kg: { u: '¤ per kg of egg', f: eggK(1) } },\n    { g: G5, t: 'Layer', k: 'Feed cost per dozen', dir: 'max', u: '¤', d: null, kg: { u: '¤ per kg of egg', f: eggK(12) } },\n    { g: G5, t: 'Layer', k: 'Feed share of cost', dir: 'band', u: ' %', d: { x: [55, 72, 45, 80] } },\n    { g: G5, t: 'Layer', k: 'Profit margin', dir: 'min', u: ' %', d: { x: [15, 0] } },\n    { g: G6, k: 'House temperature', dir: 'band', u: ' °C', ub: { Broiler: ' °C from target', Layer: ' °C' }, d: { Layer: [18, 27, 15, 30], Broiler: [-2, 2, -4, 4] } },\n    { g: G6, k: 'Humidity', dir: 'band', u: ' %', d: { x: [50, 70, 40, 80] } },\n    { g: GA, k: 'Biosecurity measures in place', dir: 'min', u: ' of 6', d: { x: [5, 3] } },\n    { g: GA, k: 'Rodent sightings during visit', dir: 'max', u: '', d: { x: [0, 2] } },\n    { g: GA, k: 'Dead birds left in the shed', dir: 'max', u: '', d: { x: [0, 2] } },\n    { g: GA, k: 'Ammonia level', dir: 'max', u: ' ppm', d: { x: [10, 25] } },\n    { g: GA, k: 'Litter moisture', dir: 'max', u: ' %', d: { x: [30, 40] } },\n    { g: GA, k: 'Feed wastage', dir: 'max', u: ' %', d: { x: [3, 6] } },\n    { g: GA, k: 'Birds per drinker', dir: 'max', u: '', d: { x: [10, 15] } },\n    { g: GA, k: 'Vaccines given on time', dir: 'min', u: ' %', d: { x: [100, 85] } },\n    { g: GA, k: 'Medicine withdrawal breaches', dir: 'max', u: '', d: { x: [0, 0] } },\n    { g: GA, k: 'Sick birds isolated', dir: 'min', u: ' %', d: { x: [90, 60] } },\n    { g: GA, k: 'Days of records missing, last 7', dir: 'max', u: ' days', d: { x: [0, 1] } },\n    { g: GA, k: 'Purchases without a bill', dir: 'max', u: '', d: { x: [0, 2] } }\n  ];\n  const SPEC = {}; KB.forEach(x => SPEC[x.k] = x);\n  const AL = { 'Feed against standard': 'Feed per bird per day', 'Recent daily gain': 'Daily gain, whole life' };\n  const tyOf = t => t === 'Layer' ? 'Layer' : 'Broiler';\n  const nV = sp => sp.dir === 'band' ? 4 : 2;\n  const mkFn = (dir, v) => dir === 'max' ? (x => x <= v[0] ? 'ok' : x <= v[1] ? 'warn' : 'bad')\n    : dir === 'min' ? (x => x >= v[0] ? 'ok' : x >= v[1] ? 'warn' : 'bad')\n    : (x => x >= v[0] && x <= v[1] ? 'ok' : x >= v[2] && x <= v[3] ? 'warn' : 'bad');\n  const api = { cur: () => '₹' };\n  const fu = (x, u) => u[0] === '¤' ? api.cur() + x + u.slice(1) : x + u;\n  function btxt(dir, v, u) {\n    return dir === 'max' ? '≤ ' + fu(v[0], u) : dir === 'min' ? '≥ ' + fu(v[0], u)\n      : (u[0] === '¤' ? api.cur() : '') + v[0] + '–' + fu(v[1], u);\n  }\n  const okArr = (a, n) => Array.isArray(a) && a.length === n && a.every(x => typeof x === 'number' && isFinite(x));\n  const blGet = (BL, ty, k) => (BL && BL[ty + '|' + k]) || {};\n  function eff(sp, type, d, BL) {\n    const ty = tyOf(type), o = blGet(BL, ty, sp.k), kg = !!(sp.kg && o.kg), arr = kg ? o.vk : o.v;\n    let v = null, custom = false;\n    if (okArr(arr, nV(sp))) { v = arr; custom = true; } else if (!kg && sp.d) v = sp.d[ty] || sp.d.x || null;\n    let fn = v ? mkFn(sp.dir, v) : null;\n    if (fn && kg) { const f0 = fn; fn = x => { const y = sp.kg.f(d || {}, x); return y == null || !isFinite(y) ? 'na' : f0(y); }; }\n    const u = kg ? sp.kg.u : (sp.ub && sp.ub[ty]) || sp.u;\n    return { v, fn, custom, kg, text: kg && !v ? 'Set a per kg target' : custom ? 'Your target: ' + btxt(sp.dir, v, u) : '' };\n  }\n  /* validate and clean a baselines object coming from an admin */\n  function cleanBaselines(BL) {\n    const out = {};\n    if (!BL || typeof BL !== 'object') return out;\n    for (const key of Object.keys(BL)) {\n      const i = key.indexOf('|'); if (i < 0) continue;\n      const ty = key.slice(0, i), k = key.slice(i + 1), sp = SPEC[k];\n      if (!sp || !TYPES.includes(ty)) continue;\n      const o = BL[key] || {}, n = nV(sp), r = {};\n      if (okArr(o.v, n)) r.v = o.v.slice();\n      if (sp.kg) { if (o.kg) r.kg = true; if (okArr(o.vk, n)) r.vk = o.vk.slice(); }\n      if (r.v || r.vk || r.kg) out[key] = r;\n    }\n    return out;\n  }\n\n  /* ---------- formula engine (no eval) ---------- */\n  const FN = {\n    min: { n: [1, 9], f: (...a) => Math.min(...a) }, max: { n: [1, 9], f: (...a) => Math.max(...a) },\n    abs: { n: [1, 1], f: Math.abs }, sqrt: { n: [1, 1], f: Math.sqrt },\n    round: { n: [1, 2], f: (x, n) => { const p = Math.pow(10, n || 0); return Math.round(x * p) / p; } },\n    pct: { n: [2, 2], f: (a, b) => a / b * 100 },\n    avg: { n: [1, 9], f: (...a) => a.reduce((s, x) => s + x, 0) / a.length }\n  };\n  function tokenize(src) {\n    const t = []; let i = 0; const s = String(src);\n    while (i < s.length) {\n      const c = s[i];\n      if (/\\s/.test(c)) { i++; continue; }\n      let m;\n      if ((m = /^(\\d+\\.?\\d*|\\.\\d+)/.exec(s.slice(i)))) { t.push({ t: 'n', v: parseFloat(m[1]) }); i += m[1].length; continue; }\n      if ((m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(s.slice(i)))) { t.push({ t: 'id', v: m[0] }); i += m[0].length; continue; }\n      if ((m = /^(>=|<=|==|!=|&&|\\|\\|)/.exec(s.slice(i)))) { t.push({ t: 'op', v: m[1] }); i += 2; continue; }\n      if ('+-*/(),<>!'.includes(c)) { t.push({ t: 'op', v: c }); i++; continue; }\n      throw new Error('Unexpected character \"' + c + '\"');\n    }\n    return t;\n  }\n  function parse(src) {\n    const toks = tokenize(src); let p = 0;\n    const peek = () => toks[p], eat = v => { const k = toks[p]; if (k && k.t === 'op' && k.v === v) { p++; return true; } return false; };\n    function or() { let l = and(); while (peek() && peek().t === 'op' && peek().v === '||') { p++; l = { k: 'b', o: '||', l, r: and() }; } return l; }\n    function and() { let l = cmp(); while (peek() && peek().t === 'op' && peek().v === '&&') { p++; l = { k: 'b', o: '&&', l, r: cmp() }; } return l; }\n    function cmp() { let l = add(); const k = peek(); if (k && k.t === 'op' && ['>', '<', '>=', '<=', '==', '!='].includes(k.v)) { p++; l = { k: 'b', o: k.v, l, r: add() }; } return l; }\n    function add() { let l = mul(); for (;;) { const k = peek(); if (k && k.t === 'op' && (k.v === '+' || k.v === '-')) { p++; l = { k: 'b', o: k.v, l, r: mul() }; } else return l; } }\n    function mul() { let l = un(); for (;;) { const k = peek(); if (k && k.t === 'op' && (k.v === '*' || k.v === '/')) { p++; l = { k: 'b', o: k.v, l, r: un() }; } else return l; } }\n    function un() { if (eat('-')) return { k: 'u', o: '-', e: un() }; if (eat('!')) return { k: 'u', o: '!', e: un() }; return atom(); }\n    function atom() {\n      const k = toks[p++];\n      if (!k) throw new Error('The formula ends too early');\n      if (k.t === 'n') return { k: 'n', v: k.v };\n      if (k.t === 'id') {\n        if (eat('(')) {\n          const f = FN[k.v] || (k.v === 'if' ? { n: [3, 3] } : null);\n          if (!f) throw new Error('Unknown function \"' + k.v + '\"');\n          const args = [];\n          if (!eat(')')) { do args.push(or()); while (eat(',')); if (!eat(')')) throw new Error('Missing \")\"'); }\n          if (args.length < f.n[0] || args.length > f.n[1]) throw new Error(k.v + ' needs ' + (f.n[0] === f.n[1] ? f.n[0] : f.n[0] + ' to ' + f.n[1]) + ' values');\n          return { k: 'f', n: k.v, a: args };\n        }\n        return { k: 'v', n: k.v };\n      }\n      if (k.t === 'op' && k.v === '(') { const e = or(); if (!eat(')')) throw new Error('Missing \")\"'); return e; }\n      throw new Error('Unexpected \"' + k.v + '\"');\n    }\n    const ast = or();\n    if (p < toks.length) throw new Error('Unexpected \"' + toks[p].v + '\"');\n    return ast;\n  }\n  function vars(ast, out) {\n    out = out || new Set();\n    if (ast.k === 'v') out.add(ast.n);\n    else if (ast.k === 'b') { vars(ast.l, out); vars(ast.r, out); }\n    else if (ast.k === 'u') vars(ast.e, out);\n    else if (ast.k === 'f') ast.a.forEach(a => vars(a, out));\n    return out;\n  }\n  /* get(name) returns a number, or null when the value is missing. Result: number or null. */\n  function evaluate(ast, get) {\n    const E = n => {\n      switch (n.k) {\n        case 'n': return n.v;\n        case 'v': { const x = get(n.n); if (x == null || !isFinite(x)) throw MISS; return x; }\n        case 'u': { const x = E(n.e); return n.o === '-' ? -x : (x ? 0 : 1); }\n        case 'b': {\n          if (n.o === '&&') return E(n.l) && E(n.r) ? 1 : 0;\n          if (n.o === '||') return E(n.l) || E(n.r) ? 1 : 0;\n          const a = E(n.l), b = E(n.r);\n          switch (n.o) {\n            case '+': return a + b; case '-': return a - b; case '*': return a * b;\n            case '/': if (b === 0) throw MISS; return a / b;\n            case '>': return a > b ? 1 : 0; case '<': return a < b ? 1 : 0; case '>=': return a >= b ? 1 : 0;\n            case '<=': return a <= b ? 1 : 0; case '==': return a === b ? 1 : 0; case '!=': return a !== b ? 1 : 0;\n          }\n          return null;\n        }\n        case 'f':\n          if (n.n === 'if') return E(n.a[0]) ? E(n.a[1]) : E(n.a[2]);\n          return FN[n.n].f(...n.a.map(E));\n      }\n      return null;\n    };\n    const MISS = { miss: true };\n    try { const r = E(ast); return isFinite(r) ? r : null; } catch (e) { if (e === MISS) return null; throw e; }\n  }\n  const cache = new Map();\n  function compile(src) { let a = cache.get(src); if (!a) { a = parse(src); if (cache.size > 500) cache.clear(); cache.set(src, a); } return a; }\n\n  /* ---------- org config: defaults, validation, helpers ---------- */\n  const emptyConfig = () => ({ v: 1, disabled: { Broiler: [], Layer: [], audit: [] }, baselines: {}, fields: [], kpis: [] });\n  const CF_TYPES = ['number', 'yesno', 'choice', 'text'];\n  const reserved = new Set(FIELDS.map(f => f.k));\n  const builtinLabels = new Set(BUILTIN.map(b => b.k).concat(AUDIT_ITEMS.map(a => a.k)));\n  /* variables a formula may use: built-in fields + custom number / yes-no fields */\n  function formulaVars(cfg) {\n    const list = FIELDS.map(f => ({ k: f.k, l: f.l, u: f.u, custom: false }));\n    ((cfg && cfg.fields) || []).forEach(f => { if (f.type === 'number' || f.type === 'yesno') list.push({ k: f.id, l: f.label, u: f.unit || '', custom: true }); });\n    return list;\n  }\n  function validateConfig(input) {\n    const errors = [], cfg = emptyConfig();\n    const str = (v, max) => String(v == null ? '' : v).trim().slice(0, max);\n    const inp = input && typeof input === 'object' ? input : {};\n    /* disabled lists */\n    const dis = inp.disabled || {};\n    for (const ty of TYPES) {\n      const valid = new Set(BUILTIN.filter(b => !b.t || b.t === ty).map(b => b.k));\n      cfg.disabled[ty] = [...new Set((Array.isArray(dis[ty]) ? dis[ty] : []).filter(k => valid.has(k)))];\n    }\n    const av = new Set(AUDIT_ITEMS.map(a => a.k));\n    cfg.disabled.audit = [...new Set((Array.isArray(dis.audit) ? dis.audit : []).filter(k => av.has(k)))];\n    cfg.baselines = cleanBaselines(inp.baselines);\n    /* custom fields */\n    const ids = new Set();\n    (Array.isArray(inp.fields) ? inp.fields : []).slice(0, 40).forEach((f, i) => {\n      const id = str(f && f.id, 32), label = str(f && f.label, 60);\n      if (!/^cf_[a-z][a-z0-9_]{0,27}$/.test(id)) { errors.push('Field ' + (i + 1) + ': id must look like cf_name'); return; }\n      if (ids.has(id)) { errors.push('Field id \"' + id + '\" is used twice'); return; }\n      if (!label) { errors.push('Field ' + id + ': add a name'); return; }\n      const type = CF_TYPES.includes(f.type) ? f.type : 'number';\n      const o = { id, label, type, unit: str(f.unit, 16), types: TYPES.filter(t => !Array.isArray(f.types) || f.types.includes(t)), required: !!f.required, section: str(f.section, 40) };\n      if (!o.types.length) o.types = TYPES.slice();\n      if (type === 'number') {\n        o.dec = Math.max(0, Math.min(4, parseInt(f.dec, 10) || 0));\n        o.min = isFinite(+f.min) && f.min !== '' && f.min != null ? +f.min : 0;\n        o.max = isFinite(+f.max) && f.max !== '' && f.max != null ? +f.max : 100000;\n        if (o.max <= o.min) { errors.push('Field ' + label + ': max must be above min'); return; }\n      }\n      if (type === 'choice') {\n        o.choices = [...new Set((Array.isArray(f.choices) ? f.choices : []).map(c => str(c, 40)).filter(Boolean))].slice(0, 20);\n        if (o.choices.length < 2) { errors.push('Field ' + label + ': add at least two choices'); return; }\n      }\n      ids.add(id); cfg.fields.push(o);\n    });\n    /* custom KPIs */\n    const vset = new Set(formulaVars(cfg).map(v => v.k)), kids = new Set(), klabels = new Set();\n    (Array.isArray(inp.kpis) ? inp.kpis : []).slice(0, 40).forEach((k, i) => {\n      const id = str(k && k.id, 32), label = str(k && k.label, 60), formula = str(k && k.formula, 400);\n      if (!/^ck_[a-z][a-z0-9_]{0,27}$/.test(id)) { errors.push('Metric ' + (i + 1) + ': id must look like ck_name'); return; }\n      if (kids.has(id)) { errors.push('Metric id \"' + id + '\" is used twice'); return; }\n      if (!label) { errors.push('Metric ' + id + ': add a name'); return; }\n      if (builtinLabels.has(label) || klabels.has(label.toLowerCase())) { errors.push('Metric name \"' + label + '\" is already used'); return; }\n      let ast; try { ast = parse(formula); } catch (e) { errors.push(label + ': ' + e.message); return; }\n      const unknown = [...vars(ast)].filter(v => !vset.has(v));\n      if (unknown.length) { errors.push(label + ': unknown value ' + unknown.join(', ')); return; }\n      const dir = ['none', 'max', 'min', 'band'].includes(k.dir) ? k.dir : 'none';\n      const o = { id, label, formula, unit: str(k.unit, 24), dec: Math.max(0, Math.min(4, parseInt(k.dec, 10) || 0)), dir, group: str(k.group, 40) || GC,\n        types: TYPES.filter(t => !Array.isArray(k.types) || k.types.includes(t)), off: !!k.off, per: k.unit && /^¤/.test(k.unit) ? 'currency' : '' };\n      if (!o.types.length) o.types = TYPES.slice();\n      if (dir !== 'none') {\n        const n = dir === 'band' ? 4 : 2, v = Array.isArray(k.t) ? k.t.map(Number) : [];\n        if (!okArr(v, n)) { errors.push(label + ': fill every limit box'); return; }\n        const ordered = dir === 'max' ? v[0] <= v[1] : dir === 'min' ? v[0] >= v[1] : (v[2] <= v[0] && v[0] <= v[1] && v[1] <= v[3]);\n        if (!ordered) { errors.push(label + ': limits are in the wrong order'); return; }\n        o.t = v;\n      }\n      kids.add(id); klabels.add(label.toLowerCase()); cfg.kpis.push(o);\n    });\n    return { ok: !errors.length, errors, config: cfg };\n  }\n  /* evaluate one custom KPI for a visit. scope(name) -> number|null */\n  function evalCustom(k, getRaw) {\n    try { return evaluate(compile(k.formula), getRaw); } catch (e) { return null; }\n  }\n  const dirFn = k => k.dir === 'none' || !k.t ? null : mkFn(k.dir, k.t);\n\n  api.constants = { G1, G2, G3, G4, G5, G6, GA, GC, GROUPS, TYPES, CF_TYPES };\n  Object.assign(api, { num, BUILTIN, AUDIT_ITEMS, FIELDS, KB, SPEC, AL, tyOf, nV, mkFn, fu, btxt, eff, blGet, cleanBaselines,\n    parse, compile, vars, evaluate, formulaVars, validateConfig, emptyConfig, evalCustom, dirFn, reserved });\n  return api;\n});\n\n\n/* === PART 2 of 2: sheet backend === */\n/* =====================================================================\n   FARM VISIT — Google Sheets backend (Google Apps Script)\n   One spreadsheet = one organisation. The three web apps (visit form,\n   admin console, reports) all talk to this script, so they always read\n   and write the same sheet.\n   Deploy: Extensions > Apps Script > paste this file > Deploy > Web app\n           (Execute as: Me, Who has access: Anyone).\n   ===================================================================== */\n'use strict';\n\nvar SCHEMA = {\n  Settings:   ['key', 'value'],\n  Users:      ['id', 'email', 'name', 'role', 'org_label', 'access', 'pw_salt', 'pw_hash', 'must_change', 'active', 'created_at', 'last_login'],\n  Sessions:   ['token_hash', 'user_id', 'created_at', 'expires_at'],\n  Farms:      ['id', 'farm', 'farmer', 'location', 'phone', 'type', 'notes', 'active', 'created_at', 'updated_at'],\n  Visits:     ['id', 'visit_no', 'date', 'farm_id', 'farm', 'farmer', 'type', 'auditor', 'user_id', 'score', 'rating', 'kpis', 'data', 'created_at', 'updated_at'],\n  Signatures: ['visit_id', 'sig_auditor', 'sig_farmer'],\n  Blobs:      ['id', 'seq', 'chunk'],\n  Audit:      ['at', 'user', 'action', 'detail']\n};\nvar NUMERIC = { score: 1, seq: 1 };\nvar BOOL = { must_change: 1, active: 1 };\nvar CELL_MAX = 45000;        // Google Sheets allows 50,000 characters per cell\nvar SESSION_DAYS = 30;\nvar PW_ROUNDS = 400;\nvar ROLES = ['owner', 'admin', 'auditor', 'viewer'];\nvar FTYPES = ['Layer', 'Broiler'];\n\nfunction HttpError(status, message, extra) { this.status = status; this.message = message; this.extra = extra || null; }\n\n/* ---------------- small helpers ---------------- */\nfunction nowIso() { return new Date().toISOString(); }\nfunction str(v, max) { return String(v == null ? '' : v).trim().slice(0, max); }\nfunction isDate(s) { return typeof s === 'string' && /^\\d{4}-\\d{2}-\\d{2}$/.test(s) && !isNaN(Date.parse(s)); }\nfunction toNum(v) { var n = Number(v); return isFinite(n) ? n : null; }\nfunction validEmail(e) { return typeof e === 'string' && e.length <= 200 && /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e); }\nfunction validPassword(p) { return typeof p === 'string' && p.length >= 8 && p.length <= 200; }\nfunction parseJson(s) { try { return JSON.parse(s); } catch (e) { return null; } }\nfunction hex(bytes) { var s = ''; for (var i = 0; i < bytes.length; i++) { var b = (bytes[i] + 256) % 256; s += (b < 16 ? '0' : '') + b.toString(16); } return s; }\nfunction sha256(text) { return hex(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8)); }\nfunction newToken() { return Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, ''); }\nfunction newId() { return Utilities.getUuid(); }\nfunction tempPassword() {\n  var a = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789', s = '';\n  for (var i = 0; i < 12; i++) s += a.charAt(Math.floor(Math.random() * a.length));\n  return s;\n}\nfunction hashPw(pw, salt) {\n  var h = salt + '|' + pw;\n  for (var i = 0; i < PW_ROUNDS; i++) h = sha256(h + salt);\n  return h;\n}\nfunction safeEq(a, b) { if (a.length !== b.length) return false; var d = 0; for (var i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }\n\n/* ---------------- table layer over sheet tabs ---------------- */\nvar _ss = null, _tables = {};\nfunction ss() { return _ss || (_ss = SpreadsheetApp.getActiveSpreadsheet()); }\n\nfunction Table(name) {\n  this.name = name; this.cols = SCHEMA[name];\n  var sh = ss().getSheetByName(name);\n  if (!sh) {\n    sh = ss().insertSheet(name);\n    sh.getRange(1, 1, 1, this.cols.length).setValues([this.cols]);\n    sh.setFrozenRows(1);\n    sh.getRange(1, 1, sh.getMaxRows(), this.cols.length).setNumberFormat('@');   // keep dates and ids as plain text\n    sh.getRange(1, 1, 1, this.cols.length).setFontWeight('bold');\n  }\n  this.sh = sh; this._rows = null;\n}\nTable.prototype._decode = function (row) {\n  var o = {};\n  for (var i = 0; i < this.cols.length; i++) {\n    var c = this.cols[i], v = row[i];\n    if (BOOL[c]) o[c] = String(v) === '1' || v === true;\n    else if (NUMERIC[c]) o[c] = v === '' || v == null ? null : Number(v);\n    else o[c] = v == null ? '' : String(v);\n  }\n  return o;\n};\nTable.prototype._encode = function (o) {\n  var r = [];\n  for (var i = 0; i < this.cols.length; i++) {\n    var c = this.cols[i], v = o[c];\n    if (BOOL[c]) r.push(v ? '1' : '0');\n    else if (v == null) r.push('');\n    else r.push(String(v));\n  }\n  return r;\n};\nTable.prototype.all = function () {\n  if (this._rows) return this._rows;\n  var n = this.sh.getLastRow(), out = [];\n  if (n >= 2) {\n    var vals = this.sh.getRange(2, 1, n - 1, this.cols.length).getValues();\n    for (var i = 0; i < vals.length; i++) { var o = this._decode(vals[i]); o._row = i + 2; out.push(o); }\n  }\n  return (this._rows = out);\n};\nTable.prototype.find = function (fn) { var a = this.all(); for (var i = 0; i < a.length; i++) if (fn(a[i])) return a[i]; return null; };\nTable.prototype.by = function (col, val) { return this.find(function (r) { return r[col] === val; }); };\nTable.prototype.insert = function (o) {\n  var row = this._encode(o), at = this.sh.getLastRow() + 1;\n  this.sh.getRange(at, 1, 1, this.cols.length).setNumberFormat('@').setValues([row]);\n  var rec = this._decode(row); rec._row = at;\n  if (this._rows) this._rows.push(rec);\n  return rec;\n};\nTable.prototype.save = function (rec) {\n  var row = this._encode(rec);\n  this.sh.getRange(rec._row, 1, 1, this.cols.length).setNumberFormat('@').setValues([row]);\n  return rec;\n};\nTable.prototype.update = function (rec, patch) { for (var k in patch) rec[k] = patch[k]; return this.save(rec); };\nTable.prototype.removeWhere = function (fn) {\n  var keep = [], gone = 0, a = this.all();\n  for (var i = 0; i < a.length; i++) { if (fn(a[i])) gone++; else keep.push(this._encode(a[i])); }\n  if (!gone) return 0;\n  var n = this.sh.getLastRow();\n  if (n >= 2) this.sh.getRange(2, 1, n - 1, this.cols.length).clearContent();\n  if (keep.length) this.sh.getRange(2, 1, keep.length, this.cols.length).setNumberFormat('@').setValues(keep);\n  this._rows = null;\n  return gone;\n};\nTable.prototype.tail = function (limit) {\n  var n = this.sh.getLastRow(); if (n < 2) return [];\n  var from = Math.max(2, n - limit + 1), vals = this.sh.getRange(from, 1, n - from + 1, this.cols.length).getValues(), out = [];\n  for (var i = vals.length - 1; i >= 0; i--) out.push(this._decode(vals[i]));\n  return out;\n};\nfunction T(name) { return _tables[name] || (_tables[name] = new Table(name)); }\n\n/* ---------------- settings (key/value) ---------------- */\nfunction getSetting(key, dflt) { var r = T('Settings').by('key', key); return r ? r.value : dflt; }\nfunction setSetting(key, value) {\n  var t = T('Settings'), r = t.by('key', key);\n  if (r) t.update(r, { value: String(value) }); else t.insert({ key: key, value: String(value) });\n}\nfunction orgOut() { return { id: 'org', name: getSetting('org_name', 'Farm Visit'), currency: getSetting('currency', '₹'), language: getSetting('language', 'en') }; }\nfunction configOut() {\n  var c = parseJson(getSetting('config', '')) || FV.emptyConfig();\n  c.version = Number(getSetting('config_version', '1')) || 1;\n  return c;\n}\n\n/* ---------------- audit log ---------------- */\nfunction log(u, action, detail) { T('Audit').insert({ at: nowIso(), user: u ? u.name : '', action: action, detail: str(detail, 400) }); }\n\n/* ---------------- users and sessions ---------------- */\nfunction userOut(u) { return { id: u.id, name: u.name, email: u.email, role: u.role, orgLabel: u.org_label, active: u.active, mustChange: u.must_change, lastLogin: u.last_login || null, access: u.access || '*' }; }\nfunction isAdmin(u) { return u.role === 'owner' || u.role === 'admin'; }\nfunction needAdmin(u) { if (!isAdmin(u)) throw new HttpError(403, 'Only an admin can do this'); }\n\nfunction rateKey(k) { return 'rl_' + sha256(k).slice(0, 24); }\nfunction rateTake(key, max, seconds) {\n  var c = CacheService.getScriptCache(), k = rateKey(key), n = Number(c.get(k) || 0);\n  if (n >= max) return false;\n  c.put(k, String(n + 1), seconds);\n  return true;\n}\nfunction rateReset(key) { CacheService.getScriptCache().remove(rateKey(key)); }\n\nfunction startSession(userId) {\n  var token = newToken(), exp = new Date(Date.now() + SESSION_DAYS * 864e5).toISOString();\n  T('Sessions').insert({ token_hash: sha256(token), user_id: userId, created_at: nowIso(), expires_at: exp });\n  return token;\n}\nfunction sessionUser(token) {\n  if (!token || typeof token !== 'string' || token.length < 40) return null;\n  var s = T('Sessions').by('token_hash', sha256(token)); if (!s) return null;\n  if (s.expires_at < nowIso()) { T('Sessions').removeWhere(function (r) { return r.expires_at < nowIso(); }); return null; }\n  var u = T('Users').by('id', s.user_id);\n  if (!u || !u.active) return null;\n  u._token = token; u._tokenHash = s.token_hash;\n  return u;\n}\n\n/* ---------------- farms and visibility ---------------- */\nfunction farmOut(f) { return { id: f.id, farmer: f.farmer, farm: f.farm, location: f.location, phone: f.phone, type: f.type, notes: f.notes, active: f.active }; }\nfunction accessSet(u) { if (u.role !== 'viewer') return null; var a = String(u.access || '*').trim(); if (a === '*' || a === '') return null; var o = {}; a.split(',').forEach(function (x) { if (x) o[x.trim()] = 1; }); return o; }\nfunction canSeeVisit(u, v) {\n  if (isAdmin(u)) return true;\n  if (u.role === 'auditor') return v.user_id === u.id;\n  var acc = accessSet(u); return !acc || !!acc[v.farm_id];\n}\nfunction visibleFarms(u, includeArchived) {\n  var acc = accessSet(u);\n  return T('Farms').all().filter(function (f) { return (f.active || includeArchived) && (!acc || acc[f.id]); })\n    .sort(function (a, b) { return a.farm.toLowerCase() < b.farm.toLowerCase() ? -1 : 1; });\n}\nfunction cleanFarm(b) {\n  var farmer = str(b.farmer, 80), farm = str(b.farm, 80);\n  if (!farmer || !farm) throw new HttpError(400, 'Enter the farmer name and the farm name');\n  return { farmer: farmer, farm: farm, location: str(b.location, 120), phone: str(b.phone, 30), type: FTYPES.indexOf(b.type) >= 0 ? b.type : 'Layer', notes: str(b.notes, 400) };\n}\nfunction findFarm(farm, farmer, activeOnly) {\n  var a = farm.toLowerCase(), b = farmer.toLowerCase(), best = null;\n  T('Farms').all().forEach(function (f) { if (f.farm.toLowerCase() === a && f.farmer.toLowerCase() === b && (!activeOnly || f.active) && (!best || (f.active && !best.active))) best = f; });\n  return best;\n}\nfunction insertFarm(f) {\n  var t = nowIso();\n  return T('Farms').insert({ id: newId(), farm: f.farm, farmer: f.farmer, location: f.location, phone: f.phone, type: f.type, notes: f.notes, active: true, created_at: t, updated_at: t });\n}\n\n/* ---------------- visits ---------------- */\nfunction readData(v) {\n  if (v.data !== '@blob') return parseJson(v.data) || {};\n  var parts = T('Blobs').all().filter(function (b) { return b.id === v.id; }).sort(function (a, b) { return a.seq - b.seq; });\n  return parseJson(parts.map(function (p) { return p.chunk; }).join('')) || {};\n}\nfunction visitOut(v, withData) {\n  var d = withData === false ? {} : readData(v);\n  return { id: v.id, farmId: v.farm_id, userId: v.user_id, no: v.visit_no, date: v.date, type: v.type, score: v.score, rating: v.rating, updatedAt: v.updated_at, data: d };\n}\nfunction visitList(u, since) {\n  var rows = T('Visits').all().filter(function (v) { return canSeeVisit(u, v) && (!since || v.updated_at > since); });\n  rows.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (a.created_at < b.created_at ? 1 : -1); });\n  var needBlobs = rows.some(function (v) { return v.data === '@blob'; });\n  if (needBlobs) T('Blobs').all();\n  return rows.slice(0, 5000).map(function (v) { return visitOut(v); });\n}\nvar SIG = /^data:image\\/png;base64,[A-Za-z0-9+\\/=]{20,40000}$/;\n\n/* An admin saving a new report for a named auditor (used by the demo loader and imports) credits that auditor. */\nfunction attributeTo(u, auditorName) {\n  if (!isAdmin(u) || !auditorName) return u.id;\n  var n = String(auditorName).trim().toLowerCase(), hit = T('Users').find(function (x) { return x.active && x.role === 'auditor' && x.name.toLowerCase() === n; });\n  return hit ? hit.id : u.id;\n}\nfunction saveVisit(u, id, body) {\n  if (u.role === 'viewer') throw new HttpError(403, 'Your account can view reports but not create them');\n  if (!/^[A-Za-z0-9_-]{4,64}$/.test(id)) throw new HttpError(400, 'Bad report id');\n  var data = body.data; if (!data || typeof data !== 'object' || Array.isArray(data)) throw new HttpError(400, 'Missing report data');\n  if (!isDate(data.date)) throw new HttpError(400, 'The visit date is not valid');\n  var vt = T('Visits'), cur = vt.by('id', id);\n  if (cur && u.role === 'auditor' && cur.user_id !== u.id) throw new HttpError(403, 'This report belongs to another auditor');\n  var sum = body.summary && typeof body.summary === 'object' ? body.summary : {};\n  var score = sum.score == null ? null : toNum(sum.score);\n  var kpis = (Array.isArray(sum.kpis) ? sum.kpis : []).slice(0, 200).map(function (k) {\n    return [str(k && k.label, 80), str(k && k.grp, 60), k && k.raw != null && toNum(k.raw) != null ? toNum(k.raw) : null, str(k && k.val, 40), ['ok', 'warn', 'bad', 'na'].indexOf(k && k.st) >= 0 ? k.st : 'na'];\n  }).filter(function (k) { return k[0]; });\n  var sigA = SIG.test(data.sigA || '') ? data.sigA : '', sigF = SIG.test(data.sigF || '') ? data.sigF : '';\n  var clean = {}; for (var k in data) if (k !== 'sigA' && k !== 'sigF') clean[k] = data[k];\n  var json = JSON.stringify(clean);\n  if (json.length > 400000) throw new HttpError(413, 'Report is too large');\n  var kjson = JSON.stringify(kpis); if (kjson.length > CELL_MAX) { kjson = JSON.stringify(kpis.slice(0, 120)); }\n  var type = FTYPES.indexOf(data.type) >= 0 ? data.type : '';\n  var farm = null;\n  if (typeof data.farmId === 'string' && data.farmId) farm = T('Farms').by('id', data.farmId);\n  if (!farm && str(data.farm, 80) && str(data.farmer, 80)) {\n    farm = findFarm(str(data.farm, 80), str(data.farmer, 80), false);\n    if (!farm) farm = insertFarm({ farmer: str(data.farmer, 80), farm: str(data.farm, 80), location: str(data.location, 120), phone: str(data.phone, 30), type: type || 'Layer', notes: '' });\n  }\n  clean.farmId = farm ? farm.id : '';\n  json = JSON.stringify(clean);\n  var t = nowIso(), inBlob = json.length > CELL_MAX;\n  var rec = {\n    id: id, visit_no: str(clean.no, 40), date: clean.date, farm_id: clean.farmId, farm: str(clean.farm, 80), farmer: str(clean.farmer, 80), type: type,\n    auditor: str(clean.auditor, 80), user_id: cur ? cur.user_id : attributeTo(u, clean.auditor), score: score, rating: str(sum.rating, 30), kpis: kjson,\n    data: inBlob ? '@blob' : json, updated_at: t\n  };\n  if (cur) { rec._row = cur._row; rec.created_at = cur.created_at; vt.save(rec); } else { rec.created_at = t; vt.insert(rec); }\n  var bt = T('Blobs');\n  if (cur && cur.data === '@blob' || inBlob) bt.removeWhere(function (b) { return b.id === id; });\n  if (inBlob) for (var i = 0, s = 0; i < json.length; i += CELL_MAX, s++) bt.insert({ id: id, seq: s, chunk: json.slice(i, i + CELL_MAX) });\n  var st = T('Signatures');\n  var oldSig = st.by('visit_id', id);\n  if (sigA || sigF) { if (oldSig) st.update(oldSig, { sig_auditor: sigA, sig_farmer: sigF }); else st.insert({ visit_id: id, sig_auditor: sigA, sig_farmer: sigF }); }\n  else if (oldSig) st.removeWhere(function (r) { return r.visit_id === id; });\n  log(u, cur ? 'visit-update' : 'visit-save', str(clean.no, 40) + ' ' + str(clean.farm, 60));\n  return { id: id, farmId: clean.farmId, updatedAt: t };\n}\n\n/* ---------------- routes ---------------- */\nvar ROUTES = [];\nfunction route(method, pattern, opts, fn) {\n  if (typeof opts === 'function') { fn = opts; opts = {}; }\n  var keys = [], re = new RegExp('^' + pattern.replace(/:([a-z]+)/g, function (_, k) { keys.push(k); return '([^/]+)'; }) + '$');\n  ROUTES.push({ method: method, re: re, keys: keys, open: !!opts.open, write: opts.write !== false && method !== 'GET', fn: fn });\n}\n\nroute('GET', '/api/auth/status', { open: true }, function () {\n  var n = T('Users').all().length;\n  return { configured: n > 0, orgName: n > 0 ? getSetting('org_name', '') : '' };\n});\nroute('POST', '/api/auth/setup', { open: true }, function (c) {\n  if (T('Users').all().length) throw new HttpError(403, 'This workspace is already set up. Sign in instead.');\n  var b = c.body, orgName = str(b.orgName, 80), name = str(b.name, 80), email = str(b.email, 200).toLowerCase();\n  if (!orgName || !name) throw new HttpError(400, 'Enter your organisation and your name');\n  if (!validEmail(email)) throw new HttpError(400, 'Enter a valid email address');\n  if (!validPassword(b.password)) throw new HttpError(400, 'Use a password of at least 8 characters');\n  var salt = newId(), t = nowIso();\n  setSetting('org_name', orgName); setSetting('currency', str(b.currency, 8) || '₹'); setSetting('language', 'en');\n  setSetting('config', JSON.stringify(FV.emptyConfig())); setSetting('config_version', '1'); setSetting('created_at', t);\n  var u = T('Users').insert({ id: newId(), email: email, name: name, role: 'owner', org_label: orgName, access: '*', pw_salt: salt, pw_hash: hashPw(b.password, salt), must_change: false, active: true, created_at: t, last_login: t });\n  log(u, 'setup', orgName);\n  return { ok: true, token: startSession(u.id), mustChange: false };\n});\nroute('POST', '/api/auth/login', { open: true }, function (c) {\n  var email = str(c.body.email, 200).toLowerCase();\n  if (!rateTake('login|' + email, 8, 900)) throw new HttpError(429, 'Too many attempts. Wait a few minutes and try again.');\n  var u = T('Users').by('email', email);\n  if (!u || !u.active || !safeEq(hashPw(String(c.body.password || ''), u.pw_salt), u.pw_hash)) throw new HttpError(401, 'Wrong email or password');\n  rateReset('login|' + email);\n  T('Users').update(u, { last_login: nowIso() });\n  T('Sessions').removeWhere(function (r) { return r.expires_at < nowIso(); });\n  log(u, 'login', '');\n  return { ok: true, token: startSession(u.id), mustChange: u.must_change };\n});\nroute('POST', '/api/auth/logout', function (c) { T('Sessions').removeWhere(function (r) { return r.token_hash === c.user._tokenHash; }); return { ok: true }; });\nroute('POST', '/api/auth/password', function (c) {\n  var u = c.user, b = c.body;\n  if (!rateTake('pw|' + u.id, 8, 900)) throw new HttpError(429, 'Too many attempts. Wait a few minutes and try again.');\n  if (!safeEq(hashPw(String(b.current || ''), u.pw_salt), u.pw_hash)) throw new HttpError(400, 'Your current password is not right');\n  if (!validPassword(b.next)) throw new HttpError(400, 'Use a new password of at least 8 characters');\n  var salt = newId();\n  T('Users').update(u, { pw_salt: salt, pw_hash: hashPw(b.next, salt), must_change: false });\n  T('Sessions').removeWhere(function (r) { return r.user_id === u.id && r.token_hash !== u._tokenHash; });\n  log(u, 'password-change', '');\n  return { ok: true };\n});\nroute('GET', '/api/me', function (c) { return { user: userOut(c.user), org: orgOut() }; });\n\nroute('GET', '/api/bootstrap', function (c) {\n  var u = c.user, auditors = u.role === 'auditor' || u.role === 'viewer'\n    ? [{ id: u.id, name: u.name, orgLabel: u.org_label }]\n    : T('Users').all().filter(function (x) { return x.active && x.role !== 'viewer'; }).map(function (x) { return { id: x.id, name: x.name, orgLabel: x.org_label }; }).sort(function (a, b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });\n  return { user: userOut(u), org: orgOut(), config: configOut(), farms: visibleFarms(u).map(farmOut), auditors: auditors, visits: visitList(u, null), serverTime: nowIso() };\n});\nroute('GET', '/api/config', function () { return configOut(); });\nroute('PUT', '/api/config', function (c) {\n  needAdmin(c.user);\n  var cur = configOut();\n  if (Number(c.body.version) !== cur.version) throw new HttpError(409, 'Someone else changed the settings. Reload and try again.', { config: cur });\n  var r = FV.validateConfig(c.body.config);\n  if (!r.ok) throw new HttpError(400, r.errors[0], { errors: r.errors });\n  var json = JSON.stringify(r.config);\n  if (json.length > CELL_MAX) throw new HttpError(413, 'Settings are too large. Remove some custom fields or metrics.');\n  setSetting('config', json); setSetting('config_version', String(cur.version + 1));\n  log(c.user, 'config', r.config.fields.length + ' fields, ' + r.config.kpis.length + ' custom metrics');\n  return configOut();\n});\nroute('PUT', '/api/org', function (c) {\n  needAdmin(c.user);\n  var name = str(c.body.name, 80), cur = str(c.body.currency, 8), lang = ['en', 'hi', 'dv'].indexOf(c.body.language) >= 0 ? c.body.language : null;\n  if (!name) throw new HttpError(400, 'Enter an organisation name');\n  setSetting('org_name', name); setSetting('currency', cur || '₹'); if (lang) setSetting('language', lang);\n  log(c.user, 'org', name);\n  return orgOut();\n});\n\n/* farms */\nroute('GET', '/api/farms', function (c) { return visibleFarms(c.user, c.query.all === '1' && isAdmin(c.user)).map(farmOut); });\nroute('POST', '/api/farms', function (c) {\n  if (c.user.role === 'viewer') throw new HttpError(403, 'Your account can view reports but not add farms');\n  var f = cleanFarm(c.body), dup = findFarm(f.farm, f.farmer, true);\n  if (dup) return farmOut(dup);\n  var rec = insertFarm(f); log(c.user, 'farm-add', f.farm); return farmOut(rec);\n});\nroute('POST', '/api/farms/bulk', function (c) {\n  needAdmin(c.user);\n  var list = Array.isArray(c.body.farms) ? c.body.farms.slice(0, 500) : [], added = 0, skipped = 0;\n  list.forEach(function (b) {\n    var f; try { f = cleanFarm(b); } catch (e) { skipped++; return; }\n    if (findFarm(f.farm, f.farmer, true)) { skipped++; return; }\n    insertFarm(f); added++;\n  });\n  log(c.user, 'farm-import', added + ' added');\n  return { added: added, skipped: skipped };\n});\nroute('PUT', '/api/farms/:id', function (c) {\n  needAdmin(c.user);\n  var cur = T('Farms').by('id', c.params.id); if (!cur) throw new HttpError(404, 'Farm not found');\n  var merged = {}; for (var k in cur) merged[k] = cur[k]; for (var k2 in c.body) merged[k2] = c.body[k2];\n  var f = cleanFarm(merged);\n  T('Farms').update(cur, { farmer: f.farmer, farm: f.farm, location: f.location, phone: f.phone, type: f.type, notes: f.notes, active: c.body.active === false ? false : true, updated_at: nowIso() });\n  log(c.user, 'farm-edit', f.farm);\n  return farmOut(cur);\n});\nroute('DELETE', '/api/farms/:id', function (c) {\n  needAdmin(c.user);\n  var cur = T('Farms').by('id', c.params.id); if (!cur) throw new HttpError(404, 'Farm not found');\n  T('Farms').update(cur, { active: false, updated_at: nowIso() }); log(c.user, 'farm-archive', cur.farm);\n  return { ok: true };\n});\n\n/* users */\nroute('GET', '/api/users', function (c) {\n  needAdmin(c.user);\n  return T('Users').all().slice().sort(function (a, b) { return (b.active - a.active) || (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1); }).map(userOut);\n});\nfunction cleanAccess(v, fallback) {\n  if (v === undefined) return fallback;\n  if (v === '*' || v === '' || v == null) return '*';\n  var ids = (Array.isArray(v) ? v : String(v).split(',')).map(function (x) { return String(x).trim(); }).filter(Boolean);\n  if (ids.indexOf('*') >= 0) return '*';\n  var valid = {}; T('Farms').all().forEach(function (f) { valid[f.id] = 1; });\n  ids = ids.filter(function (x) { return valid[x]; });\n  return ids.length ? ids.join(',') : '-';       // '-' = no farms at all\n}\nroute('POST', '/api/users', function (c) {\n  var u = c.user; needAdmin(u);\n  var b = c.body, name = str(b.name, 80), email = str(b.email, 200).toLowerCase(), role = ROLES.indexOf(b.role) >= 0 ? b.role : 'auditor';\n  if (!name) throw new HttpError(400, 'Enter the person’s name');\n  if (!validEmail(email)) throw new HttpError(400, 'Enter a valid email address');\n  if (role === 'owner' && u.role !== 'owner') throw new HttpError(403, 'Only an owner can add another owner');\n  if (T('Users').by('email', email)) throw new HttpError(409, 'That email already has an account');\n  var pw = validPassword(b.password) ? b.password : tempPassword(), salt = newId();\n  var rec = T('Users').insert({ id: newId(), email: email, name: name, role: role, org_label: str(b.orgLabel, 80), access: cleanAccess(b.access, '*'), pw_salt: salt, pw_hash: hashPw(pw, salt), must_change: b.mustChange === false && u.role === 'owner' ? false : true, active: true, created_at: nowIso(), last_login: '' });\n  log(u, 'user-add', email + ' as ' + role);\n  return { user: userOut(rec), tempPassword: pw };\n});\nroute('PATCH', '/api/users/:id', function (c) {\n  var u = c.user; needAdmin(u);\n  var t = T('Users').by('id', c.params.id); if (!t) throw new HttpError(404, 'User not found');\n  var b = c.body;\n  if (t.role === 'owner' && u.role !== 'owner') throw new HttpError(403, 'Only an owner can change an owner');\n  var role = b.role !== undefined ? b.role : t.role;\n  if (ROLES.indexOf(role) < 0) throw new HttpError(400, 'Unknown role');\n  if (role === 'owner' && u.role !== 'owner') throw new HttpError(403, 'Only an owner can make someone an owner');\n  var active = b.active !== undefined ? !!b.active : t.active;\n  var owners = T('Users').all().filter(function (x) { return x.role === 'owner' && x.active; }).length;\n  if (t.role === 'owner' && (role !== 'owner' || !active) && owners <= 1) throw new HttpError(400, 'An organisation needs at least one active owner');\n  if (t.id === u.id && !active) throw new HttpError(400, 'You cannot deactivate yourself');\n  var name = b.name !== undefined ? str(b.name, 80) : t.name; if (!name) throw new HttpError(400, 'Enter the person’s name');\n  var label = b.orgLabel !== undefined ? str(b.orgLabel, 80) : t.org_label;\n  var patch = { name: name, role: role, active: active, org_label: label, access: cleanAccess(b.access, t.access || '*') };\n  var temp = null;\n  if (b.resetPassword) { temp = tempPassword(); var salt = newId(); patch.pw_salt = salt; patch.pw_hash = hashPw(temp, salt); patch.must_change = true; }\n  T('Users').update(t, patch);\n  if (!active || b.resetPassword) T('Sessions').removeWhere(function (r) { return r.user_id === t.id; });\n  log(u, 'user-edit', t.email + (b.resetPassword ? ' (password reset)' : ''));\n  return { user: userOut(t), tempPassword: temp };\n});\n\n/* visits */\nroute('GET', '/api/visits', function (c) { return visitList(c.user, c.query.since || null); });\nroute('GET', '/api/visits/:id', function (c) {\n  var v = T('Visits').by('id', c.params.id);\n  if (!v || !canSeeVisit(c.user, v)) throw new HttpError(404, 'Report not found');\n  var out = visitOut(v), s = T('Signatures').by('visit_id', v.id);\n  if (s) { out.data.sigA = s.sig_auditor; out.data.sigF = s.sig_farmer; }\n  return out;\n});\nroute('PUT', '/api/visits/:id', function (c) { return saveVisit(c.user, c.params.id, c.body); });\nroute('DELETE', '/api/visits/:id', function (c) {\n  var v = T('Visits').by('id', c.params.id);\n  if (!v || !canSeeVisit(c.user, v) || (!isAdmin(c.user) && v.user_id !== c.user.id)) throw new HttpError(404, 'Report not found');\n  T('Visits').removeWhere(function (r) { return r.id === v.id; });\n  T('Signatures').removeWhere(function (r) { return r.visit_id === v.id; });\n  if (v.data === '@blob') T('Blobs').removeWhere(function (r) { return r.id === v.id; });\n  log(c.user, 'visit-delete', v.visit_no);\n  return { ok: true };\n});\n\n/* admin: everything in one place */\nfunction isoDaysAgo(n) { return new Date(Date.now() - n * 864e5).toISOString().slice(0, 10); }\nfunction weekStart(d) { var t = new Date(d + 'T00:00:00Z'), day = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - day); return t.toISOString().slice(0, 10); }\nfunction avg(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : null; }\nroute('GET', '/api/admin/overview', function (c) {\n  needAdmin(c.user);\n  var since90 = isoDaysAgo(90), since30 = isoDaysAgo(30), since84 = isoDaysAgo(84);\n  var visits = T('Visits').all().slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (a.created_at < b.created_at ? 1 : -1); });\n  var farms = T('Farms').all().filter(function (f) { return f.active; });\n  var scored90 = visits.filter(function (v) { return v.date >= since90 && v.score != null; }).map(function (v) { return v.score; });\n  var totals = { farms: farms.length, users: T('Users').all().filter(function (u) { return u.active; }).length, visits: visits.length,\n    visits30: visits.filter(function (v) { return v.date >= since30; }).length, avgScore90: avg(scored90) };\n  var farmRows = farms.map(function (f) {\n    var vs = visits.filter(function (v) { return v.farm_id === f.id; }), last = vs[0] || null, a = vs.filter(function (v) { return v.date >= since90 && v.score != null; }).map(function (v) { return v.score; });\n    return { id: f.id, farm: f.farm, farmer: f.farmer, location: f.location, type: f.type, visits: vs.length, lastDate: last ? last.date : null, lastScore: last ? last.score : null, lastRating: last ? last.rating : null, avg90: avg(a) };\n  }).sort(function (a, b) {\n    var an = a.lastScore == null ? 1 : 0, bn = b.lastScore == null ? 1 : 0;\n    return an - bn || ((a.lastScore || 0) - (b.lastScore || 0)) || (a.farm.toLowerCase() < b.farm.toLowerCase() ? -1 : 1);\n  });\n  var wk = {};\n  visits.forEach(function (v) { if (v.date >= since84 && v.score != null) { var k = weekStart(v.date); (wk[k] = wk[k] || []).push(v.score); } });\n  var trend = Object.keys(wk).sort().map(function (k) { return { wk: k, start: k, avg: avg(wk[k]), n: wk[k].length }; });\n  var km = {};\n  visits.forEach(function (v) {\n    if (v.date < since90) return;\n    (parseJson(v.kpis) || []).forEach(function (k) {\n      var m = km[k[0]] = km[k[0]] || { label: k[0], grp: k[1], raws: [], ok: 0, warn: 0, bad: 0 };\n      if (k[2] != null) m.raws.push(k[2]);\n      if (k[4] === 'ok' || k[4] === 'warn' || k[4] === 'bad') m[k[4]]++;\n    });\n  });\n  var kp = Object.keys(km).map(function (l) {\n    var m = km[l]; if (!m.raws.length) return null;\n    return { label: m.label, grp: m.grp, n: m.raws.length, avg: avg(m.raws), min: Math.min.apply(null, m.raws), max: Math.max.apply(null, m.raws), ok: m.ok, warn: m.warn, bad: m.bad };\n  }).filter(Boolean).sort(function (a, b) { return a.grp < b.grp ? -1 : a.grp > b.grp ? 1 : (a.label < b.label ? -1 : 1); });\n  var fm = {}; farms.forEach(function (f) { fm[f.id] = f; });\n  var recent = visits.slice(0, 15).map(function (v) { var f = fm[v.farm_id]; return { id: v.id, no: v.visit_no, date: v.date, score: v.score, rating: v.rating, auditor: v.auditor, type: v.type, farm: f ? f.farm : v.farm, farmer: f ? f.farmer : v.farmer }; });\n  var ba = {};\n  visits.forEach(function (v) { if (v.date >= since90) { var m = ba[v.auditor] = ba[v.auditor] || { name: v.auditor, visits: 0, s: [] }; m.visits++; if (v.score != null) m.s.push(v.score); } });\n  var byAuditor = Object.keys(ba).map(function (k) { return { name: ba[k].name, visits: ba[k].visits, avg: avg(ba[k].s) }; }).sort(function (a, b) { return b.visits - a.visits; });\n  return { totals: totals, farms: farmRows, trend: trend, kpis: kp, recent: recent, byAuditor: byAuditor, since90: since90 };\n});\nroute('GET', '/api/admin/audit', function (c) {\n  needAdmin(c.user);\n  return T('Audit').tail(200).map(function (r, i) { return { id: i, userName: r.user, action: r.action, detail: r.detail, at: r.at }; });\n});\nroute('GET', '/api/admin/sheet', function (c) { needAdmin(c.user); return { url: ss().getUrl(), name: ss().getName() }; });\n\nfunction csvCell(v) { if (v == null) return ''; var s = String(v); if (/^[=+\\-@\\t\\r]/.test(s) && isNaN(Number(s))) s = \"'\" + s; return /[\",\\n\\r]/.test(s) ? '\"' + s.replace(/\"/g, '\"\"') + '\"' : s; }\nfunction csv(rows) { return rows.map(function (r) { return r.map(csvCell).join(','); }).join('\\r\\n') + '\\r\\n'; }\nfunction fileRes(name, type, text) { return { __file: { name: name, type: type, text: text } }; }\nroute('GET', '/api/admin/export/visits.csv', function (c) {\n  needAdmin(c.user);\n  var cfg = configOut(), visits = T('Visits').all().slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.created_at < b.created_at ? -1 : 1); });\n  T('Blobs').all();\n  var fm = {}; T('Farms').all().forEach(function (f) { fm[f.id] = f; });\n  var labels = {}; visits.forEach(function (v) { (parseJson(v.kpis) || []).forEach(function (k) { if (!labels[k[0]]) labels[k[0]] = k[1]; }); });\n  var names = Object.keys(labels).sort(function (a, b) { return labels[a] < labels[b] ? -1 : labels[a] > labels[b] ? 1 : (a < b ? -1 : 1); });\n  var inputs = FV.FIELDS.map(function (f) { return { k: f.k, l: f.l }; }).concat(cfg.fields.map(function (f) { return { k: f.id, l: f.label }; }));\n  var head = ['Visit no', 'Date', 'Farm', 'Farmer', 'Location', 'Type', 'Auditor', 'Score', 'Rating'].concat(names.map(function (l) { return 'KPI: ' + l; }), inputs.map(function (i) { return 'Input: ' + i.l; }));\n  var rows = [head].concat(visits.map(function (v) {\n    var d = readData(v), f = fm[v.farm_id], km = {}; (parseJson(v.kpis) || []).forEach(function (k) { km[k[0]] = k[2]; });\n    return [v.visit_no, v.date, f ? f.farm : d.farm, f ? f.farmer : d.farmer, f ? f.location : d.location, v.type, v.auditor, v.score == null ? '' : +v.score.toFixed(1), v.rating]\n      .concat(names.map(function (l) { return km[l] != null ? +(+km[l]).toFixed(4) : ''; }), inputs.map(function (i) { return d[i.k] == null ? '' : d[i.k]; }));\n  }));\n  log(c.user, 'export', 'visits.csv'); return fileRes('visits.csv', 'text/csv; charset=utf-8', '﻿' + csv(rows));\n});\nfunction kpiRows() {\n  var fm = {}; T('Farms').all().forEach(function (f) { fm[f.id] = f; });\n  var rows = [];\n  T('Visits').all().slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.visit_no < b.visit_no ? -1 : 1); }).forEach(function (v) {\n    (parseJson(v.kpis) || []).forEach(function (k) { rows.push([v.visit_no, v.date, fm[v.farm_id] ? fm[v.farm_id].farm : v.farm, v.type, k[1], k[0], k[2] == null ? '' : k[2], k[3], k[4]]); });\n  });\n  return rows;\n}\nroute('GET', '/api/admin/export/kpis.csv', function (c) {\n  needAdmin(c.user);\n  var rows = [['Visit no', 'Date', 'Farm', 'Type', 'Group', 'Metric', 'Value', 'Shown as', 'Status']].concat(kpiRows());\n  log(c.user, 'export', 'kpis.csv'); return fileRes('kpis-long.csv', 'text/csv; charset=utf-8', '﻿' + csv(rows));\n});\nroute('GET', '/api/admin/export/backup.json', function (c) {\n  needAdmin(c.user);\n  T('Blobs').all();\n  var out = { exportedAt: nowIso(), org: orgOut(), config: configOut(), farms: T('Farms').all().map(farmOut), visits: T('Visits').all().map(function (v) { return visitOut(v); }) };\n  log(c.user, 'export', 'backup.json'); return fileRes('farm-backup-' + nowIso().slice(0, 10) + '.json', 'application/json', JSON.stringify(out, null, 1));\n});\n/* Writes every metric of every visit to a tab called \"KPI readings\" so it can be pivoted in Sheets. */\nroute('POST', '/api/admin/rebuild-kpi-sheet', function (c) {\n  needAdmin(c.user);\n  var name = 'KPI readings', sh = ss().getSheetByName(name) || ss().insertSheet(name);\n  sh.clear();\n  var rows = [['Visit no', 'Date', 'Farm', 'Type', 'Group', 'Metric', 'Value', 'Shown as', 'Status']].concat(kpiRows());\n  sh.getRange(1, 1, rows.length, 9).setValues(rows);\n  sh.setFrozenRows(1); sh.getRange(1, 1, 1, 9).setFontWeight('bold');\n  log(c.user, 'kpi-sheet', (rows.length - 1) + ' rows');\n  return { rows: rows.length - 1 };\n});\n\n/* ---------------- web app entry points ---------------- */\nfunction reply(status, body) {\n  return ContentService.createTextOutput(JSON.stringify({ s: status, d: body })).setMimeType(ContentService.MimeType.JSON);\n}\nfunction dispatch(method, path, token, body, query) {\n  var m = null, params = {};\n  for (var i = 0; i < ROUTES.length; i++) {\n    var r = ROUTES[i]; if (r.method !== method) continue;\n    var x = r.re.exec(path); if (!x) continue;\n    m = r; r.keys.forEach(function (k, j) { params[k] = decodeURIComponent(x[j + 1]); }); break;\n  }\n  if (!m) throw new HttpError(404, 'Unknown API route');\n  var lock = null;\n  if (m.write) { lock = LockService.getScriptLock(); if (!lock.tryLock(25000)) throw new HttpError(503, 'The sheet is busy. Try again in a few seconds.'); }\n  try {\n    var user = null;\n    if (!m.open) {\n      user = sessionUser(token); if (!user) throw new HttpError(401, 'Please log in');\n      if (user.must_change && ['/api/auth/password', '/api/auth/logout', '/api/me'].indexOf(path) < 0) throw new HttpError(403, 'Set a new password first', { mustChange: true });\n    }\n    return m.fn({ user: user, body: body || {}, params: params, query: query || {} });\n  } finally { if (lock) lock.releaseLock(); }\n}\nfunction handle(method, path, token, body, query) {\n  _ss = null; _tables = {};\n  try {\n    var out = dispatch(method, path, token, body, query);\n    return reply(200, out === undefined ? { ok: true } : out);\n  } catch (e) {\n    if (e instanceof HttpError) return reply(e.status, Object.assign({ error: e.message }, e.extra || {}));\n    console.error(e && e.stack || e);\n    return reply(500, { error: 'Something went wrong in the sheet backend: ' + (e && e.message ? e.message : e) });\n  }\n}\nfunction doGet(e) {\n  var q = (e && e.parameter) || {};\n  if (q.p) return handle('GET', q.p, q.t || '', {}, q);\n  _ss = null; _tables = {};\n  return reply(200, { ok: true, service: 'farm-visit-sheet-backend', configured: T('Users').all().length > 0 });\n}\nfunction doPost(e) {\n  var raw = e && e.postData && e.postData.contents, req = parseJson(raw || '');\n  if (!req || typeof req.p !== 'string' || typeof req.m !== 'string') return reply(400, { error: 'Send JSON' });\n  var q = {}, qi = req.p.indexOf('?'), path = req.p;\n  if (qi >= 0) { path = req.p.slice(0, qi); req.p.slice(qi + 1).split('&').forEach(function (kv) { var a = kv.split('='); if (a[0]) q[decodeURIComponent(a[0])] = decodeURIComponent(a[1] || ''); }); }\n  return handle(req.m.toUpperCase(), path, req.t || '', req.b && typeof req.b === 'object' ? req.b : {}, q);\n}\n/* Run once from the editor to create the tabs and authorise the script. */\nfunction setup() { _ss = null; _tables = {}; Object.keys(SCHEMA).forEach(function (n) { T(n); }); Logger.log('Tabs ready: ' + Object.keys(SCHEMA).join(', ')); }\n";</script><script>/* Explore mode: runs the very same Code.gs inside this browser, with a pretend Google Sheet kept in localStorage.
+   Lets people try all three apps without connecting anything. */
+(function () {
+  'use strict';
+  var KEY = 'fv_explore_db';
+  function sha256Bytes(msg) {
+    var K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+    var b = new TextEncoder().encode(msg), l = b.length, n = ((l + 9 + 63) >> 6) << 6, p = new Uint8Array(n);
+    p.set(b); p[l] = 0x80; var dv = new DataView(p.buffer); dv.setUint32(n - 8, Math.floor(l / 0x20000000)); dv.setUint32(n - 4, (l << 3) >>> 0);
+    var H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]), W = new Uint32Array(64);
+    var R = function (x, k) { return (x >>> k) | (x << (32 - k)); };
+    for (var o = 0; o < n; o += 64) {
+      for (var i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
+      for (i = 16; i < 64; i++) { var s0 = R(W[i-15],7) ^ R(W[i-15],18) ^ (W[i-15] >>> 3), s1 = R(W[i-2],17) ^ R(W[i-2],19) ^ (W[i-2] >>> 10); W[i] = (W[i-16] + s0 + W[i-7] + s1) | 0; }
+      var a = H[0], bb = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (i = 0; i < 64; i++) {
+        var S1 = R(e,6) ^ R(e,11) ^ R(e,25), ch = (e & f) ^ (~e & g), t1 = (h + S1 + ch + K[i] + W[i]) | 0, S0 = R(a,2) ^ R(a,13) ^ R(a,22), mj = (a & bb) ^ (a & c) ^ (bb & c), t2 = (S0 + mj) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;
+      }
+      H[0] = (H[0] + a) | 0; H[1] = (H[1] + bb) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0; H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+    }
+    var out = []; for (i = 0; i < 8; i++) for (var j = 3; j >= 0; j--) out.push(((H[i] >>> (j * 8)) & 255) << 24 >> 24);
+    return out;
+  }
+  function uuid() { return crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }); }
+
+  var sheets, dirty, lastRaw = null, api = null;
+  function Sheet(name) { this.name = name; this.cells = new Map(); }
+  Sheet.prototype.get = function (r, c) { var v = this.cells.get(r + ':' + c); return v === undefined ? '' : v; };
+  Sheet.prototype.set = function (r, c, v) {
+    if (typeof v === 'string' && v.length > 50000) throw new Error('A cell is over 50,000 characters (' + this.name + ')');
+    var k = r + ':' + c; dirty = true;
+    if (v === '' || v == null) { this.cells.delete(k); return; }
+    if (this.name === 'KPI readings') { if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) v = new Date(v + 'T00:00:00Z'); } else v = String(v);
+    this.cells.set(k, v);
+  };
+  Sheet.prototype.getLastRow = function () { var m = 0; this.cells.forEach(function (_, k) { var r = +k.split(':')[0]; if (r > m) m = r; }); return m; };
+  Sheet.prototype.getMaxRows = function () { return 1000; };
+  Sheet.prototype.getRange = function (r, c, nr, nc) {
+    var sh = this, R = { getValues: function () { var o = []; for (var i = 0; i < (nr || 1); i++) { var row = []; for (var j = 0; j < (nc || 1); j++) row.push(sh.get(r + i, c + j)); o.push(row); } return o; },
+      setValues: function (v) { for (var i = 0; i < (nr || 1); i++) for (var j = 0; j < (nc || 1); j++) sh.set(r + i, c + j, v[i][j]); return R; },
+      setNumberFormat: function () { return R; }, setFontWeight: function () { return R; },
+      clearContent: function () { for (var i = 0; i < (nr || 1); i++) for (var j = 0; j < (nc || 1); j++) { sh.cells.delete((r + i) + ':' + (c + j)); } dirty = true; return R; } };
+    return R;
+  };
+  Sheet.prototype.setFrozenRows = function () {}; Sheet.prototype.clear = function () { this.cells.clear(); dirty = true; return this; };
+
+  function serialize() { var o = {}; sheets.forEach(function (s, n) { var a = []; s.cells.forEach(function (v, k) { a.push([k, v instanceof Date ? { d: v.toISOString() } : v]); }); o[n] = a; }); return JSON.stringify(o); }
+  function load() {
+    var raw = null; try { raw = localStorage.getItem(KEY); } catch (e) {}
+    if (sheets && raw === lastRaw) return;
+    sheets = new Map(); lastRaw = raw;
+    if (raw) { var o = JSON.parse(raw); Object.keys(o).forEach(function (n) { var s = new Sheet(n); o[n].forEach(function (p) { s.cells.set(p[0], p[1] && p[1].d ? new Date(p[1].d) : p[1]); }); sheets.set(n, s); }); }
+  }
+  function persist() {
+    if (!dirty) return; dirty = false;
+    var raw = serialize();
+    try { localStorage.setItem(KEY, raw); lastRaw = raw; } catch (e) { throw new Error('This browser has no room left for the demo. Clear the demo and try again.'); }
+  }
+  var ssObj = { getSheetByName: function (n) { return sheets.get(n) || null; }, insertSheet: function (n) { var s = new Sheet(n); sheets.set(n, s); dirty = true; return s; }, getUrl: function () { return 'https://docs.google.com/spreadsheets/'; }, getName: function () { return 'Demo sheet (in this browser)'; } };
+  var cache = {}, locked = false;
+  var env = {
+    SpreadsheetApp: { getActiveSpreadsheet: function () { return ssObj; } },
+    Utilities: { DigestAlgorithm: { SHA_256: 1 }, Charset: { UTF_8: 1 }, computeDigest: function (a, t) { return sha256Bytes(String(t)); }, getUuid: uuid },
+    CacheService: { getScriptCache: function () { return { get: function (k) { var e = cache[k]; return e && e.x > Date.now() ? e.v : null; }, put: function (k, v, s) { cache[k] = { v: String(v), x: Date.now() + s * 1000 }; }, remove: function (k) { delete cache[k]; } }; } },
+    LockService: { getScriptLock: function () { return { tryLock: function () { if (locked) return false; locked = true; return true; }, releaseLock: function () { locked = false; } }; } },
+    ContentService: { MimeType: { JSON: 1 }, createTextOutput: function (s) { return { getContent: function () { return s; }, setMimeType: function () { return this; } }; } },
+    Logger: { log: function () {} }
+  };
+  function boot() {
+    if (api) return api;
+    var names = Object.keys(env);
+    api = new Function(names.join(','), window.FV_GS + '\nreturn {doPost:doPost,doGet:doGet};').apply(null, names.map(function (n) { return env[n]; }));
+    return api;
+  }
+  window.FVExplore = {
+    available: function () { return typeof window.FV_GS === 'string'; },
+    call: function (method, path, token, body) {
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          load(); dirty = false;
+          var out = boot().doPost({ postData: { contents: JSON.stringify({ m: method, p: path, t: token, b: body || {} }) } }).getContent();
+          persist(); resolve(JSON.parse(out));
+        }, 30);
+      });
+    },
+    reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} sheets = null; lastRaw = null; },
+    seeded: function () { load(); var s = sheets.get('Users'); return !!s && s.getLastRow() > 1; }
+  };
+})();
+</script><script>window.FV_APP="admin";</script><script>/* Farm Visit — connection layer shared by the three web apps.
+   Sends every /api/... call to the Google Sheet backend (Apps Script web app) and shows the
+   connect / set-up / sign-in / new-password screens when needed. */
+(function () {
+  'use strict';
+  var APP = window.FV_APP || 'form';                       // 'form' | 'admin' | 'reports'
+  var HOME = { form: 'index.html', admin: 'admin.html', reports: 'reports.html' };
+  var ALLOW = { form: ['owner', 'admin', 'auditor'], admin: ['owner', 'admin'], reports: ['owner', 'admin', 'auditor', 'viewer'] };
+  var NAMES = { form: 'Visit form', admin: 'Admin console', reports: 'Reports' };
+  var ls = { get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del: function (k) { try { localStorage.removeItem(k); } catch (e) {} } };
+
+  /* The backend address can come from ?api=..., from this browser, or from a config baked into the page. */
+  var qs = new URLSearchParams(location.search), fromUrl = qs.get('api');
+  if (fromUrl && /^https:\/\/script\.google(usercontent)?\.com\//.test(fromUrl)) {
+    if (ls.get('fv_api') !== fromUrl) ls.del('fv_token');
+    ls.set('fv_api', fromUrl);
+    qs.delete('api'); try { history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : '') + location.hash); } catch (e) {}
+  }
+  function apiUrl() { return ls.get('fv_api') || window.FV_API_URL || ''; }
+  function token() { return ls.get('fv_token'); }
+  var realFetch = window.fetch.bind(window);
+
+  function exploring() { return apiUrl() === 'explore'; }
+  function call(method, path, body, withToken) {
+    if (exploring()) return window.FVExplore.call(method, path, withToken === false ? '' : token(), body);
+    var url = apiUrl();
+    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, 60000);
+    return realFetch(url, { method: 'POST', redirect: 'follow', signal: ctl.signal, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ m: method, p: path, t: withToken === false ? '' : token(), b: body || {} }) })
+      .then(function (r) { clearTimeout(timer); return r.text(); })
+      .then(function (t) {
+        var j; try { j = JSON.parse(t); } catch (e) { throw new Error('The sheet backend did not answer properly. Check that the web app is deployed for “Anyone”.'); }
+        return j;
+      }, function (e) { clearTimeout(timer); throw e; });
+  }
+  function respond(j) { return new Response(JSON.stringify(j.d), { status: j.s, headers: { 'Content-Type': 'application/json' } }); }
+  var NEVER = new Promise(function () {});
+
+  function gate(role) {
+    if (ALLOW[APP].indexOf(role) >= 0) return true;
+    if (exploring()) {   // in the demo, just switch to the demo person who fits this app
+      call('POST', '/api/auth/login', { email: DEMO_USER[APP][0], password: 'demo1234' }, false).then(function (j) { if (j.s === 200) { ls.set('fv_token', j.d.token); location.reload(); } });
+      return false;
+    }
+    var to = role === 'viewer' ? 'reports' : role === 'auditor' ? 'form' : 'admin';
+    location.replace(HOME[to]);
+    return false;
+  }
+
+  window.fetch = function (input, init) {
+    var u = typeof input === 'string' ? input : (input && input.url) || '';
+    if (u.indexOf('/api/') !== 0) return realFetch(input, init);
+    if (!apiUrl()) { showOverlay('welcome'); return NEVER; }
+    init = init || {};
+    var method = (init.method || 'GET').toUpperCase(), body = {};
+    if (init.body) { try { body = JSON.parse(init.body); } catch (e) {} }
+    return call(method, u, body).then(function (j) {
+      if (j.s === 401 && u.indexOf('/api/auth/') !== 0) { ls.del('fv_token'); showOverlay('signin'); return NEVER; }
+      if (j.s === 403 && j.d && j.d.mustChange) { showOverlay('change'); return NEVER; }
+      if (j.s === 200 && j.d && j.d.user && (u === '/api/bootstrap' || u === '/api/me') && !gate(j.d.user.role)) return NEVER;
+      if (j.s === 200 && j.d && j.d.__file) {
+        var f = j.d.__file;
+        return new Response(f.text, { status: 200, headers: { 'Content-Type': f.type, 'X-File-Name': f.name } });
+      }
+      return respond(j);
+    });
+  };
+
+  /* Download links such as /api/admin/export/visits.csv */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="/api/"]'); if (!a) return;
+    e.preventDefault();
+    var href = a.getAttribute('href');
+    window.fetch(href).then(function (r) {
+      if (!r.ok) return r.json().then(function (j) { alert(j.error || 'Could not download'); });
+      var name = r.headers.get('X-File-Name') || 'download';
+      return r.blob().then(function (b) { var x = document.createElement('a'); x.href = URL.createObjectURL(b); x.download = name; document.body.appendChild(x); x.click(); x.remove(); setTimeout(function () { URL.revokeObjectURL(x.href); }, 4000); });
+    });
+  }, true);
+
+  /* ---------- screens ---------- */
+  var css = '#fvr{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px 16px;overflow:auto;background:#edf2f0;color:#0d2a25;font:16px/1.45 "Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif}' +
+    '@media (prefers-color-scheme:dark){#fvr{background:#09130f;color:#e5f1ed}#fvr .c{background:#112320!important;border-color:#21362f!important}#fvr input{background:#09130f!important;color:#e5f1ed!important;border-color:#21362f!important}#fvr .s{color:#8fa9a1!important}#fvr .t button{color:#8fa9a1!important}#fvr .t button[aria-selected=true]{background:#112320!important;color:#e5f1ed!important}#fvr .t{background:#172b26!important}}' +
+    '#fvr main{width:100%;max-width:410px}#fvr .b{display:flex;align-items:center;gap:12px;margin:0 4px 18px}#fvr .b svg{width:34px;height:40px;flex:none;color:#0b7466}#fvr .b b{font:800 24px/1 "Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif}#fvr .b span{display:block;color:#56706a;font-size:14px;margin-top:3px}' +
+    '#fvr .c{background:#fff;border:1px solid #d6e0db;border-radius:20px;padding:20px;box-shadow:0 10px 28px rgba(10,40,34,.08)}#fvr h1{font:800 22px/1.2 "Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;margin:0 0 4px}#fvr .s{margin:0 0 16px;color:#56706a;font-size:15px}' +
+    '#fvr label{display:block;margin:0 0 12px;font-weight:700;font-size:14px}#fvr input{display:block;width:100%;margin-top:5px;padding:12px 13px;font:16px inherit;font-family:inherit;color:#0d2a25;background:#edf2f0;border:1.5px solid #d6e0db;border-radius:12px;box-sizing:border-box}#fvr input:focus{outline:3px solid rgba(11,116,102,.35);border-color:#0b7466}' +
+    '#fvr .go{width:100%;margin-top:6px;padding:14px;border:0;border-radius:14px;background:#0b7466;color:#fff;font:800 16px inherit;font-family:inherit;cursor:pointer}#fvr .go:disabled{opacity:.6;cursor:wait}#fvr .lk{display:block;margin:14px auto 0;background:none;border:0;color:#0b7466;font:700 14px inherit;font-family:inherit;cursor:pointer;text-decoration:underline}' +
+    '#fvr .e{display:none;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#fadedb;color:#a52d24;font-weight:700;font-size:14px}#fvr .e.on{display:block}#fvr .n{margin:14px 4px 0;color:#56706a;font-size:13px;text-align:center}#fvr .t{display:flex;gap:2px;padding:4px;background:#e1ebe6;border-radius:14px;margin-bottom:18px}#fvr .t button{flex:1;border:0;background:transparent;color:#56706a;font:700 15px inherit;font-family:inherit;padding:10px 4px;border-radius:10px;cursor:pointer}#fvr .t button[aria-selected=true]{background:#fff;color:#0d2a25;box-shadow:0 1px 3px rgba(0,0,0,.12)}';
+  var LOGO = '<svg viewBox="0 0 100 114" aria-hidden="true"><path d="M50 4C73 4 91 38 91 66C91 90 73 110 50 110C27 110 9 90 9 66C9 38 27 4 50 4Z" fill="none" stroke="currentColor" stroke-width="7"/><circle cx="50" cy="70" r="26" fill="#f4b324"/></svg>';
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var shown = null;
+
+  function showOverlay(mode) {
+    if (shown === mode) return;
+    shown = mode;
+    var el = document.getElementById('fvr');
+    if (!el) { el = document.createElement('div'); el.id = 'fvr'; var st = document.createElement('style'); st.textContent = css; el.appendChild(st); document.body.appendChild(el); }
+    el.querySelectorAll('main').forEach(function (m) { m.remove(); });
+    var m = document.createElement('main'); el.appendChild(m);
+    if (mode === 'connect') return connectScreen(m);
+    if (mode === 'welcome') return welcomeScreen(m);
+    call('GET', '/api/auth/status', {}, false).then(function (j) { screen(m, mode, j.d || {}); }, function () { connectScreen(m, 'Could not reach the sheet backend. Check the address and your internet connection.'); });
+  }
+  function head(sub) { return '<div class="b">' + LOGO + '<div><b>' + NAMES[APP] + '</b><span>' + esc(sub) + '</span></div></div>'; }
+  function form(m, o) {
+    m.innerHTML = head(o.org || 'Farm audits on your Google Sheet') + '<div class="c">' + (o.tabs || '') + '<form novalidate><h1>' + o.h + '</h1><p class="s">' + o.s + '</p><p class="e" role="alert"></p>' +
+      o.fields.map(function (f) { return '<label>' + f[1] + '<input name="' + f[0] + '" type="' + f[2] + '" autocomplete="' + (f[3] || 'off') + '" ' + (f[4] || '') + '></label>'; }).join('') + '<button class="go" type="submit">' + o.go + '</button></form>' + (o.extra || '') + '</div>' + (o.note ? '<p class="n">' + o.note + '</p>' : '');
+    var f = m.querySelector('form'), err = m.querySelector('.e'), go = m.querySelector('.go');
+    var first = f.querySelector('input'); if (first) setTimeout(function () { first.focus(); }, 30);
+    f.addEventListener('submit', function (ev) {
+      ev.preventDefault(); err.className = 'e'; go.disabled = true;
+      var v = {}; f.querySelectorAll('input').forEach(function (i) { v[i.name] = i.value; });
+      Promise.resolve().then(function () { return o.submit(v); }).catch(function (e) { err.textContent = e.message || 'Something went wrong'; err.className = 'e on'; }).then(function () { go.disabled = false; });
+    });
+    return m;
+  }
+  function rpc(method, path, body) { return call(method, path, body).then(function (j) { if (j.s !== 200) { var e = new Error((j.d && j.d.error) || 'Something went wrong (' + j.s + ')'); e.status = j.s; throw e; } return j.d; }); }
+  function done(d) { ls.set('fv_token', d.token); location.reload(); }
+
+  var DEMO_USER = { admin: ['owner@demo.test', 'Rohan Mehta, owner'], form: ['asha@demo.test', 'Asha Rao, auditor'], reports: ['viewer@demo.test', 'Meera Shah, viewer'] };
+  function welcomeScreen(m) {
+    var canExplore = window.FVExplore && window.FVExplore.available();
+    m.innerHTML = head('Farm audits on your Google Sheet') + '<div class="c"><h1>Take a look around</h1><p class="s">Explore with sample data: 6 farms, 27 visits and a small team. Everything stays in this browser and nothing is sent anywhere.</p><p class="e" role="alert"></p>' +
+      (canExplore ? '<button class="go" type="button" data-x="skip">Skip and explore</button><p class="n" data-x="busy" style="display:none"></p>' : '') +
+      '<button class="lk" type="button" data-x="conn">Connect my Google Sheet instead</button></div><p class="n">You will explore as ' + DEMO_USER[APP][1] + '. Your admin can connect the real sheet later.</p>';
+    var err = m.querySelector('.e'), busy = m.querySelector('[data-x=busy]'), skip = m.querySelector('[data-x=skip]');
+    m.querySelector('[data-x=conn]').onclick = function () { shown = null; showOverlay('connect'); };
+    if (skip) skip.onclick = function () {
+      skip.disabled = true; busy.style.display = 'block'; busy.textContent = 'Opening the demo…'; ls.set('fv_api', 'explore');
+      var seeded = window.FVExplore.seeded() ? Promise.resolve() : runDemo(function (t) { busy.textContent = t; });
+      seeded.then(function () { return rpc('POST', '/api/auth/login', { email: DEMO_USER[APP][0], password: 'demo1234' }); }).then(done)
+        .catch(function (e) { ls.del('fv_api'); window.FVExplore.reset(); skip.disabled = false; busy.style.display = 'none'; err.textContent = 'Could not set up the demo: ' + (e.message || e); err.className = 'e on'; });
+    };
+  }
+  function connectScreen(m, msg) {
+    form(m, { h: 'Connect to your sheet', s: 'Paste the web app address you got when you deployed the Apps Script. Your admin can also send you a link that has it built in.', fields: [['url', 'Web app address', 'url', 'off', 'placeholder="https://script.google.com/macros/s/…/exec"']], go: 'Connect',
+      submit: function (v) {
+        var u = v.url.trim(); if (!/^https:\/\/script\.google\.com\/(a\/macros\/[\w.-]+|macros)\/s\/[\w-]+\/exec$/.test(u) && !/^https:\/\/script\.googleusercontent\.com\//.test(u)) throw new Error('That does not look like an Apps Script web app address. It ends in /exec.');
+        ls.set('fv_api', u); ls.del('fv_token');
+        return call('GET', '/api/auth/status', {}, false).then(function () { location.reload(); }, function () { ls.del('fv_api'); throw new Error('Could not reach that address. Is the web app deployed for “Anyone”?'); });
+      } });
+    if (msg) { var e = m.querySelector('.e'); e.textContent = msg; e.className = 'e on'; }
+  }
+  function screen(m, mode, st) {
+    var change = '<button class="lk" type="button" data-x="url">' + (exploring() ? 'Leave the demo and connect a sheet' : 'Use a different sheet') + '</button>' + (exploring() ? '<button class="lk" type="button" data-x="reset">Start the demo over</button>' : '');
+    var wire = function () { var b = m.querySelector('[data-x=url]'); if (b) b.onclick = function () { ls.del('fv_api'); ls.del('fv_token'); shown = null; showOverlay('connect'); }; var rs = m.querySelector('[data-x=reset]'); if (rs) rs.onclick = function () { window.FVExplore.reset(); ls.del('fv_token'); location.reload(); }; var s = m.querySelector('[data-x=out]'); if (s) s.onclick = function () { ls.del('fv_token'); location.reload(); }; };
+    if (mode === 'change') {
+      form(m, { h: 'Choose a new password', s: 'You signed in with a temporary password. Pick one only you know.', fields: [['current', 'Temporary password', 'password', 'current-password'], ['next', 'New password, 8 or more characters', 'password', 'new-password']], go: 'Save and continue',
+        submit: function (v) { return rpc('POST', '/api/auth/password', { current: v.current, next: v.next }).then(function () { location.reload(); }); }, extra: '<button class="lk" type="button" data-x="out">Sign out</button>' });
+      return wire();
+    }
+    if (!st.configured) {
+      if (APP !== 'admin') { m.innerHTML = head('Not set up yet') + '<div class="c"><h1>This workspace is not set up yet</h1><p class="s">Ask your admin to open the Admin console once and create the workspace. After that you can sign in here.</p></div>' + '<p class="n"><button class="lk" type="button" data-x="url">Use a different sheet</button></p>'; return wire(); }
+      form(m, { h: 'Set up your workspace', s: 'You become the owner. This only happens once, for the sheet you just connected.', fields: [['orgName', 'Organisation name', 'text', 'organization'], ['name', 'Your name', 'text', 'name'], ['email', 'Email', 'email', 'email'], ['password', 'Password, 8 or more characters', 'password', 'new-password']], go: 'Create workspace',
+        submit: function (v) { return rpc('POST', '/api/auth/setup', v).then(done); }, extra: '<button class="lk" type="button" data-x="demo">Or try it with demo data</button><p class="n" data-x="demon" style="display:none"></p>' + change });
+      var dm = m.querySelector('[data-x=demo]'), dn = m.querySelector('[data-x=demon]');
+      dm.onclick = function () { dm.disabled = true; dn.style.display = 'block'; var busy = function (t) { dn.textContent = t; }; busy('Setting up the demo. This takes a minute because every visit is written to your sheet…');
+        runDemo(busy).then(function () { location.reload(); }, function (e) { dm.disabled = false; dn.textContent = 'Could not set up the demo: ' + (e.message || e); }); };
+      return wire();
+    }
+    form(m, { org: st.orgName, h: 'Welcome back', s: 'Sign in to ' + (st.orgName || 'your farm visits') + '.', fields: [['email', 'Email', 'email', 'email'], ['password', 'Password', 'password', 'current-password']], go: 'Sign in',
+      submit: function (v) { return rpc('POST', '/api/auth/login', v).then(done); }, extra: change, note: 'Visit form, Admin console and Reports share one sign-in on this device.' });
+    wire();
+  }
+
+
+  /* ---------- demo data (admin app, first run only) ---------- */
+  function runDemo(setBusy) {
+    var H = function (m, p, b) { return rpc(m, p, b); };
+    var OWNER = { orgName: 'Demo Poultry Co', name: 'Rohan Mehta', email: 'owner@demo.test', password: 'demo1234' };
+    return call('POST', '/api/auth/setup', OWNER, false).then(function (j) {
+      if (j.s !== 200) throw new Error((j.d && j.d.error) || 'Could not set up');
+      ls.set('fv_token', j.d.token); setBusy('Adding settings and people…');
+      return H('GET', '/api/config');
+    }).then(function (cfg) {
+      return H('PUT', '/api/config', { version: cfg.version, config: { v: 1,
+        disabled: { Broiler: ['Water per bird per day'], Layer: ['Eggs per hen housed'], audit: ['Birds per drinker'] },
+        baselines: { 'Layer|Total mortality': { v: [4, 7] }, 'Broiler|Total mortality': { v: [3.5, 6] }, 'Layer|Feed per dozen eggs': { v: [1.5, 1.8] } },
+        fields: [
+          { id: 'cf_cages', label: 'Empty cages', type: 'number', unit: 'cages', dec: 0, min: 0, max: 2000, types: ['Layer'], required: false, section: 'Cage and water checks' },
+          { id: 'cf_tank', label: 'Water tank cleaned this week', type: 'yesno', types: ['Broiler', 'Layer'], required: false, section: 'Cage and water checks' },
+          { id: 'cf_src', label: 'Feed source', type: 'choice', choices: ['Mill A', 'Mill B', 'Local mixer'], types: ['Broiler', 'Layer'], required: false, section: 'Feed' }],
+        kpis: [
+          { id: 'ck_cage', label: 'Empty cage share', formula: 'cf_cages / placed * 100', unit: '%', dec: 1, dir: 'max', t: [1, 3], group: 'Custom metrics', types: ['Layer'] },
+          { id: 'ck_deaths', label: 'Weekly deaths per 1000 birds', formula: 'mortw / alive * 1000', unit: 'per 1000', dec: 1, dir: 'max', t: [3, 6], group: 'Custom metrics', types: ['Broiler', 'Layer'] }] } });
+    }).then(function () {
+      var people = [['Asha Rao', 'asha@demo.test', 'Poultry Health Services', 'auditor', 'demo1234', false], ['Dr. Vikram Nair', 'vikram@demo.test', 'AgriVet Advisory', 'auditor', 'demo1234', false], ['Priya Menon', 'priya@demo.test', 'Farm Audit Partners', 'auditor', 'demo1234', false],
+        ['Sunil Das', 'newhire@demo.test', 'Demo Poultry Co', 'auditor', 'Welcome2026', true], ['Kavya Iyer', 'kavya@demo.test', 'Demo Poultry Co', 'admin', 'demo1234', false], ['Meera Shah', 'viewer@demo.test', 'Demo Poultry Co', 'viewer', 'demo1234', false]];
+      return people.reduce(function (p, x) { return p.then(function () { return H('POST', '/api/users', { name: x[0], email: x[1], orgLabel: x[2], role: x[3], password: x[4], mustChange: x[5] }); }); }, Promise.resolve());
+    }).then(function () {
+      return H('POST', '/api/farms/bulk', { farms: [
+        { farmer: 'Ravi Kumar', farm: 'Green Acres', location: 'Namakkal, Tamil Nadu', phone: '98940 11223', type: 'Layer' },
+        { farmer: 'Lakshmi Devi', farm: 'Sunrise Poultry', location: 'Pollachi, Tamil Nadu', phone: '97911 45670', type: 'Broiler' },
+        { farmer: 'Mohammed Irfan', farm: 'Al-Noor Layers', location: 'Shamirpet, Hyderabad', phone: '99088 20451', type: 'Layer' },
+        { farmer: 'Suresh Patil', farm: 'Patil Broiler Farm', location: 'Baramati, Maharashtra', phone: '98220 78815', type: 'Broiler' },
+        { farmer: 'Anita Sharma', farm: 'Shakti Egg Farm', location: 'Karnal, Haryana', phone: '98120 33907', type: 'Layer' },
+        { farmer: 'Meena Joshi', farm: 'Hill View Poultry', location: 'Nashik, Maharashtra', phone: '99200 55120', type: 'Broiler' }] });
+    }).then(function () {
+      setBusy('Building about 28 visits with the real formulas…');
+      /* let the visit form itself build the visits so every figure and score uses the real engine */
+      return new Promise(function (resolve, reject) {
+        var fr = document.createElement('iframe'); fr.setAttribute('aria-hidden', 'true'); fr.style.cssText = 'position:fixed;left:-9999px;top:0;width:420px;height:800px;border:0'; fr.src = 'index.html?demo=1'; document.body.appendChild(fr);
+        var n = 0, t = setInterval(function () {
+          n++; var w = fr.contentWindow;
+          try { if (w.eval('typeof ST!=="undefined"&&!!ST.uid&&typeof seedVisits==="function"&&DEMO.length>0')) { clearInterval(t); go(w, fr); } } catch (e) {}
+          if (n > 400) { clearInterval(t); fr.remove(); reject(new Error('The visit form did not load. Keep index.html next to admin.html.')); }
+        }, 100);
+        function sig(seed) { var c = document.createElement('canvas'); c.width = 300; c.height = 100; var x = c.getContext('2d'); x.strokeStyle = '#0d2a25'; x.lineWidth = 3; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); x.moveTo(12, 66); for (var i = 0; i < 7; i++) { var a = ((seed * 7 + i * 13) % 40) + 10; x.bezierCurveTo(12 + i * 40, 10 + a, 30 + i * 40, 95 - a / 2, 50 + i * 40, 40 + (i % 2) * 25); } x.stroke(); return c.toDataURL('image/png'); }
+        function go(w, fr) {
+          var vs = w.eval('seedVisits()'), farms = w.eval('DEMO.map(f=>({id:f.id,farm:f.farm}))'), srcs = ['Mill A', 'Mill B', 'Local mixer'];
+          var byName = {}; farms.forEach(function (f, i) { byName[f.farm] = i; });
+          vs.forEach(function (v, n) {
+            var fi = byName[v.farm] || 0, real = farms.filter(function (f) { return f.farm === v.farm; })[0]; if (real) v.farmId = real.id;
+            v.cf_tank = ((n * 7 + fi) % 5) === 0 ? 'No' : 'Yes'; v.cf_src = srcs[fi % 3];
+            if (v.type === 'Layer') { var pl = +v.placed || 0; v.cf_cages = String(Math.round(pl * (0.004 + ((n * 13 + fi * 5) % 17) / 17 * 0.03))); }
+            v.sigA = sig(fi + n); v.sigF = sig(fi * 3 + n + 5); v.agree = true;
+          });
+          vs.forEach(function (v) { w.queueSave(v); });
+          var k = 0, t2 = setInterval(function () {
+            k++; var left = -1; try { left = w.eval('Object.keys(OB).length'); } catch (e) {}
+            if (left === 0 || k > 900) { clearInterval(t2); fr.remove(); left === 0 ? resolve() : reject(new Error('Some visits did not finish saving. Open Admin and check All visits.')); }
+          }, 200);
+        }
+      });
+    });
+  }
+
+  window.FVR = {
+    app: APP,
+    loggedOut: function () { ls.del('fv_token'); try { localStorage.removeItem('fv_boot'); } catch (e) {} location.reload(); },
+    home: function (role) { return HOME[role === 'viewer' ? 'reports' : role === 'auditor' ? 'form' : 'admin']; },
+    shareLink: function (page) { var base = location.href.split('#')[0].split('?')[0].replace(/[^\/]*$/, ''); return base + page + '?api=' + encodeURIComponent(apiUrl()); },
+    apiUrl: apiUrl
+  };
+})();
+</script><script>(function(){
+'use strict';
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const {BUILTIN,AUDIT_ITEMS,SPEC,KB,tyOf,nV,constants:K}=FV;
+const {G1,G2,G3,G4,G5,G6,GA,GC}=K;
+const TYPES=['Broiler','Layer'];
+let ME=null,ORG=null,CFG=null,VER=0,FARMS=[],USERS=[],OV=null,VIS=null,AUDLOG=null,CUR='₹';
+let dirty=false,allQ='',allKind='all',ty='Layer',snapshot='',farmQ='',visQ='',visMax=100,showArch=false;
+const openLim=new Set();
+FV.cur=()=>CUR;
+
+/* ---------- helpers ---------- */
+async function api(method,url,body){
+  const r=await fetch(url,{method,credentials:'same-origin',headers:Object.assign({'X-FV':'1'},body?{'Content-Type':'application/json'}:{}),body:body?JSON.stringify(body):undefined});
+  if(r.status===401){FVR.loggedOut();throw new Error('auth')}
+  let j={};try{j=await r.json()}catch(_){}
+  if(!r.ok){if(r.status===403&&j.mustChange){location.reload();throw new Error('auth')}const e=new Error(j.error||'Something went wrong ('+r.status+')');e.status=r.status;e.body=j;throw e}
+  return j;
+}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3200)}
+const fmt=(x,d)=>x==null||!isFinite(x)?'—':(+(+x).toFixed(d==null?1:d)).toLocaleString();
+const fd=d=>d?new Date(d+'T00:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'—';
+const ft=i=>i?new Date(i).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+const yol=p=>p==null?'#b7c4be':p>=70?'#f4b324':p>=50?'#e58a1f':'#d64a3f';
+const egg=p=>`<svg class="egg" viewBox="0 0 100 114" aria-hidden="true"><path class="shell" d="M50 4C73 4 91 38 91 66C91 90 73 110 50 110C27 110 9 90 9 66C9 38 27 4 50 4Z"/><circle cx="50" cy="70" r="36" fill="${yol(p)}" style="transform:scale(${p==null?.2:.2+.8*p/100});transform-origin:50px 70px"/></svg>`;
+const score=p=>p==null?'<span class="hint">—</span>':`<span class="sc">${egg(p)}${Math.round(p)}%</span>`;
+const unitTxt=u=>(u||'').replace('¤',CUR).trim();
+const clone=o=>JSON.parse(JSON.stringify(o));
+function mark(){dirty=JSON.stringify(CFG)!==snapshot;$('#bar').classList.toggle('on',dirty)}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+
+/* ---------- dialogs ---------- */
+function dlg(title,body,o){
+  o=o||{};
+  return new Promise(res=>{
+    const d=document.createElement('dialog');if(o.wide)d.className='wide';
+    d.innerHTML=`<form method="dialog"><div class="dh"><h2>${esc(title)}</h2></div><div class="db"><p class="derr" role="alert"></p>${body}</div><div class="df">${o.noCancel?'':'<button type="button" class="btn" data-x="no">Cancel</button>'}<button type="submit" class="btn pri" data-x="ok">${esc(o.ok||'Save')}</button></div></form>`;
+    document.body.appendChild(d);
+    const err=m=>{const e=$('.derr',d);e.textContent=m;e.classList.toggle('on',!!m)};
+    d.err=err;
+    $('[data-x=no]',d)&&($('[data-x=no]',d).onclick=()=>d.close());
+    let ok=false;d.addEventListener('close',()=>{d.remove();res(ok)});
+    $('form',d).addEventListener('submit',async e=>{
+      e.preventDefault();err('');
+      const b=$('[data-x=ok]',d);b.disabled=true;
+      try{const r=o.onOk?await o.onOk(d):true;if(r!==false){ok=true;d.close()}}catch(x){err(x.message||'Something went wrong')}
+      b.disabled=false;
+    });
+    d.showModal();
+    if(o.init)o.init(d);
+    const f=$('input:not([type=hidden]),select,textarea',d);if(f&&!o.noFocus)f.focus();
+  });
+}
+const confirmDlg=(title,msg,ok)=>new Promise(res=>{let done=false;dlg(title,`<p>${msg}</p>`,{ok:ok||'Confirm',onOk:()=>{done=true}}).then(()=>res(done))});
+function pwDlg(title,who,pw){return dlg(title,`<p>Share this temporary password with ${esc(who)}. It is shown only now. They will choose their own at first sign-in.</p><div class="pw">${esc(pw)}</div>`,{ok:'Done',noCancel:true})}
+
+/* ---------- overview ---------- */
+function pOverview(){
+  const o=OV;if(!o)return'<p class="hint">Loading…</p>';
+  const t=o.totals;
+  const trend=o.trend.length?(()=>{
+    const W=620,H=150,pad=26,bw=Math.min(46,(W-pad*2)/o.trend.length-8);
+    const x=i=>pad+(i+.5)*((W-pad*2)/o.trend.length),y=v=>H-24-(H-44)*v/100;
+    return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Average audit score by week" style="width:100%;height:auto;max-height:190px"><line x1="${pad}" x2="${W-pad}" y1="${y(70)}" y2="${y(70)}" stroke="currentColor" opacity=".25" stroke-dasharray="4 4"/><text x="${W-pad}" y="${y(70)-4}" text-anchor="end" font-size="11" fill="currentColor" opacity=".6">70% good</text>${o.trend.map((r,i)=>`<g><title>Week of ${fd(r.start)}: ${fmt(r.avg,0)}% over ${r.n} visit${r.n>1?'s':''}</title><rect x="${x(i)-bw/2}" y="${y(r.avg)}" width="${bw}" height="${H-24-y(r.avg)}" rx="5" fill="${yol(r.avg)}"/><text x="${x(i)}" y="${y(r.avg)-5}" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor">${Math.round(r.avg)}</text><text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="currentColor" opacity=".65">${new Date(r.start+'T00:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'})}</text></g>`).join('')}</svg>`})():'<div class="empty">No scored visits in the last 12 weeks.</div>';
+  const kp=(()=>{let g='',h='';o.kpis.forEach(k=>{if(k.grp!==g){g=k.grp;h+=`<tr class="grp"><td colspan="4">${esc(g||'Other')}</td></tr>`}
+    const n=k.ok+k.warn+k.bad;
+    h+=`<tr><td>${esc(k.label)}</td><td class="n">${fmt(k.avg,2)}<small>${fmt(k.min,2)} to ${fmt(k.max,2)}</small></td><td class="n">${k.n}</td><td>${n?`<div class="mbar" title="${k.ok} on target, ${k.warn} watch, ${k.bad} needs action"><i class="o" style="width:${k.ok/n*100}%"></i><i class="w" style="width:${k.warn/n*100}%"></i><i class="b" style="width:${k.bad/n*100}%"></i></div><small>${Math.round(k.ok/n*100)}% on target</small>`:'<span class="hint">No limits set</span>'}</td></tr>`});return h})();
+  return`<h1>Overview</h1><p class="lead">Every farm, auditor and visit in ${esc(ORG.name)}, in one place. Figures cover the last 90 days.</p>
+  <div class="stats"><div class="card stat"><b>${t.farms}</b><span>Farms</span></div><div class="card stat"><b>${t.visits30}</b><span>Visits in the last 30 days</span></div><div class="card stat"><b>${t.avgScore90==null?'—':Math.round(t.avgScore90)+'%'}</b><span>Average audit score</span></div><div class="card stat"><b>${t.users}</b><span>People on the team</span></div></div>
+  ${t.visits===0?`<div class="card empty" style="margin-top:14px"><b>No visits yet</b>Open the visit app, fill in a farm visit and save it. It will show up here straight away.<p><a class="btn pri" href="index.html">Open the visit form</a></p></div>`:`
+  <h2>Farms, weakest first</h2><div class="card tw"><table><thead><tr><th>Farm</th><th>Type</th><th>Last visit</th><th>Last score</th><th class="n">Avg 90 days</th><th class="n">Visits</th></tr></thead><tbody>${o.farms.map(f=>`<tr><td><b>${esc(f.farm)}</b><small>${esc(f.farmer)}${f.location?', '+esc(f.location):''}</small></td><td>${esc(f.type)}</td><td>${f.lastDate?fd(f.lastDate):'<span class="hint">Never</span>'}</td><td>${score(f.lastScore)} ${f.lastRating?`<small>${esc(f.lastRating)}</small>`:''}</td><td class="n">${f.avg90==null?'—':Math.round(f.avg90)+'%'}</td><td class="n">${f.visits}</td></tr>`).join('')}</tbody></table></div>
+  <h2>Average score by week</h2><div class="card pad">${trend}</div>
+  <h2>Metrics across all farms</h2><div class="card tw">${o.kpis.length?`<table><thead><tr><th>Metric</th><th class="n">Average</th><th class="n">Readings</th><th>Against limits</th></tr></thead><tbody>${kp}</tbody></table>`:'<div class="empty">Metrics appear here once visits are saved.</div>'}</div>
+  <div class="g2" style="margin-top:6px"><div><h2>Latest visits</h2><div class="card tw"><table><tbody>${o.recent.map(r=>`<tr><td><b>${esc(r.farm||'—')}</b><small>${fd(r.date)} · ${esc(r.auditor||'')}</small></td><td class="n">${score(r.score)}</td></tr>`).join('')}</tbody></table></div></div>
+  <div><h2>By auditor</h2><div class="card tw"><table><tbody>${o.byAuditor.map(r=>`<tr><td><b>${esc(r.name||'—')}</b><small>${r.visits} visit${r.visits>1?'s':''}</small></td><td class="n">${score(r.avg)}</td></tr>`).join('')||'<tr><td class="hint">No visits yet.</td></tr>'}</tbody></table></div></div></div>`}
+  <h2>Download everything</h2><div class="row"><a class="btn" href="/api/admin/export/visits.csv">Visits, one row each (CSV)</a><a class="btn" href="/api/admin/export/kpis.csv">All metrics, long format (CSV)</a><a class="btn" href="/api/admin/export/backup.json">Full backup (JSON)</a></div>`;
+}
+
+/* ---------- metrics and baselines ---------- */
+const bo=(t,k)=>CFG.baselines[t+'|'+k]||{};
+function limNames(sp){return sp.dir==='band'?['Good from','Good to','Poor below','Poor above']:sp.dir==='max'?['Good up to','Poor above']:['Good from','Poor below']}
+function limHtml(sp){
+  const o=bo(ty,sp.k),kg=!!(sp.kg&&o.kg),arr=kg?o.vk:o.v,def=!kg&&sp.d?(sp.d[ty]||sp.d.x):null,set=Array.isArray(arr)&&arr.length===nV(sp);
+  const u=unitTxt(kg?sp.kg.u:(sp.ub&&sp.ub[ty])||sp.u);
+  return`${sp.kg?`<label class="chk"><input type="checkbox" data-kg="${esc(sp.k)}" ${kg?'checked':''}> Judge per kg of ${/egg/i.test(sp.kg.u)?'egg':'bird'}</label>`:''}${limNames(sp).map((n,i)=>`<label>${n}<input inputmode="decimal" data-lim="${esc(sp.k)}" data-i="${i}" value="${set?arr[i]:''}" placeholder="${def?def[i]:'—'}"></label>`).join('')}<span class="hint" style="padding-bottom:9px">${esc(u)}${set?'':def?' · blank uses the standard':''}</span>${set||kg?`<button class="lnk" data-act="limreset" data-k="${esc(sp.k)}">Use standard</button>`:''}`;
+}
+function limSummary(sp){
+  const e=FV.eff(sp,ty,{},CFG.baselines);
+  if(e.custom)return e.text;
+  if(e.kg&&!e.v)return'Per kg: set your own limits';
+  const def=sp.d?(sp.d[ty]||sp.d.x):null;
+  return def?'Standard: '+FV.btxt(sp.dir,def,(sp.ub&&sp.ub[ty])||sp.u):'No standard limits. Set your own.';
+}
+function mrow(k,kind){
+  const off=kind==='kpi'?CFG.disabled[ty].includes(k):CFG.disabled.audit.includes(k);
+  const sp=kind==='kpi'||!BUILTIN.some(b=>b.k===k)?SPEC[k]:null;
+  const same=kind==='audit'&&BUILTIN.some(b=>b.k===k);
+  const id=kind+'|'+k;
+  return`<div class="mr${off?' off':''}"><label class="sw" title="Show this in the visit app"><input type="checkbox" data-tg="${kind}" data-k="${esc(k)}" ${off?'':'checked'} aria-label="${esc(k)}"><i></i></label><div class="mn"><b>${esc(k)}</b><small>${sp?esc(limSummary(sp)):same?'Uses the limits of the metric with the same name':'Scored from the figures entered'}</small></div>${sp?`<button class="lnk" data-act="lim" data-id="${esc(id)}">${openLim.has(id)?'Close':'Limits'}</button>`:'<span></span>'}${sp&&openLim.has(id)?`<div class="lim">${limHtml(sp)}</div>`:''}</div>`;
+}
+function pMetrics(){
+  let h=`<h1>Metrics</h1><p class="lead">Choose which readings and audit checks your auditors and reports use, and set the limits that colour them. Switched-off items disappear from the visit app and from new scores.</p>
+  <div class="row sp"><div class="seg" id="tyseg">${TYPES.map(t=>`<button data-act="ty" data-t="${t}" class="${t===ty?'on':''}">${t}</button>`).join('')}</div><span class="hint">Limits and switches below apply to ${ty.toLowerCase()} flocks.</span></div>`;
+  [G1,G2,G3,G4,G5,G6].forEach(g=>{
+    const rows=BUILTIN.filter(b=>b.g===g&&(!b.t||b.t===ty));if(!rows.length)return;
+    h+=`<h3>${esc(g)}</h3><div class="card mlist">${rows.map(b=>mrow(b.k,'kpi')).join('')}</div>`;
+  });
+  h+=`<h2>Audit checklist</h2><p class="lead" style="margin-bottom:0">These checks make up the audit score. A switch here applies to broiler and layer flocks alike.</p>`;
+  let g='';const by=new Map();AUDIT_ITEMS.forEach(a=>{if(!by.has(a.g))by.set(a.g,[]);by.get(a.g).push(a)});
+  by.forEach((list,gname)=>{h+=`<h3>${esc(gname)}</h3><div class="card mlist">${list.map(a=>mrow(a.k,'audit')).join('')}</div>`});
+  return h;
+}
+function limChange(inp){
+  const k=inp.dataset.lim,sp=SPEC[k],key=ty+'|'+k,row=inp.closest('.lim'),ins=$$('[data-lim]',row);
+  const raw=ins.map(x=>x.value.trim().replace(',','.'));ins.forEach(x=>x.classList.remove('er'));
+  const o=CFG.baselines[key]||{},f=o.kg?'vk':'v';
+  if(raw.every(x=>x==='')){delete o[f];if(!o.kg&&!o.v&&!o.vk)delete CFG.baselines[key];else CFG.baselines[key]=o;mark();return sumRow(row,sp)}
+  if(raw.some(x=>x==='')&&raw.some(x=>x!==''))return;
+  const v=raw.map(x=>x===''?NaN:+x);
+  let bad=v.some(x=>!isFinite(x))?'Use numbers only in these boxes.':null;
+  if(!bad){const ok=sp.dir==='max'?v[0]<=v[1]:sp.dir==='min'?v[0]>=v[1]:(v[2]<=v[0]&&v[0]<=v[1]&&v[1]<=v[3]);
+    if(!ok)bad=sp.dir==='max'?'The Poor limit must be the same as or above the Good limit.':sp.dir==='min'?'The Poor limit must be the same as or below the Good limit.':'Keep the order: Poor below, Good from, Good to, Poor above.'}
+  if(bad){ins.forEach((x,i)=>{if(raw[i]===''||!isFinite(v[i]))x.classList.add('er')});toast(bad);return}
+  o[f]=v;CFG.baselines[key]=o;mark();sumRow(row,sp);
+}
+function sumRow(row,sp){const m=row.closest('.mr').querySelector('.mn small');if(m)m.textContent=limSummary(sp)}
+
+/* ---------- all KPIs in one list: include in the visit form ---------- */
+function allRows(){
+  const r=[];
+  BUILTIN.forEach(b=>r.push({kind:'kpi',g:b.g,k:b.k,t:b.t}));
+  AUDIT_ITEMS.forEach(a=>r.push({kind:'audit',g:'Audit checks: '+a.g,k:a.k}));
+  CFG.kpis.forEach(k=>r.push({kind:'custom',g:k.group||GC,k:k.label,id:k.id}));
+  return r;
+}
+const rowApplies=(r,t)=>r.kind==='kpi'?(!r.t||r.t===t):true;
+function rowOn(r,t){
+  if(!rowApplies(r,t))return false;
+  if(r.kind==='kpi')return!CFG.disabled[t].includes(r.k);
+  if(r.kind==='audit')return!CFG.disabled.audit.includes(r.k);
+  const k=CFG.kpis.find(x=>x.id===r.id);return!!k&&!k.off&&k.types.includes(t);
+}
+function rowSet(r,t,on){
+  if(!rowApplies(r,t))return;
+  if(r.kind==='kpi'||r.kind==='audit'){
+    const list=r.kind==='kpi'?CFG.disabled[t]:CFG.disabled.audit,i=list.indexOf(r.k);
+    if(on&&i>=0)list.splice(i,1);else if(!on&&i<0)list.push(r.k);
+    return;
+  }
+  const k=CFG.kpis.find(x=>x.id===r.id);if(!k)return;
+  let cur=k.off?[]:k.types.slice();
+  cur=on?[...new Set(cur.concat(t))]:cur.filter(x=>x!==t);
+  if(cur.length){k.off=false;k.types=TYPES.filter(x=>cur.includes(x))}else{k.off=true;k.types=TYPES.slice()}
+}
+const KIND={kpi:'Built-in',audit:'Audit check',custom:'Your own'};
+function pAll(){
+  const q=allQ.toLowerCase(),rows=allRows().filter(r=>(allKind==='all'||r.kind===allKind)&&(!q||(r.k+' '+r.g).toLowerCase().includes(q)));
+  const all=allRows(),cnt=t=>all.filter(r=>rowOn(r,t)).length,tot=t=>all.filter(r=>rowApplies(r,t)).length;
+  let h=`<h1>All KPIs</h1><p class="lead">Every reading and check in one list. Tick <b>Include in visit form</b> for the flock types that should see it. Unticked items disappear from the form, live readings, reports and the score. Pick limits under Metrics, and add your own under Custom metrics.</p>
+  <div class="row sp" style="margin-bottom:12px"><div class="row"><input id="aq" type="search" placeholder="Search KPIs" value="${esc(allQ)}" style="width:230px"><select id="ak" style="width:160px"><option value="all">All kinds</option>${Object.keys(KIND).map(k=>`<option value="${k}" ${allKind===k?'selected':''}>${KIND[k]}</option>`).join('')}</select></div>
+  <div class="row">${TYPES.map(t=>`<span class="hint">${t}: <b>${cnt(t)}</b> of ${tot(t)}</span><button class="btn sm" data-act="allon" data-t="${t}">All</button><button class="btn sm" data-act="alloff" data-t="${t}">None</button>`).join('')}</div></div>`;
+  if(!rows.length)return h+'<div class="card empty"><b>Nothing matches</b></div>';
+  h+='<div class="card tw"><table><thead><tr><th>KPI</th><th>Kind</th>'+TYPES.map(t=>`<th class="n" title="Include in visit form for ${t} flocks">Include in form: ${t}</th>`).join('')+'</tr></thead><tbody>';
+  let g='';
+  rows.forEach(r=>{
+    if(r.g!==g){g=r.g;h+=`<tr class="grp"><td colspan="${2+TYPES.length}">${esc(g)}</td></tr>`}
+    h+=`<tr><td><b>${esc(r.k)}</b></td><td><span class="pill ${r.kind==='custom'?'ok':''}">${KIND[r.kind]}</span></td>`+TYPES.map(t=>rowApplies(r,t)?`<td class="n"><label class="sw" style="vertical-align:middle"><input type="checkbox" data-ak="${r.kind}" data-k="${esc(r.kind==='custom'?r.id:r.k)}" data-t="${t}" ${rowOn(r,t)?'checked':''} aria-label="${esc(r.k)} for ${t}"><i></i></label></td>`:`<td class="n hint" title="Only for ${r.t.toLowerCase()} flocks">n/a</td>`).join('')+'</tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+
+/* ---------- custom fields ---------- */
+function slug(label,pre,taken){
+  let b=label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');if(!/^[a-z]/.test(b))b='x'+b;b=b.slice(0,20);
+  let id=pre+b,n=2;while(taken.has(id))id=pre+b+'_'+n++;return id;
+}
+const usedIn=id=>CFG.kpis.filter(k=>{try{return FV.vars(FV.parse(k.formula)).has(id)}catch(_){return false}});
+const CFT={number:'Number',yesno:'Yes or no',choice:'Pick from a list',text:'Free text'};
+const appliesTxt=t=>!t||t.length>=2?'Broiler and layer':t[0]+' only';
+function pFields(){
+  return`<h1>Your own fields</h1><p class="lead">Add the questions your auditors answer on every visit. They appear in a Custom step in the visit app. Number and yes or no fields can also feed your own metrics.</p>
+  <div class="row" style="margin-bottom:14px"><button class="btn pri" data-act="fnew">Add a field</button></div>
+  ${CFG.fields.length?`<div class="items">${CFG.fields.map((f,i)=>`<div class="card it"><div><b>${esc(f.label)}</b>${f.required?' <span class="pill">Required</span>':''}<div class="m">${CFT[f.type]}${f.type==='number'&&f.unit?', in '+esc(f.unit):''}${f.type==='choice'?': '+esc(f.choices.join(', ')):''} · ${appliesTxt(f.types)}${f.section?' · section “'+esc(f.section)+'”':''}</div><div class="m">Name in formulas: <code>${esc(f.id)}</code></div></div><div class="row"><button class="btn sm" data-act="fup" data-i="${i}" ${i?'':'disabled'} aria-label="Move up">↑</button><button class="btn sm" data-act="fdn" data-i="${i}" ${i<CFG.fields.length-1?'':'disabled'} aria-label="Move down">↓</button><button class="btn sm" data-act="fedit" data-i="${i}">Edit</button><button class="btn sm bad" data-act="fdel" data-i="${i}">Delete</button></div></div>`).join('')}</div>`:'<div class="card empty"><b>No custom fields yet</b>Add a field such as “Water tank cleaned” or “Empty cages”.</div>'}`;
+}
+function fieldDlg(i){
+  const ed=i>=0?CFG.fields[i]:null,f=ed||{type:'number',types:TYPES.slice(),dec:0,min:0,max:1000,section:'Extra checks',choices:[]};
+  const secs=[...new Set(CFG.fields.map(x=>x.section).filter(Boolean))];
+  const body=`<label class="f"><span>Name shown to the auditor</span><input id="f_l" maxlength="60" value="${esc(f.label||'')}" placeholder="For example: Empty cages"></label>
+  <div class="g2"><label class="f"><span>Answer type</span><select id="f_t" ${ed?'disabled':''}>${Object.keys(CFT).map(t=>`<option value="${t}" ${f.type===t?'selected':''}>${CFT[t]}</option>`).join('')}</select>${ed?'<small>The type cannot change after the field is created.</small>':''}</label>
+  <label class="f"><span>Section in the app</span><input id="f_s" maxlength="40" list="f_sl" value="${esc(f.section||'')}"><datalist id="f_sl">${secs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist></label></div>
+  <div id="f_num"><div class="g2"><label class="f"><span>Unit</span><input id="f_u" maxlength="16" value="${esc(f.unit||'')}" placeholder="cages, kg, %"></label><label class="f"><span>Decimals</span><select id="f_d">${[0,1,2,3].map(n=>`<option ${f.dec===n?'selected':''}>${n}</option>`).join('')}</select></label></div>
+  <div class="g2"><label class="f"><span>Smallest allowed</span><input id="f_min" inputmode="decimal" value="${f.min==null?0:f.min}"></label><label class="f"><span>Largest allowed</span><input id="f_max" inputmode="decimal" value="${f.max==null?1000:f.max}"></label></div></div>
+  <label class="f" id="f_ch"><span>Choices, one per line</span><textarea id="f_c" maxlength="800">${esc((f.choices||[]).join('\n'))}</textarea></label>
+  <div style="margin:4px 0 8px"><span class="chk" style="font-weight:700">Applies to</span>${TYPES.map(t=>`<label class="chk"><input type="checkbox" class="f_ty" value="${t}" ${(f.types||TYPES).includes(t)?'checked':''}> ${t}</label>`).join('')}</div>
+  <label class="chk"><input type="checkbox" id="f_r" ${f.required?'checked':''}> Auditor must answer before saving a visit</label>`;
+  return dlg(ed?'Edit field':'Add a field',body,{ok:ed?'Save field':'Add field',
+    init:d=>{const sync=()=>{const t=$('#f_t',d).value;$('#f_num',d).hidden=t!=='number';$('#f_ch',d).hidden=t!=='choice'};$('#f_t',d).onchange=sync;sync()},
+    onOk:d=>{
+      const label=$('#f_l',d).value.trim();if(!label)throw new Error('Give the field a name.');
+      const type=$('#f_t',d).value,types=$$('.f_ty:checked',d).map(x=>x.value);if(!types.length)throw new Error('Choose broiler, layer or both.');
+      const o={id:ed?ed.id:slug(label,'cf_',new Set(CFG.fields.map(x=>x.id))),label,type,unit:$('#f_u',d).value.trim(),types,required:$('#f_r',d).checked,section:$('#f_s',d).value.trim()||'Extra checks'};
+      if(type==='number'){o.dec=+$('#f_d',d).value;o.min=$('#f_min',d).value.trim()===''?0:+$('#f_min',d).value.replace(',','.');o.max=$('#f_max',d).value.trim()===''?1000:+$('#f_max',d).value.replace(',','.');if(!isFinite(o.min)||!isFinite(o.max))throw new Error('Smallest and largest must be numbers.')}
+      if(type==='choice')o.choices=$('#f_c',d).value.split('\n').map(x=>x.trim()).filter(Boolean);
+      const t=clone(CFG);if(ed)t.fields[i]=o;else t.fields.push(o);
+      const r=FV.validateConfig(t);if(!r.ok)throw new Error(r.errors[0]);
+      CFG=r.config;mark();render();
+    }});
+}
+
+/* ---------- custom metrics (formula KPIs) ---------- */
+const DIRS={none:'No colour, just show the number',max:'Lower is better',min:'Higher is better',band:'Best between two limits'};
+const dirSum=k=>k.dir==='none'||!k.t?'No limits':FV.btxt(k.dir,k.t,k.unit==='¤'?'¤':k.unit?' '+k.unit:'');
+function pKpis(){
+  return`<h1>Your own metrics</h1><p class="lead">Combine any figures into a new reading with a formula, and say what good looks like. They show in Live readings, the report and the PDF, and they are averaged across farms on the Overview.</p>
+  <div class="row" style="margin-bottom:14px"><button class="btn pri" data-act="knew">Add a metric</button></div>
+  ${CFG.kpis.length?`<div class="items">${CFG.kpis.map((k,i)=>`<div class="card it"><div><b>${esc(k.label)}</b> <span class="pill">${esc(k.group)}</span>${k.off?' <span class="pill warn">Not in form</span>':''}<div class="m"><code>${esc(k.formula)}</code></div><div class="m">${k.unit?'In '+esc(k.unit)+' · ':''}${esc(dirSum(k))} · ${appliesTxt(k.types)}</div></div><div class="row"><button class="btn sm" data-act="kedit" data-i="${i}">Edit</button><button class="btn sm bad" data-act="kdel" data-i="${i}">Delete</button></div></div>`).join('')}</div>`:'<div class="card empty"><b>No custom metrics yet</b>For example: “Empty cage share” as <code class="fx">cf_cages / placed * 100</code>.</div>'}`;
+}
+function kpiDlg(i){
+  const ed=i>=0?CFG.kpis[i]:null,k=ed||{label:'',formula:'',unit:'',dec:1,dir:'none',t:null,group:GC,types:TYPES.slice()};
+  const vars=FV.formulaVars(CFG);
+  const groups=[...new Set([G1,G2,G3,G4,G5,G6,GC].concat(CFG.kpis.map(x=>x.group)))];
+  const body=`<label class="f"><span>Metric name</span><input id="k_l" maxlength="60" value="${esc(k.label)}" placeholder="For example: Empty cage share"></label>
+  <label class="f"><span>Formula</span><textarea id="k_f" rows="2" maxlength="400" spellcheck="false" style="font-family:ui-monospace,Menlo,monospace" placeholder="cf_cages / placed * 100">${esc(k.formula)}</textarea><small>Use + - * / ( ) and the functions min, max, abs, sqrt, round(x, n), pct(a, b), avg(a, b, ...), if(test, a, b). A result is shown only when every figure used has been entered.</small></label>
+  <details><summary class="lnk" style="display:inline-block">Insert a figure</summary><input id="k_vs" placeholder="Search figures" style="margin:8px 0"><div class="vars" id="k_v"></div></details>
+  <div class="res" id="k_res" aria-live="polite">Type a formula to test it.</div><div class="try" id="k_try"></div>
+  <div class="g2" style="margin-top:14px"><label class="f"><span>Unit</span><input id="k_u" maxlength="24" value="${esc(k.unit)}" placeholder="%, kg, birds"><small>Type ¤ alone to show your currency.</small></label><label class="f"><span>Decimals</span><select id="k_d">${[0,1,2,3,4].map(n=>`<option ${k.dec===n?'selected':''}>${n}</option>`).join('')}</select></label></div>
+  <div class="g2"><label class="f"><span>Group in Live readings</span><input id="k_g" maxlength="40" list="k_gl" value="${esc(k.group)}"><datalist id="k_gl">${groups.map(g=>`<option value="${esc(g)}">`).join('')}</datalist></label>
+  <label class="f"><span>What is good?</span><select id="k_dir">${Object.keys(DIRS).map(d=>`<option value="${d}" ${k.dir===d?'selected':''}>${DIRS[d]}</option>`).join('')}</select></label></div>
+  <div class="row" id="k_lim" style="align-items:flex-end;gap:10px"></div>
+  <div style="margin:10px 0 4px"><span class="chk">Applies to</span>${TYPES.map(t=>`<label class="chk"><input type="checkbox" class="k_ty" value="${t}" ${(k.types||TYPES).includes(t)?'checked':''}> ${t}</label>`).join('')}</div>`;
+  return dlg(ed?'Edit metric':'Add a metric',body,{wide:true,ok:ed?'Save metric':'Add metric',
+    init:d=>{
+      const f=$('#k_f',d),tr=$('#k_try',d),res=$('#k_res',d),tv={};
+      const drawVars=()=>{const q=$('#k_vs',d).value.toLowerCase();$('#k_v',d).innerHTML=vars.filter(v=>!q||(v.k+v.l).toLowerCase().includes(q)).map(v=>`<button type="button" data-v="${v.k}" title="${esc(v.l+(v.u?' ('+v.u+')':''))}">${v.k}</button>`).join('')};
+      drawVars();$('#k_vs',d).oninput=drawVars;
+      $('#k_v',d).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;const s=f.selectionStart,t=f.selectionEnd;f.setRangeText(b.dataset.v,s,t,'end');f.focus();calc(true)};
+      const names=Object.fromEntries(vars.map(v=>[v.k,v]));
+      function calc(redraw){
+        const src=f.value.trim();
+        if(!src){res.textContent='Type a formula to test it.';tr.innerHTML='';return}
+        let ast;try{ast=FV.parse(src)}catch(e){res.textContent='Formula problem: '+e.message;tr.innerHTML='';return}
+        const used=[...FV.vars(ast)],bad=used.filter(v=>!names[v]);
+        if(bad.length){res.textContent='Unknown figure: '+bad.join(', ')+'. Pick from “Insert a figure”.';tr.innerHTML='';return}
+        if(redraw!==false&&used.join()!==tr.dataset.used){tr.dataset.used=used.join();tr.innerHTML=used.map(v=>`<label>${esc(names[v].l)} <code>${v}</code><input inputmode="decimal" data-tv="${v}" value="${tv[v]==null?'':tv[v]}" placeholder="try a value"></label>`).join('')}
+        used.forEach(v=>{const x=tr.querySelector('[data-tv="'+v+'"]');if(x)tv[v]=x.value});
+        const out=FV.evalCustom({formula:src},n=>{const x=parseFloat(String(tv[n]==null?'':tv[n]).replace(',','.'));return isFinite(x)?x:null});
+        res.textContent=out==null?'Fill the try-out values to see a result. Empty or divide by zero shows a dash.':'With these values: '+fmt(out,+$('#k_d',d).value)+(unitTxt($('#k_u',d).value)?' '+unitTxt($('#k_u',d).value):'');
+      }
+      f.oninput=()=>calc(true);tr.oninput=()=>calc(false);$('#k_d',d).onchange=()=>calc(false);$('#k_u',d).oninput=()=>calc(false);
+      const lim=()=>{const dir=$('#k_dir',d).value,names=dir==='band'?['Good from','Good to','Poor below','Poor above']:dir==='max'?['Good up to','Poor above']:dir==='min'?['Good from','Poor below']:[];
+        const cur=[...$$('[data-kt]',d)].map(x=>x.value);const src=cur.length===names.length&&cur.some(Boolean)?cur:(k.t&&k.dir===dir?k.t:[]);
+        $('#k_lim',d).innerHTML=names.map((n,j)=>`<label class="f" style="margin:0"><span>${n}</span><input data-kt inputmode="decimal" style="width:110px" value="${src[j]==null?'':src[j]}"></label>`).join('');};
+      $('#k_dir',d).onchange=lim;lim();calc(true);
+    },
+    onOk:d=>{
+      const label=$('#k_l',d).value.trim(),formula=$('#k_f',d).value.trim(),dir=$('#k_dir',d).value;
+      if(!label)throw new Error('Give the metric a name.');if(!formula)throw new Error('Write a formula.');
+      const types=$$('.k_ty:checked',d).map(x=>x.value);if(!types.length)throw new Error('Choose broiler, layer or both.');
+      const o={id:ed?ed.id:slug(label,'ck_',new Set(CFG.kpis.map(x=>x.id))),label,formula,unit:$('#k_u',d).value.trim(),dec:+$('#k_d',d).value,dir,group:$('#k_g',d).value.trim()||GC,types};
+      if(dir!=='none')o.t=$$('[data-kt]',d).map(x=>x.value.trim()===''?NaN:+x.value.replace(',','.'));
+      const t=clone(CFG);if(ed)t.kpis[i]=o;else t.kpis.push(o);
+      const r=FV.validateConfig(t);if(!r.ok)throw new Error(r.errors[0]);
+      CFG=r.config;mark();render();
+    }});
+}
+
+/* ---------- farms ---------- */
+async function loadFarms(){FARMS=await api('GET','/api/farms?all=1')}
+function pFarms(){
+  const q=farmQ.toLowerCase(),list=FARMS.filter(f=>(showArch||f.active)&&(!q||(f.farm+f.farmer+f.location).toLowerCase().includes(q)));
+  return`<h1>Farms</h1><p class="lead">Every farm in ${esc(ORG.name)}. Auditors can pick from this list, and new farms typed in the app are added here automatically.</p>
+  <div class="row sp" style="margin-bottom:14px"><div class="row"><button class="btn pri" data-act="fnew2">Add a farm</button><button class="btn" data-act="fimport">Import a list</button></div><div class="row"><input id="fq" type="search" placeholder="Search farms" value="${esc(farmQ)}" style="width:220px"><label class="chk"><input type="checkbox" id="farch" ${showArch?'checked':''}> Show archived</label></div></div>
+  <div class="card tw">${list.length?`<table><thead><tr><th>Farm</th><th>Farmer</th><th>Location</th><th>Phone</th><th>Type</th><th></th></tr></thead><tbody>${list.map(f=>`<tr style="${f.active?'':'opacity:.55'}"><td><b>${esc(f.farm)}</b>${f.active?'':' <span class="pill">Archived</span>'}</td><td>${esc(f.farmer)}</td><td>${esc(f.location||'')}</td><td>${esc(f.phone||'')}</td><td>${esc(f.type)}</td><td class="n" style="white-space:nowrap"><button class="btn sm" data-act="fedit2" data-id="${f.id}">Edit</button> ${f.active?`<button class="btn sm bad" data-act="farch" data-id="${f.id}">Archive</button>`:`<button class="btn sm" data-act="frest" data-id="${f.id}">Restore</button>`}</td></tr>`).join('')}</tbody></table>`:'<div class="empty"><b>No farms found</b>Add one, or import a list from a spreadsheet.</div>'}</div>`;
+}
+function farmDlg(id){
+  const f=FARMS.find(x=>x.id===id)||{type:'Layer'};
+  return dlg(id?'Edit farm':'Add a farm',`<div class="g2"><label class="f"><span>Farmer name</span><input id="a_fr" maxlength="80" value="${esc(f.farmer||'')}"></label><label class="f"><span>Farm name</span><input id="a_fm" maxlength="80" value="${esc(f.farm||'')}"></label></div><div class="g2"><label class="f"><span>Location</span><input id="a_lo" maxlength="120" value="${esc(f.location||'')}"></label><label class="f"><span>Phone</span><input id="a_ph" maxlength="30" value="${esc(f.phone||'')}"></label></div><label class="f"><span>Usual flock type</span><select id="a_ty">${TYPES.map(t=>`<option ${f.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="f"><span>Notes</span><textarea id="a_nt" maxlength="400">${esc(f.notes||'')}</textarea></label>`,{ok:id?'Save farm':'Add farm',onOk:async d=>{
+    const b={farmer:$('#a_fr',d).value,farm:$('#a_fm',d).value,location:$('#a_lo',d).value,phone:$('#a_ph',d).value,type:$('#a_ty',d).value,notes:$('#a_nt',d).value};
+    if(id)await api('PUT','/api/farms/'+id,b);else await api('POST','/api/farms',b);
+    await loadFarms();render();toast(id?'Farm saved':'Farm added');
+  }});
+}
+function importDlg(){
+  return dlg('Import farms',`<p class="hint">Paste rows from a spreadsheet, one farm per line, with columns: farmer, farm, location, phone, type (Layer or Broiler). Commas or tabs both work. Farms that already exist are skipped.</p><textarea id="im" rows="9" placeholder="Ravi Kumar, Green Acres, Namakkal, 98940 11223, Layer" style="font-family:ui-monospace,Menlo,monospace;font-size:14px"></textarea><p class="hint" id="imc"></p>`,{wide:true,ok:'Import',
+    init:d=>{$('#im',d).oninput=()=>{$('#imc',d).textContent=parse($('#im',d).value).length+' farms found'}},
+    onOk:async d=>{const rows=parse($('#im',d).value);if(!rows.length)throw new Error('Paste at least one row.');const r=await api('POST','/api/farms/bulk',{farms:rows});await loadFarms();render();toast(r.added+' added'+(r.skipped?', '+r.skipped+' skipped':''))}});
+  function parse(t){
+    return t.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const c=(l.includes('\t')?l.split('\t'):l.split(',')).map(x=>x.trim());return{farmer:c[0]||'',farm:c[1]||'',location:c[2]||'',phone:c[3]||'',type:/broiler/i.test(c[4]||'')?'Broiler':'Layer'}}).filter((r,i)=>r.farmer&&r.farm&&!(i===0&&/^farmer$/i.test(r.farmer)));
+  }
+}
+
+/* ---------- team ---------- */
+async function loadUsers(){USERS=await api('GET','/api/users')}
+const ROLE={owner:'Owner',admin:'Admin',auditor:'Auditor',viewer:'Viewer'};
+const LOCAL=(window.parent&&window.parent!==window&&window.parent.FVLocal)||null;
+function pTeam(){
+  return`<h1>Team</h1><p class="lead">Owners and admins manage everything. Auditors fill in visits and see their own. Viewers can only read reports, for all farms or just the ones you pick.</p>
+  <div class="row" style="margin-bottom:14px"><button class="btn pri" data-act="unew">Add a person</button></div>
+  <div class="card tw"><table><thead><tr><th>Name</th><th>Role</th><th>Last sign-in</th><th></th></tr></thead><tbody>${USERS.map(u=>`<tr style="${u.active?'':'opacity:.55'}"><td><b>${esc(u.name)}</b>${u.id===ME.id?' <span class="pill">You</span>':''}${u.mustChange?' <span class="pill warn">Temporary password</span>':''}${u.active?'':' <span class="pill">Deactivated</span>'}<small>${esc(u.email)}${u.orgLabel?' · '+esc(u.orgLabel):''}${u.role==='viewer'?' · '+(!u.access||u.access==='*'?'All farms':u.access==='-'?'No farms':u.access.split(',').length+' farm'+(u.access.split(',').length>1?'s':'')):''}</small></td><td><select data-role="${u.id}" style="width:130px" ${u.role==='owner'&&ME.role!=='owner'?'disabled':''}>${['auditor','viewer','admin','owner'].filter(r=>r!=='owner'||ME.role==='owner'||u.role==='owner').map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${ROLE[r]}</option>`).join('')}</select></td><td>${ft(u.lastLogin)}</td><td class="n" style="white-space:nowrap"><button class="btn sm" data-act="uedit" data-id="${u.id}">Edit</button> <button class="btn sm" data-act="ureset" data-id="${u.id}">Reset password</button> ${u.id===ME.id?'':`<button class="btn sm ${u.active?'bad':''}" data-act="utog" data-id="${u.id}">${u.active?'Deactivate':'Reactivate'}</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function accessBox(u){
+  const all=!u.access||u.access==='*',sel=new Set(all?[]:String(u.access).split(',')),farms=FARMS.filter(f=>f.active||sel.has(f.id));
+  return'<fieldset style="border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:6px 0 0"><legend style="font-weight:700;font-size:14px;padding:0 6px">Farms a viewer can read</legend>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="radio" name="u_a" value="all" '+(all?'checked':'')+' onchange="document.querySelectorAll(\'.u_f\').forEach(x=>x.disabled=true)"> All farms, including new ones</label>'+
+  '<label style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="radio" name="u_a" value="some" '+(all?'':'checked')+' onchange="document.querySelectorAll(\'.u_f\').forEach(x=>x.disabled=false)"> Only these farms</label>'+
+  '<div style="max-height:150px;overflow:auto;padding-left:24px">'+(farms.length?farms.map(f=>'<label style="display:flex;gap:8px;align-items:center;margin:3px 0;font-weight:400"><input class="u_f" type="checkbox" value="'+f.id+'" '+(sel.has(f.id)?'checked ':'')+(all?'disabled':'')+'> '+esc(f.farm)+' <small style="color:var(--mut)">'+esc(f.farmer)+'</small></label>').join(''):'<span class="hint">No farms yet.</span>')+'</div><p class="hint" style="margin:6px 0 0">Only used when the role is Viewer.</p></fieldset>';
+}
+function readAccess(d){const r=d.querySelector('input[name=u_a]:checked');if(!r||r.value==='all')return'*';const ids=[...d.querySelectorAll('.u_f:checked')].map(x=>x.value);return ids.length?ids:'-'}
+function userDlg(id){
+  const u=USERS.find(x=>x.id===id)||{role:'auditor'};
+  return dlg(id?'Edit person':'Add a person',`<label class="f"><span>Name</span><input id="u_n" maxlength="80" value="${esc(u.name||'')}"></label>${id?`<p class="hint">Email: ${esc(u.email)}</p>`:'<label class="f"><span>Email</span><input id="u_e" type="email" maxlength="200" autocomplete="off"></label>'}<label class="f"><span>Company shown on reports</span><input id="u_o" maxlength="80" value="${esc(u.orgLabel||'')}" placeholder="${esc(ORG.name)}"></label>${id?'':`<label class="f"><span>Role</span><select id="u_r"><option value="auditor">Auditor: own visits only</option><option value="viewer">Viewer: reads reports only</option><option value="admin">Admin: manages everything</option>${ME.role==='owner'?'<option value="owner">Owner</option>':''}</select></label>`}${accessBox(u)}`,{ok:id?'Save':'Add person',onOk:async d=>{
+    if(id){await api('PATCH','/api/users/'+id,{name:$('#u_n',d).value,orgLabel:$('#u_o',d).value,access:readAccess(d)});await loadUsers();render();toast('Saved');return}
+    const r=await api('POST','/api/users',{name:$('#u_n',d).value,email:$('#u_e',d).value,orgLabel:$('#u_o',d).value,role:$('#u_r',d).value,access:readAccess(d)});
+    await loadUsers();render();setTimeout(()=>pwDlg('Temporary password',r.user.name,r.tempPassword),50);
+  }});
+}
+
+/* ---------- all visits ---------- */
+async function loadVisits(){VIS=await api('GET','/api/visits')}
+function pVisits(){
+  if(!VIS)return'<p class="hint">Loading…</p>';
+  const q=visQ.toLowerCase(),all=VIS.filter(v=>!q||[v.no,v.data.farm,v.data.farmer,v.data.auditor,v.date].join(' ').toLowerCase().includes(q)),list=all.slice(0,visMax);
+  return`<h1>All visits</h1><p class="lead">${VIS.length} visit${VIS.length===1?'':'s'} from every auditor. Open a visit in the visit app to see its full report and PDF.</p>
+  <div class="row sp" style="margin-bottom:14px"><input id="vq" type="search" placeholder="Search by farm, farmer, auditor or number" value="${esc(visQ)}" style="max-width:340px"><a class="btn" href="/api/admin/export/visits.csv">Download as CSV</a></div>
+  <div class="card tw">${list.length?`<table><thead><tr><th>Visit</th><th>Farm</th><th>Auditor</th><th>Type</th><th>Score</th><th></th></tr></thead><tbody>${list.map(v=>`<tr><td><b>${esc(v.no||'—')}</b><small>${fd(v.date)}</small></td><td>${esc(v.data.farm||'—')}<small>${esc(v.data.farmer||'')}</small></td><td>${esc(v.data.auditor||'')}</td><td>${esc(v.type)}</td><td>${score(v.score)}</td><td class="n"><button class="btn sm bad" data-act="vdel" data-id="${v.id}">Delete</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty"><b>No visits found</b></div>'}</div>${all.length>visMax?`<p><button class="btn" data-act="vmore">Show more</button> <span class="hint">${visMax} of ${all.length}</span></p>`:''}`;
+}
+
+/* ---------- organisation ---------- */
+function pOrg(){
+  const cur=['₹','$','£','€','₦','KSh','Rs','৳','₱','R'];
+  return`<h1>Organisation</h1><p class="lead">Settings that apply to everyone in ${esc(ORG.name)}.</p>
+  <div class="card pad" style="max-width:560px"><label class="f"><span>Organisation name</span><input id="o_n" maxlength="80" value="${esc(ORG.name)}"></label><div class="g2"><label class="f"><span>Currency</span><select id="o_c">${cur.map(c=>`<option ${ORG.currency===c?'selected':''}>${c}</option>`).join('')}</select></label><label class="f"><span>Default language in the app</span><select id="o_l">${[['en','English'],['hi','Hinglish'],['dv','Hindi (Devanagari)']].map(([v,n])=>`<option value="${v}" ${ORG.language===v?'selected':''}>${n}</option>`).join('')}</select></label></div><button class="btn pri" data-act="osave">Save organisation</button></div>
+  ${LOCAL?`<h2>Data on this device</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">This single-page version keeps its SQLite database inside this browser. Download the file regularly as a backup, or move it to another browser with Restore.</p><div class="row"><button class="btn" data-act="dbdl">Download database file</button><label class="btn" style="cursor:pointer">Restore from file<input type="file" id="dbup" accept=".sqlite,.db,.sqlite3" hidden></label><button class="btn bad" data-act="dbwipe">Erase everything</button></div></div>`:''}
+  <h2>Your Google Sheet</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">All farms, people, settings and visits live in one Google Sheet. Open it to filter, pivot or chart anything.</p><div class="row"><button class="btn pri" data-act="sheet">Open the Google Sheet</button><button class="btn" data-act="kpisheet">Refresh the “KPI readings” tab</button></div></div>
+  <h2>Links for your team</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">Each link already knows where your sheet is, so people only sign in. Send the form link to auditors and the reports link to anyone who only reads.</p>
+  ${[['Visit form (auditors)','index.html'],['Reports (viewers)','reports.html']].map(([n,p])=>'<label class="f"><span>'+n+'</span><input readonly value="'+esc(FVR.shareLink(p))+'" onfocus="this.select()"></label>').join('')}</div>
+  <h2>Recent activity</h2>${AUDLOG?`<div class="card tw"><table><tbody>${AUDLOG.map(a=>`<tr><td style="white-space:nowrap">${ft(a.at)}</td><td><b>${esc(a.userName||'')}</b></td><td>${esc(a.action)}</td><td>${esc(a.detail||'')}</td></tr>`).join('')||'<tr><td class="hint">Nothing yet.</td></tr>'}</tbody></table></div>`:'<p class="hint">Loading…</p>'}`;
+}
+
+/* ---------- router ---------- */
+const PAGES=[['overview','Overview',pOverview],['visits','All visits',pVisits],['metrics','Metrics',pMetrics],['allkpis','All KPIs',pAll],['fields','Custom fields',pFields],['kpis','Custom metrics',pKpis],['farms','Farms',pFarms],['team','Team',pTeam],['org','Organisation',pOrg]];
+const cur=()=>{const h=(location.hash||'#overview').slice(1);return PAGES.some(p=>p[0]===h)?h:'overview'};
+async function ensure(p){
+  try{
+    if(p==='overview'&&!OV){OV=await api('GET','/api/admin/overview');render()}
+    if(p==='visits'&&!VIS){await loadVisits();render()}
+    if(p==='farms'&&!FARMS.length){await loadFarms();render()}
+    if(p==='team'&&!USERS.length){await loadUsers();render()}
+    if(p==='org'&&!AUDLOG){AUDLOG=await api('GET','/api/admin/audit');render()}
+  }catch(e){if(e.message!=='auth')toast(e.message)}
+}
+function render(){
+  const p=cur();
+  $('#nav').innerHTML=`<div class="brand"><svg viewBox="0 0 100 114" aria-hidden="true"><path d="M50 4C73 4 91 38 91 66C91 90 73 110 50 110C27 110 9 90 9 66C9 38 27 4 50 4Z" fill="none" stroke="currentColor" stroke-width="8"/><circle cx="50" cy="70" r="26" fill="#f4b324"/></svg><div><b>Farm Visit</b><small>${esc(ORG.name)}</small></div></div>`+PAGES.map(x=>`<a class="nv" href="#${x[0]}" ${x[0]===p?'aria-current="page"':''}>${x[1]}</a>`).join('')+`<div class="sp"></div><div class="me"><b>${esc(ME.name)}</b>${ROLE[ME.role]}<br><a href="index.html">Visit form</a><a href="reports.html">Reports</a><a href="#" data-act="out">Sign out</a></div>`;
+  $('#top').innerHTML=`<span><b>${esc(ORG.name)}</b></span><span><a href="index.html">Visit form</a> · <a href="reports.html">Reports</a> · <a href="#" data-act="out">Sign out</a></span>`;
+  const keep=document.activeElement&&document.activeElement.id,pos=keep?document.activeElement.selectionStart:null;
+  $('#view').innerHTML=PAGES.find(x=>x[0]===p)[2]();
+  if(keep){const el=document.getElementById(keep);if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(_){}}}
+}
+window.addEventListener('hashchange',()=>{render();ensure(cur());window.scrollTo(0,0)});
+
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act,i=+b.dataset.i,id=b.dataset.id;
+  try{switch(a){
+    case'out':e.preventDefault();try{await api('POST','/api/auth/logout')}catch(_){}FVR.loggedOut();break;
+    case'ty':ty=b.dataset.t;render();break;
+    case'lim':{const k=b.dataset.id;openLim.has(k)?openLim.delete(k):openLim.add(k);render();break}
+    case'limreset':{const key=ty+'|'+b.dataset.k;delete CFG.baselines[key];mark();render();break}
+    case'allon':case'alloff':allRows().forEach(r=>rowSet(r,b.dataset.t,a==='allon'));mark();render();break;
+    case'fnew':fieldDlg(-1);break;case'fedit':fieldDlg(i);break;
+    case'fup':case'fdn':{const j=a==='fup'?i-1:i+1,f=CFG.fields;[f[i],f[j]]=[f[j],f[i]];mark();render();break}
+    case'fdel':{const f=CFG.fields[i],u=usedIn(f.id);if(u.length){toast('“'+f.label+'” is used by the metric “'+u[0].label+'”. Change or delete that metric first.');break}
+      if(await confirmDlg('Delete this field?','“'+esc(f.label)+'” will no longer be asked. Answers already saved on past visits are kept.','Delete')){CFG.fields.splice(i,1);mark();render()}break}
+    case'knew':kpiDlg(-1);break;case'kedit':kpiDlg(i);break;
+    case'kdel':if(await confirmDlg('Delete this metric?','“'+esc(CFG.kpis[i].label)+'” disappears from the app and reports. Saved visits keep their figures.','Delete')){CFG.kpis.splice(i,1);mark();render()}break;
+    case'fnew2':farmDlg(null);break;case'fedit2':farmDlg(id);break;case'fimport':importDlg();break;
+    case'farch':if(await confirmDlg('Archive this farm?','It leaves the farm list in the app. Its past visits stay.','Archive')){await api('DELETE','/api/farms/'+id);await loadFarms();render()}break;
+    case'frest':await api('PUT','/api/farms/'+id,{active:true});await loadFarms();render();break;
+    case'unew':case'uedit':if(!FARMS.length)await loadFarms();userDlg(a==='unew'?null:id);break;
+    case'ureset':{const u=USERS.find(x=>x.id===id);if(await confirmDlg('Reset password?',esc(u.name)+' is signed out and gets a new temporary password.','Reset')){const r=await api('PATCH','/api/users/'+id,{resetPassword:true});await loadUsers();render();setTimeout(()=>pwDlg('New temporary password',u.name,r.tempPassword),50)}break}
+    case'utog':{const u=USERS.find(x=>x.id===id);await api('PATCH','/api/users/'+id,{active:!u.active});await loadUsers();render();toast(u.active?'Deactivated':'Reactivated');break}
+    case'vdel':if(await confirmDlg('Delete this visit?','The report and its readings are removed for everyone. This cannot be undone.','Delete')){await api('DELETE','/api/visits/'+id);await loadVisits();OV=null;render()}break;
+    case'vmore':visMax+=200;render();break;
+    case'sheet':{const r=await api('GET','/api/admin/sheet');window.open(r.url,'_blank','noopener');break}
+    case'kisheet':case'kpisheet':{const r=await api('POST','/api/admin/rebuild-kpi-sheet',{});toast('Updated: '+r.rows+' readings written to the “KPI readings” tab');break}
+    case'dbdl':LOCAL.downloadDb();break;
+    case'dbwipe':if(await confirmDlg('Erase everything?','All organisations, farms, visits and users in this browser are deleted. Download the database file first if you may need it.','Erase')){await LOCAL.wipe();LOCAL.nav('/login')}break;
+    case'osave':{const r=await api('PUT','/api/org',{name:$('#o_n').value,currency:$('#o_c').value,language:$('#o_l').value});ORG=r;CUR=r.currency;AUDLOG=null;render();ensure('org');toast('Saved');break}
+  }}catch(x){if(x.message!=='auth')toast(x.message)}
+});
+document.addEventListener('change',async e=>{
+  const t=e.target;
+  try{
+    if(t.matches('[data-tg]')){
+      const list=t.dataset.tg==='kpi'?CFG.disabled[ty]:CFG.disabled.audit,k=t.dataset.k;
+      const i=list.indexOf(k);if(t.checked){if(i>=0)list.splice(i,1)}else if(i<0)list.push(k);
+      mark();render();
+    }else if(t.matches('[data-ak]')){
+      const r=allRows().find(x=>x.kind===t.dataset.ak&&(x.kind==='custom'?x.id:x.k)===t.dataset.k);if(r){rowSet(r,t.dataset.t,t.checked);mark();render()}
+    }else if(t.id==='ak'){allKind=t.value;render()}
+    else if(t.matches('[data-lim]'))limChange(t);
+    else if(t.matches('[data-kg]')){const key=ty+'|'+t.dataset.kg,o=CFG.baselines[key]||{};o.kg=t.checked;CFG.baselines[key]=o;if(!o.kg&&!o.v&&!o.vk)delete CFG.baselines[key];mark();render()}
+    else if(t.matches('[data-role]')){await api('PATCH','/api/users/'+t.dataset.role,{role:t.value});await loadUsers();render();toast('Role changed')}
+    else if(t.id==='farch'){showArch=t.checked;render()}
+    else if(t.id==='dbup'&&t.files[0]){const buf=new Uint8Array(await t.files[0].arrayBuffer());if(await confirmDlg('Replace this database?','Everything in this browser is replaced by the contents of that file. You will be signed out.','Replace')){await LOCAL.importDb(buf);LOCAL.nav('/login')}}
+  }catch(x){if(x.message!=='auth'){toast(x.message);if(t.matches('[data-role]')){await loadUsers();render()}}}
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='fq'){farmQ=t.value;render()}
+  else if(t.id==='aq'){allQ=t.value;render()}
+  else if(t.id==='vq'){visQ=t.value;visMax=100;render()}
+});
+$('#discard').onclick=()=>{CFG=JSON.parse(snapshot);mark();render()};
+$('#save').onclick=async()=>{
+  const b=$('#save');b.disabled=true;
+  try{
+    const r=await api('PUT','/api/config',{config:CFG,version:VER});
+    VER=r.version;CFG=Object.assign({},r);delete CFG.version;snapshot=JSON.stringify(CFG);mark();render();toast('Saved. The visit app picks this up on its next load.');
+  }catch(e){
+    if(e.status===409){toast('Someone else changed these settings. Reloading…');setTimeout(()=>location.reload(),1500)}
+    else if(e.message!=='auth')toast(e.message);
+  }
+  b.disabled=false;
+};
+
+/* ---------- start ---------- */
+(async function init(){
+  try{
+    const b=await api('GET','/api/bootstrap');
+    ME=b.user;ORG=b.org;CUR=ORG.currency;VER=b.config.version;CFG=Object.assign({},b.config);delete CFG.version;
+    CFG.disabled=Object.assign({Broiler:[],Layer:[],audit:[]},CFG.disabled);CFG.baselines=CFG.baselines||{};CFG.fields=CFG.fields||[];CFG.kpis=CFG.kpis||[];
+    snapshot=JSON.stringify(CFG);
+    if(ME.role==='auditor'||ME.role==='viewer'){location.href=FVR.home(ME.role);return}
+    FARMS=[];
+    render();ensure(cur());
+  }catch(e){if(e.message!=='auth')$('#view').innerHTML='<p class="hint">Could not load the admin panel: '+esc(e.message)+'</p>'}
+})();
+})();
+</script>
+</body>
+</html>
