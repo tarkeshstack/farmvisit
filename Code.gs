@@ -361,6 +361,8 @@ function isDate(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(
 function toNum(v) { var n = Number(v); return isFinite(n) ? n : null; }
 function validEmail(e) { return typeof e === 'string' && e.length <= 200 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
 function validPassword(p) { return typeof p === 'string' && p.length >= 8 && p.length <= 200; }
+function validUsername(e) { return typeof e === 'string' && /^[a-z0-9][a-z0-9._-]{2,39}$/.test(e); }
+function validLogin(e) { return validEmail(e) || validUsername(e); }
 function parseJson(s) { try { return JSON.parse(s); } catch (e) { return null; } }
 function hex(bytes) { var s = ''; for (var i = 0; i < bytes.length; i++) { var b = (bytes[i] + 256) % 256; s += (b < 16 ? '0' : '') + b.toString(16); } return s; }
 function sha256(text) { return hex(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8)); }
@@ -462,7 +464,7 @@ function setSetting(key, value) {
   var t = T('Settings'), r = t.by('key', key);
   if (r) t.update(r, { value: String(value) }); else t.insert({ key: key, value: String(value) });
 }
-function orgOut() { return { id: 'org', name: getSetting('org_name', 'Farm Visit'), currency: getSetting('currency', '₹'), language: getSetting('language', 'en') }; }
+function orgOut() { return { id: 'org', name: getSetting('org_name', 'Farm Visit'), currency: getSetting('currency', '₹'), language: getSetting('language', 'en'), selfSignup: getSetting('self_signup', 'on') !== 'off' }; }
 function configOut() {
   var c = parseJson(getSetting('config', '')) || FV.emptyConfig();
   c.version = Number(getSetting('config_version', '1')) || 1;
@@ -608,13 +610,13 @@ function route(method, pattern, opts, fn) {
 
 route('GET', '/api/auth/status', { open: true }, function () {
   var n = T('Users').all().length;
-  return { configured: n > 0, orgName: n > 0 ? getSetting('org_name', '') : '' };
+  return { configured: n > 0, orgName: n > 0 ? getSetting('org_name', '') : '', selfSignup: n > 0 && getSetting('self_signup', 'on') !== 'off' };
 });
 route('POST', '/api/auth/setup', { open: true }, function (c) {
   if (T('Users').all().length) throw new HttpError(403, 'This workspace is already set up. Sign in instead.');
   var b = c.body, orgName = str(b.orgName, 80), name = str(b.name, 80), email = str(b.email, 200).toLowerCase();
   if (!orgName || !name) throw new HttpError(400, 'Enter your organisation and your name');
-  if (!validEmail(email)) throw new HttpError(400, 'Enter a valid email address');
+  if (!validLogin(email)) throw new HttpError(400, 'Enter a username (3 or more letters or numbers, . _ - allowed) or an email address');
   if (!validPassword(b.password)) throw new HttpError(400, 'Use a password of at least 8 characters');
   var salt = newId(), t = nowIso();
   setSetting('org_name', orgName); setSetting('currency', str(b.currency, 8) || '₹'); setSetting('language', 'en');
@@ -627,12 +629,26 @@ route('POST', '/api/auth/login', { open: true }, function (c) {
   var email = str(c.body.email, 200).toLowerCase();
   if (!rateTake('login|' + email, 8, 900)) throw new HttpError(429, 'Too many attempts. Wait a few minutes and try again.');
   var u = T('Users').by('email', email);
-  if (!u || !u.active || !safeEq(hashPw(String(c.body.password || ''), u.pw_salt), u.pw_hash)) throw new HttpError(401, 'Wrong email or password');
+  if (!u || !u.active || !safeEq(hashPw(String(c.body.password || ''), u.pw_salt), u.pw_hash)) throw new HttpError(401, 'Wrong username or password');
   rateReset('login|' + email);
   T('Users').update(u, { last_login: nowIso() });
   T('Sessions').removeWhere(function (r) { return r.expires_at < nowIso(); });
   log(u, 'login', '');
   return { ok: true, token: startSession(u.id), mustChange: u.must_change };
+});
+/* Auditors can create their own account with a username and password, unless an admin turned this off. */
+route('POST', '/api/auth/signup', { open: true }, function (c) {
+  if (!T('Users').all().length) throw new HttpError(403, 'This workspace is not set up yet');
+  if (getSetting('self_signup', 'on') === 'off') throw new HttpError(403, 'Sign-up is turned off. Ask your admin to add you.');
+  var b = c.body, login = str(b.username, 40).toLowerCase();
+  if (!validUsername(login)) throw new HttpError(400, 'Choose a username of 3 or more letters or numbers (. _ - allowed)');
+  if (!validPassword(b.password)) throw new HttpError(400, 'Use a password of at least 8 characters');
+  if (!rateTake('signup', 30, 3600)) throw new HttpError(429, 'Too many new accounts just now. Try again later.');
+  if (T('Users').by('email', login)) throw new HttpError(409, 'That username is taken. Choose another.');
+  var salt = newId(), t = nowIso();
+  var u = T('Users').insert({ id: newId(), email: login, name: login, role: 'auditor', org_label: getSetting('org_name', ''), access: '*', pw_salt: salt, pw_hash: hashPw(b.password, salt), must_change: false, active: true, created_at: t, last_login: t });
+  log(u, 'signup', login);
+  return { ok: true, token: startSession(u.id), mustChange: false };
 });
 route('POST', '/api/auth/logout', function (c) { T('Sessions').removeWhere(function (r) { return r.token_hash === c.user._tokenHash; }); return { ok: true }; });
 route('POST', '/api/auth/password', function (c) {
@@ -672,6 +688,7 @@ route('PUT', '/api/org', function (c) {
   var name = str(c.body.name, 80), cur = str(c.body.currency, 8), lang = ['en', 'hi', 'dv'].indexOf(c.body.language) >= 0 ? c.body.language : null;
   if (!name) throw new HttpError(400, 'Enter an organisation name');
   setSetting('org_name', name); setSetting('currency', cur || '₹'); if (lang) setSetting('language', lang);
+  if (c.body.selfSignup !== undefined) setSetting('self_signup', c.body.selfSignup ? 'on' : 'off');
   log(c.user, 'org', name);
   return orgOut();
 });
@@ -729,9 +746,9 @@ route('POST', '/api/users', function (c) {
   var u = c.user; needAdmin(u);
   var b = c.body, name = str(b.name, 80), email = str(b.email, 200).toLowerCase(), role = ROLES.indexOf(b.role) >= 0 ? b.role : 'auditor';
   if (!name) throw new HttpError(400, 'Enter the person’s name');
-  if (!validEmail(email)) throw new HttpError(400, 'Enter a valid email address');
+  if (!validLogin(email)) throw new HttpError(400, 'Enter a username (3 or more letters or numbers, . _ - allowed) or an email address');
   if (role === 'owner' && u.role !== 'owner') throw new HttpError(403, 'Only an owner can add another owner');
-  if (T('Users').by('email', email)) throw new HttpError(409, 'That email already has an account');
+  if (T('Users').by('email', email)) throw new HttpError(409, 'That username or email already has an account');
   var pw = validPassword(b.password) ? b.password : tempPassword(), salt = newId();
   var rec = T('Users').insert({ id: newId(), email: email, name: name, role: role, org_label: str(b.orgLabel, 80), access: cleanAccess(b.access, '*'), pw_salt: salt, pw_hash: hashPw(pw, salt), must_change: b.mustChange === false && u.role === 'owner' ? false : true, active: true, created_at: nowIso(), last_login: '' });
   log(u, 'user-add', email + ' as ' + role);
