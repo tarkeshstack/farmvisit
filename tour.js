@@ -4,104 +4,104 @@
 (function () {
   'use strict';
   var APP = window.FV_APP || 'form';
-  var SEEN_KEY = 'fv_tour_seen_v1';
+  var SEEN_KEY = 'fv_tour_seen_v2';
 
   /* ---------- the cards ----------
      sel: a CSS selector, a list of them (first visible wins), or 'text:<tag>:<words>'.
      A card whose target is missing or hidden is skipped, so one list fits phone and desktop;
      unless: skip the card when that other element is showing. */
-  var HELP = { sel: '#fvhelp', t: 'Need this again?', d: 'Tap ? any time to replay the guide for the screen you are on.' };
+  var HELP = { sel: '#fvhelp', t: 'Phir se dekhna hai?', d: 'Kabhi bhi ? dabaiye, is screen ki guide dobara chal jayegi.' };
   var REPORTS = [
-    { sel: '[data-rc=page][data-arg=dash]', t: 'Dashboard', d: 'Headline numbers and graphs for the visits you pick.' },
-    { sel: '[data-rc=page][data-arg=findings]', t: 'Findings', d: 'Every open action from the visits, with its due date. Overdue ones are flagged.' },
-    { sel: '.rmain [data-rc=menu][aria-expanded]', unless: '#rside .opt[data-rc=period]', t: 'Filters and pages', d: 'Open this to switch between Dashboard and Findings, and to pick the period, farms, bird type and auditor. Downloads are in here too.' },
-    { sel: '#rside .opt[data-rc=period]', t: 'Filters', d: 'Pick the period, farms, bird type and auditor. Every graph and number follows these filters.' },
-    { sel: '#rside [data-rc=farmall]', t: 'Farms', d: 'All farms, or tap a few to compare just those.' },
-    { sel: '#rside [data-rc=agg]', t: 'Compare as', d: 'Average, latest, highest or lowest reading per farm.' },
-    { sel: '.gtabs', t: 'Report tabs', d: 'Show one report at a time, or Show all.' },
-    { sel: '[data-rc=cm]', t: 'Reading chips', d: 'Switch which reading the graph shows, like total mortality or livability.' },
-    { sel: '#rside [data-rc=pdf]', t: 'Download', d: 'Save everything as a PDF report, or as a CSV to open in Excel.' },
+    { sel: '[data-rc=page][data-arg=dash]', t: 'Dashboard', d: 'Chune hue visits ke main numbers aur graphs yahan dikhte hain.' },
+    { sel: '[data-rc=page][data-arg=findings]', t: 'Findings', d: 'Visits se nikle saare khule kaam, unki due date ke saath. Late wale alag se dikhte hain.' },
+    { sel: '.rmain [data-rc=menu][aria-expanded]', unless: '#rside .opt[data-rc=period]', t: 'Filters aur pages', d: 'Ise kholiye: Dashboard ya Findings chuniye, aur period, farms, bird type aur auditor select kijiye. Download bhi isi ke andar hai.' },
+    { sel: '#rside .opt[data-rc=period]', t: 'Filters', d: 'Period, farms, bird type aur auditor chuniye. Har graph aur number inhi filters ke hisaab se badalta hai.' },
+    { sel: '#rside [data-rc=farmall]', t: 'Farms', d: 'Saare farms dekhiye, ya kuch farms tap karke sirf unki tulna kijiye.' },
+    { sel: '#rside [data-rc=agg]', t: 'Kaise compare karein', d: 'Har farm ki average, latest, sabse zyada ya sabse kam reading.' },
+    { sel: '.gtabs', t: 'Report tabs', d: 'Ek baar mein ek report dekhiye, ya Show all dabaiye.' },
+    { sel: '[data-rc=cm]', t: 'Reading chips', d: 'Graph mein kaunsi reading dikhe, yeh chuniye, jaise total mortality ya livability.' },
+    { sel: '#rside [data-rc=pdf]', t: 'Download', d: 'Sab kuch PDF report ke roop mein save kijiye, ya Excel ke liye CSV.' },
     HELP
   ];
   var TOURS = {
     'form:entry': [
-      { t: 'Welcome to Farm Visit', d: 'A one-minute tour of the visit form. Tap Next to see each part, or Skip if you know it already.' },
-      { sel: '[data-rc=view][data-arg=entry]', t: 'Visit data', d: 'Fill in the visit here: farm, flock, feed, growth, audit checks and signatures.' },
-      { sel: '[data-rc=view][data-arg=live]', t: 'Live readings', d: 'Scores and readings work themselves out as you type, coloured green, amber or red against target.' },
-      { sel: '[data-rc=view][data-arg=reports]', t: 'Reports', d: 'Graphs and findings across all visits, with filters for farms and dates.' },
-      { sel: '#rail', t: 'Section bar', d: 'Jump straight to Visit, Flock, Feed, Growth, Audit, Custom or Sign. It follows you as you scroll.' },
-      { sel: '#s0 .hero', t: 'Visit card', d: 'Shows the farm you picked and its score egg. The fuller the yolk, the better the score.' },
-      { sel: '[data-date=date]', t: 'Visit date', d: 'Today is filled in for you. Tap to pick another date.' },
-      { sel: '[data-list=purpose]', t: 'Purpose', d: 'Tap to choose why you are visiting, such as a routine audit or a follow-up.' },
-      { sel: '[data-list=farmer]', t: 'Farmer and farm', d: 'Tap to pick from the list; it fills in the farm, location and phone. New farm? Choose “Add a new farm…”.' },
-      { sel: '#s1 .stt', t: 'Flock', d: 'Pick Layer or Broiler first. The form then shows only the fields for that bird type.' },
-      { sel: '[data-num]', t: 'Number tiles', d: 'Tap a tile to enter a number. A scroll wheel or keypad opens with the unit shown. Change the style in ⚙ Settings → Number entry.' },
-      { sel: '#s4 .stt', t: 'Audit checks', d: 'Count what you see on the farm. Every check adds to the audit score.' },
-      { sel: '#sgA', t: 'Signatures', d: 'The auditor and the farmer sign here with a finger. Tap Clear to sign again.' },
-      { sel: '[data-act=savevisit]', t: 'Save visit', d: 'Saves on this phone straight away and sends it to the Google Sheet when online. No signal? It syncs by itself later.' },
-      { sel: '#eggb', t: 'Score egg', d: 'Tap the egg any time to see every reading for this visit.' },
-      { sel: '[data-act=history]', t: 'Saved reports', d: 'Your saved visits. Open the PDF report, edit a visit, repeat it, or start a new one.' },
-      { sel: '#langb', t: 'Language', d: 'Switch between English, Hinglish and Hindi.' },
-      { sel: '[data-act=settings]', t: 'Settings', d: 'Number entry style, change password, backups and sign out.' },
+      { t: 'Farm Visit mein swagat hai', d: 'Visit form ka ek minute ka tour. Har hissa dekhne ke liye Aage dabaiye, ya pata hai to Chhodo.' },
+      { sel: '[data-rc=view][data-arg=entry]', t: 'Visit data', d: 'Visit ki saari jaankari yahan bhariye: farm, flock, feed, growth, audit checks aur signature.' },
+      { sel: '[data-rc=view][data-arg=live]', t: 'Live readings', d: 'Jaise-jaise aap bharte hain, score aur readings apne aap ban jaati hain: hara, peela ya laal, target ke hisaab se.' },
+      { sel: '[data-rc=view][data-arg=reports]', t: 'Reports', d: 'Saare visits ke graphs aur findings, farms aur tareekh ke filters ke saath.' },
+      { sel: '#rail', t: 'Section bar', d: 'Seedha Visit, Flock, Feed, Growth, Audit, Custom ya Sign par jaiye. Scroll karte waqt yeh saath rehta hai.' },
+      { sel: '#s0 .hero', t: 'Visit card', d: 'Chuna hua farm aur uska score anda dikhata hai. Jitni bhari zardi, utna achha score.' },
+      { sel: '[data-date=date]', t: 'Visit ki tareekh', d: 'Aaj ki tareekh pehle se bhari hai. Doosri tareekh ke liye tap kijiye.' },
+      { sel: '[data-list=purpose]', t: 'Purpose', d: 'Tap karke visit ka kaaran chuniye, jaise routine audit ya follow-up.' },
+      { sel: '[data-list=farmer]', t: 'Farmer aur farm', d: 'Tap karke list se chuniye; farm, location aur phone apne aap bhar jayenge. Naya farm? “Add a new farm…” chuniye.' },
+      { sel: '#s1 .stt', t: 'Flock', d: 'Pehle Layer ya Broiler chuniye. Fir form sirf usi bird type ke fields dikhata hai.' },
+      { sel: '[data-num]', t: 'Number tiles', d: 'Number bharne ke liye tile par tap kijiye. Scroll wheel ya keypad unit ke saath khulta hai. Style ⚙ Settings → Number entry mein badliye.' },
+      { sel: '#s4 .stt', t: 'Audit checks', d: 'Farm par jo dikhe use giniye aur bhariye. Har check audit score mein judta hai.' },
+      { sel: '#sgA', t: 'Signature', d: 'Auditor aur farmer yahan ungli se sign karte hain. Dobara sign ke liye Clear dabaiye.' },
+      { sel: '[data-act=savevisit]', t: 'Save visit', d: 'Turant isi phone mein save hota hai, aur internet milte hi Google Sheet mein chala jata hai. Signal nahi? Baad mein apne aap sync ho jayega.' },
+      { sel: '#eggb', t: 'Score anda', d: 'Is visit ki har reading dekhne ke liye kabhi bhi ande par tap kijiye.' },
+      { sel: '[data-act=history]', t: 'Saved reports', d: 'Aapke save kiye visits. PDF report kholiye, visit edit kijiye, dohraiye, ya naya shuru kijiye.' },
+      { sel: '#langb', t: 'Bhasha', d: 'English, Hinglish aur Hindi ke beech badliye.' },
+      { sel: '[data-act=settings]', t: 'Settings', d: 'Number entry ka style, password badalna, backup aur sign out.' },
       HELP
     ],
     'form:live': [
-      { sel: '[data-rc=lpto]', t: 'Reading groups', d: 'Switch between the audit scorecard and each group of readings, or Show all.' },
-      { sel: '#main .stt', t: 'Scorecard', d: 'Every check with its points. Red items cost the most, so fix those first.' },
-      { sel: '[data-rc=lpnext]', t: 'Next and previous', d: 'Step through the groups one at a time.' },
+      { sel: '[data-rc=lpto]', t: 'Reading groups', d: 'Audit scorecard aur har reading group ke beech badliye, ya Show all dabaiye.' },
+      { sel: '#main .stt', t: 'Scorecard', d: 'Har check aur uske points. Laal wale sabse zyada points kaat-te hain, unhe pehle theek karwaiye.' },
+      { sel: '[data-rc=lpnext]', t: 'Aage aur peeche', d: 'Groups ko ek-ek karke dekhiye.' },
       HELP
     ],
     'form:reports': REPORTS,
-    'reports:reports': [{ t: 'Welcome to Reports', d: 'Read-only graphs and findings from every farm visit. Here is a quick look around.' }].concat(REPORTS),
+    'reports:reports': [{ t: 'Reports mein swagat hai', d: 'Har farm visit ke graphs aur findings, sirf dekhne ke liye. Chaliye ek nazar daalte hain.' }].concat(REPORTS),
     'admin:overview': [
-      { t: 'Welcome to the Admin console', d: 'Set up what auditors fill in, manage farms and people, and see every visit. A quick look around.' },
-      { sel: '#nav', t: 'Menu', d: 'Each section manages one part of the app. Every section has its own short guide the first time you open it.' },
-      { sel: 'text:h2:Farms, weakest first', t: 'Farms, weakest first', d: 'The farms that need attention most are at the top, with their latest and average scores.' },
-      { sel: 'text:h2:Download everything', t: 'Download everything', d: 'Export all visits and readings as CSV for Excel, or a full backup.' },
-      { sel: ['#nav a[href="index.html"]', '#top a[href="index.html"]'], t: 'Other apps', d: 'Jump to the visit form or the reports with the same sign-in.' },
+      { t: 'Admin console mein swagat hai', d: 'Auditor kya bharenge yeh set kijiye, farms aur logon ko manage kijiye, aur har visit dekhiye. Chaliye ek nazar daalte hain.' },
+      { sel: '#nav', t: 'Menu', d: 'Har section app ka ek hissa sambhalta hai. Har section pehli baar kholne par apni chhoti guide dikhata hai.' },
+      { sel: 'text:h2:Farms, weakest first', t: 'Kamzor farms pehle', d: 'Jin farms par sabse zyada dhyan chahiye woh upar hain, unke latest aur average score ke saath.' },
+      { sel: 'text:h2:Download everything', t: 'Sab download kijiye', d: 'Saare visits aur readings Excel ke liye CSV mein, ya poora backup.' },
+      { sel: ['#nav a[href="index.html"]', '#top a[href="index.html"]'], t: 'Doosre apps', d: 'Usi sign-in se visit form ya reports par jaiye.' },
       HELP
     ],
     'admin:visits': [
-      { sel: '#vq', t: 'Search visits', d: 'Find a visit by farm, farmer, auditor or visit number.' },
-      { sel: '[data-act=vdel]', t: 'Delete a visit', d: 'Removes the visit for everyone. Only admins can do this.' }
+      { sel: '#vq', t: 'Visit dhoondhiye', d: 'Farm, farmer, auditor ya visit number se visit dhoondhiye.' },
+      { sel: '[data-act=vdel]', t: 'Visit delete', d: 'Visit sabke liye hat jata hai. Yeh sirf admin kar sakte hain.' }
     ],
     'admin:metrics': [
-      { sel: '[data-act=ty]', t: 'Bird type', d: 'Layer and Broiler have their own readings. Pick one to set it up.' },
-      { sel: 'input[data-tg=kpi]', t: 'Show or hide', d: 'Untick a reading to hide it from the visit form and the reports.' },
-      { sel: '[data-act=lim]', t: 'Limits', d: 'Set the green, amber and red limits for a reading to suit your farms.' }
+      { sel: '[data-act=ty]', t: 'Bird type', d: 'Layer aur Broiler ki readings alag hain. Set karne ke liye ek chuniye.' },
+      { sel: 'input[data-tg=kpi]', t: 'Dikhana ya chhupana', d: 'Tick hataiye to woh reading visit form aur reports se chhup jayegi.' },
+      { sel: '[data-act=lim]', t: 'Limits', d: 'Apne farms ke hisaab se reading ki hari, peeli aur laal limit set kijiye.' }
     ],
     'admin:allkpis': [
-      { sel: '#aq', t: 'Search', d: 'Find any reading or check by name.' },
-      { sel: '#ak', t: 'Kind', d: 'Filter to built-in readings, audit checks or your own metrics.' },
-      { sel: '[data-act=allon]', t: 'All or none', d: 'Switch every KPI on or off for a bird type in one go.' }
+      { sel: '#aq', t: 'Search', d: 'Kisi bhi reading ya check ko naam se dhoondhiye.' },
+      { sel: '#ak', t: 'Kism', d: 'Built-in readings, audit checks ya apne metrics mein se chuniye.' },
+      { sel: '[data-act=allon]', t: 'Sab ya koi nahi', d: 'Ek bird type ke saare KPI ek saath on ya off kijiye.' }
     ],
     'admin:fields': [
-      { sel: '[data-act=fnew]', t: 'Add a field', d: 'Add your own question to the visit form: a number, yes/no, a choice or text.' },
-      { sel: '[data-act=fedit]', t: 'Edit and order', d: 'Change a field, or move it up and down with the arrows.' }
+      { sel: '[data-act=fnew]', t: 'Naya field', d: 'Visit form mein apna sawaal jodiye: number, haan/na, choice ya text.' },
+      { sel: '[data-act=fedit]', t: 'Edit aur kram', d: 'Field badliye, ya teer se upar-neeche kijiye.' }
     ],
     'admin:kpis': [
-      { sel: '[data-act=knew]', t: 'Add a metric', d: 'Build your own reading with a formula from the form fields, with its own targets.' },
-      { sel: '[data-act=kedit]', t: 'Edit a metric', d: 'Change the formula, unit or targets.' }
+      { sel: '[data-act=knew]', t: 'Naya metric', d: 'Form ke fields se formula banakar apni reading banaiye, apne targets ke saath.' },
+      { sel: '[data-act=kedit]', t: 'Metric edit', d: 'Formula, unit ya targets badliye.' }
     ],
     'admin:farms': [
-      { sel: '[data-act=fnew2]', t: 'Add a farm', d: 'Add a farm with its farmer, location, phone and bird type. Auditors can add farms from the form too.' },
-      { sel: '[data-act=fimport]', t: 'Import a list', d: 'Paste a whole list of farms at once.' },
-      { sel: '#fq', t: 'Search farms', d: 'Find a farm by name, farmer or place.' },
-      { sel: '[data-act=fedit2]', t: 'Edit or archive', d: 'Only admins can change or archive a farm. Archived farms keep their visits.' }
+      { sel: '[data-act=fnew2]', t: 'Naya farm', d: 'Farmer, location, phone aur bird type ke saath farm jodiye. Auditor bhi form se farm jod sakte hain.' },
+      { sel: '[data-act=fimport]', t: 'List import', d: 'Farms ki poori list ek saath paste kijiye.' },
+      { sel: '#fq', t: 'Farm dhoondhiye', d: 'Naam, farmer ya jagah se farm dhoondhiye.' },
+      { sel: '[data-act=fedit2]', t: 'Edit ya archive', d: 'Farm badalna ya archive karna sirf admin kar sakte hain. Archive farm ke visits bane rehte hain.' }
     ],
     'admin:team': [
-      { sel: '[data-act=unew]', t: 'Add a person', d: 'Add an auditor, viewer or admin with a username or email. You get a temporary password to send them.' },
-      { sel: 'select[data-role]', t: 'Role', d: 'Auditors fill in visits, viewers only read reports, admins manage everything.' },
-      { sel: '[data-act=ureset]', t: 'Reset password', d: 'Gives the person a new temporary password.' },
-      { sel: '[data-act=utog]', t: 'Deactivate', d: 'Stops someone signing in. Their visits stay.' }
+      { sel: '[data-act=unew]', t: 'Naya vyakti', d: 'Username ya email se auditor, viewer ya admin jodiye. Unhe bhejne ke liye ek temporary password milta hai.' },
+      { sel: 'select[data-role]', t: 'Role', d: 'Auditor visit bharte hain, viewer sirf reports dekhte hain, admin sab sambhalte hain.' },
+      { sel: '[data-act=ureset]', t: 'Password reset', d: 'Us vyakti ko naya temporary password deta hai.' },
+      { sel: '[data-act=utog]', t: 'Deactivate', d: 'Us vyakti ka sign-in band ho jata hai. Unke visits bane rehte hain.' }
     ],
     'admin:org': [
-      { sel: '#o_n', t: 'Organisation name', d: 'Shown on sign-in screens and on every PDF report.' },
-      { sel: '#o_l', t: 'Default language', d: 'The language the visit form starts in. Each person can still switch.' },
-      { sel: '#o_s', t: 'Auditor sign-up', d: 'Let auditors create their own account with a username and password, or only let admins add people.' },
-      { sel: '[data-act=osave]', t: 'Save', d: 'Saves the organisation settings for everyone.' },
-      { sel: '[data-act=sheet]', t: 'Your Google Sheet', d: 'Open the sheet that holds all the data.' },
-      { sel: 'text:h2:Links for your team', t: 'Links for your team', d: 'Ready-made links for the visit form and reports. Send them to your people.' }
+      { sel: '#o_n', t: 'Organisation ka naam', d: 'Sign-in screen aur har PDF report par dikhta hai.' },
+      { sel: '#o_l', t: 'Default bhasha', d: 'Visit form isi bhasha mein khulta hai. Har vyakti fir bhi badal sakta hai.' },
+      { sel: '#o_s', t: 'Auditor sign-up', d: 'Auditor khud username aur password se account bana sakein, ya sirf admin log jodein.' },
+      { sel: '[data-act=osave]', t: 'Save', d: 'Organisation ki settings sabke liye save karta hai.' },
+      { sel: '[data-act=sheet]', t: 'Aapki Google Sheet', d: 'Woh sheet kholiye jismein saara data hai.' },
+      { sel: 'text:h2:Links for your team', t: 'Team ke liye links', d: 'Visit form aur reports ke taiyaar links. Inhe apne logon ko bhejiye.' }
     ]
   };
 
@@ -173,7 +173,7 @@
     stop(false); key = k; steps = usable; at = 0;
     el = document.createElement('div'); el.id = 'fvt'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
     var st = document.createElement('style'); st.textContent = css; el.appendChild(st);
-    el.insertAdjacentHTML('beforeend', '<div class="fvt-sp"></div><div class="fvt-cd" aria-live="polite"><p class="fvt-st"></p><h3></h3><p class="fvt-tx"></p><div class="fvt-dt"></div><div class="fvt-bt"><button class="fvt-sk" type="button">Skip</button><span class="fvt-gr"></span><button class="fvt-bk" type="button">Back</button><button class="fvt-nx" type="button">Next</button></div></div>');
+    el.insertAdjacentHTML('beforeend', '<div class="fvt-sp"></div><div class="fvt-cd" aria-live="polite"><p class="fvt-st"></p><h3></h3><p class="fvt-tx"></p><div class="fvt-dt"></div><div class="fvt-bt"><button class="fvt-sk" type="button">Chhodo</button><span class="fvt-gr"></span><button class="fvt-bk" type="button">Peeche</button><button class="fvt-nx" type="button">Aage</button></div></div>');
     document.body.appendChild(el);
     el.querySelector('.fvt-sk').onclick = function () { stop(); };
     el.querySelector('.fvt-bk').onclick = function () { go(at - 1); };
@@ -189,12 +189,12 @@
     target = s.sel ? find(s.sel) : null;
     if (s.sel && !target) { at = i; go(i + dir); return; }   // it went away since the tour began
     at = i;
-    el.querySelector('.fvt-st').textContent = 'Step ' + (i + 1) + ' of ' + steps.length;
+    el.querySelector('.fvt-st').textContent = 'Step ' + (i + 1) + ' / ' + steps.length;
     el.querySelector('h3').textContent = s.t;
     el.querySelector('.fvt-tx').textContent = s.d;
     el.querySelector('.fvt-dt').innerHTML = steps.map(function (_, j) { return '<i class="' + (j === i ? 'fvt-on' : '') + '"></i>'; }).join('');
     el.querySelector('.fvt-bk').style.visibility = i ? 'visible' : 'hidden';
-    el.querySelector('.fvt-nx').textContent = i === steps.length - 1 ? 'Got it' : 'Next';
+    el.querySelector('.fvt-nx').textContent = i === steps.length - 1 ? 'Samajh gaya' : 'Aage';
     if (target) {
       var r = target.getBoundingClientRect(), pos = getComputedStyle(target).position;
       if (pos !== 'fixed' && pos !== 'sticky' && (r.top < 70 || r.bottom > innerHeight - 110)) target.scrollIntoView({ block: 'center' });
@@ -227,14 +227,14 @@
     var b;
     if (APP === 'admin') {
       var out = find('[data-act=out]'); if (!out) return;
-      b = document.createElement('a'); b.href = '#'; b.textContent = 'Guide'; b.style.marginLeft = '10px';
+      b = document.createElement('a'); b.href = '#'; b.textContent = 'Guide (madad)'; b.style.marginLeft = '10px';
       out.parentNode.insertBefore(b, out.nextSibling);
     } else {
       var h = document.querySelector('[data-act=history]'); if (!h) return;
       b = document.createElement('button'); b.type = 'button'; b.className = h.className + ' fvhq'; b.textContent = '?';
       h.parentNode.insertBefore(b, h);
     }
-    b.id = 'fvhelp'; b.setAttribute('aria-label', 'Show the guide for this screen'); b.title = 'Guide';
+    b.id = 'fvhelp'; b.setAttribute('aria-label', 'Is screen ki guide dikhaiye'); b.title = 'Guide';
     b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); start(screenKey(), true); });
   }
 
