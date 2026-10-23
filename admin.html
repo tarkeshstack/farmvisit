@@ -575,13 +575,15 @@ window.FV_API_URL = "https://script.google.com/macros/s/AKfycbzVvTOGZk_P-xFgsC0J
   var ls = { get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del: function (k) { try { localStorage.removeItem(k); } catch (e) {} } };
 
   /* The backend address can come from ?api=..., from this browser, or from a config baked into the page. */
+  /* With an address baked in, the pages only ever use that sheet: no ?api= links, no switching. */
+  var FIXED = !!window.FV_API_URL;
   var qs = new URLSearchParams(location.search), fromUrl = qs.get('api');
-  if (fromUrl && /^https:\/\/script\.google(usercontent)?\.com\//.test(fromUrl)) {
+  if (!FIXED && fromUrl && /^https:\/\/script\.google(usercontent)?\.com\//.test(fromUrl)) {
     if (ls.get('fv_api') !== fromUrl) ls.del('fv_token');
     ls.set('fv_api', fromUrl);
     qs.delete('api'); try { history.replaceState(null, '', location.pathname + (qs.toString() ? '?' + qs : '') + location.hash); } catch (e) {}
   }
-  function apiUrl() { return ls.get('fv_api') || window.FV_API_URL || ''; }
+  function apiUrl() { return FIXED ? window.FV_API_URL : ls.get('fv_api') || ''; }
   function token() { return ls.get('fv_token'); }
   var realFetch = window.fetch.bind(window);
 
@@ -663,7 +665,7 @@ window.FV_API_URL = "https://script.google.com/macros/s/AKfycbzVvTOGZk_P-xFgsC0J
     var m = document.createElement('main'); el.appendChild(m);
     if (mode === 'connect') return connectScreen(m);
     if (mode === 'welcome') return welcomeScreen(m);
-    call('GET', '/api/auth/status', {}, false).then(function (j) { screen(m, mode, j.d || {}); }, function () { connectScreen(m, 'Could not reach the sheet backend. Check the address and your internet connection.'); });
+    call('GET', '/api/auth/status', {}, false).then(function (j) { screen(m, mode, j.d || {}); }, function () { if (FIXED) offlineScreen(m); else connectScreen(m, 'Could not reach the sheet backend. Check the address and your internet connection.'); });
   }
   function head(sub) { return '<div class="b">' + LOGO + '<div><b>' + NAMES[APP] + '</b><span>' + esc(sub) + '</span></div></div>'; }
   function form(m, o) {
@@ -696,6 +698,10 @@ window.FV_API_URL = "https://script.google.com/macros/s/AKfycbzVvTOGZk_P-xFgsC0J
         .catch(function (e) { ls.del('fv_api'); window.FVExplore.reset(); skip.disabled = false; busy.style.display = 'none'; err.textContent = 'Could not set up the demo: ' + (e.message || e); err.className = 'e on'; });
     };
   }
+  function offlineScreen(m) {
+    m.innerHTML = head('Farm audits on your Google Sheet') + '<div class="c"><h1>No connection</h1><p class="s">Could not reach your Google Sheet. Check your internet connection and try again.</p><button class="go" type="button" data-x="retry">Try again</button></div>';
+    m.querySelector('[data-x=retry]').onclick = function () { location.reload(); };
+  }
   function connectScreen(m, msg) {
     form(m, { h: 'Connect to your sheet', s: 'Paste the web app address you got when you deployed the Apps Script. Your admin can also send you a link that has it built in.', fields: [['url', 'Web app address', 'url', 'off', 'placeholder="https://script.google.com/macros/s/…/exec"']], go: 'Connect',
       submit: function (v) {
@@ -706,7 +712,7 @@ window.FV_API_URL = "https://script.google.com/macros/s/AKfycbzVvTOGZk_P-xFgsC0J
     if (msg) { var e = m.querySelector('.e'); e.textContent = msg; e.className = 'e on'; }
   }
   function screen(m, mode, st) {
-    var change = '<button class="lk" type="button" data-x="url">' + (exploring() ? 'Leave the demo and connect a sheet' : 'Use a different sheet') + '</button>' + (exploring() ? '<button class="lk" type="button" data-x="reset">Start the demo over</button>' : '');
+    var change = FIXED ? '' : '<button class="lk" type="button" data-x="url">' + (exploring() ? 'Leave the demo and connect a sheet' : 'Use a different sheet') + '</button>' + (exploring() ? '<button class="lk" type="button" data-x="reset">Start the demo over</button>' : '');
     var wire = function () { var b = m.querySelector('[data-x=url]'); if (b) b.onclick = function () { ls.del('fv_api'); ls.del('fv_token'); shown = null; showOverlay('connect'); }; var rs = m.querySelector('[data-x=reset]'); if (rs) rs.onclick = function () { window.FVExplore.reset(); ls.del('fv_token'); location.reload(); }; var s = m.querySelector('[data-x=out]'); if (s) s.onclick = function () { ls.del('fv_token'); location.reload(); }; };
     if (mode === 'change') {
       form(m, { h: 'Choose a new password', s: 'You signed in with a temporary password. Pick one only you know.', fields: [['current', 'Temporary password', 'password', 'current-password'], ['next', 'New password, 8 or more characters', 'password', 'new-password']], go: 'Save and continue',
@@ -714,7 +720,7 @@ window.FV_API_URL = "https://script.google.com/macros/s/AKfycbzVvTOGZk_P-xFgsC0J
       return wire();
     }
     if (!st.configured) {
-      if (APP !== 'admin') { m.innerHTML = head('Not set up yet') + '<div class="c"><h1>This workspace is not set up yet</h1><p class="s">Ask your admin to open the Admin console once and create the workspace. After that you can sign in here.</p></div>' + '<p class="n"><button class="lk" type="button" data-x="url">Use a different sheet</button></p>'; return wire(); }
+      if (APP !== 'admin') { m.innerHTML = head('Not set up yet') + '<div class="c"><h1>This workspace is not set up yet</h1><p class="s">Ask your admin to open the Admin console once and create the workspace. After that you can sign in here.</p></div>' + (FIXED ? '' : '<p class="n"><button class="lk" type="button" data-x="url">Use a different sheet</button></p>'); return wire(); }
       form(m, { h: 'Set up your workspace', s: 'You become the owner. This only happens once, for the sheet you just connected.', fields: [['orgName', 'Organisation name', 'text', 'organization'], ['name', 'Your name', 'text', 'name'], ['email', 'Email or username', 'text', 'username', 'autocapitalize="none" spellcheck="false"'], ['password', 'Password, 8 or more characters', 'password', 'new-password']], go: 'Create workspace',
         submit: function (v) { return rpc('POST', '/api/auth/setup', v).then(done); }, extra: '<button class="lk" type="button" data-x="demo">Or try it with demo data</button><p class="n" data-x="demon" style="display:none"></p>' + change });
       var dm = m.querySelector('[data-x=demo]'), dn = m.querySelector('[data-x=demon]');
