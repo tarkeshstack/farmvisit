@@ -1,8 +1,8 @@
 /* Farm Visit offline cache. The visit form is fetched from the network when there is one
    and from this cache when there is not, so it opens on farms without signal.
    Calls to the Google Sheet backend are never cached: the form already queues them itself. */
-const CACHE = 'fv-v1';
-const SHELL = ['index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
+const CACHE = 'fv-v2';
+const SHELL = ['index.html', 'tour.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
