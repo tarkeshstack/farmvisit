@@ -348,6 +348,7 @@ var NUMERIC = { score: 1, seq: 1 };
 var BOOL = { must_change: 1, active: 1 };
 var CELL_MAX = 45000;        // Google Sheets allows 50,000 characters per cell
 var SESSION_DAYS = 30;
+var ADMIN_SESSION_HOURS = 12;   // sign-ins made on the Admin console expire sooner
 var PW_ROUNDS = 400;
 var ROLES = ['owner', 'admin', 'auditor', 'viewer'];
 var FTYPES = ['Layer', 'Broiler'];
@@ -488,8 +489,9 @@ function rateTake(key, max, seconds) {
 }
 function rateReset(key) { CacheService.getScriptCache().remove(rateKey(key)); }
 
-function startSession(userId) {
-  var token = newToken(), exp = new Date(Date.now() + SESSION_DAYS * 864e5).toISOString();
+function sessionHours(c) { return c.body.app === 'admin' ? ADMIN_SESSION_HOURS : SESSION_DAYS * 24; }
+function startSession(userId, hours) {
+  var token = newToken(), exp = new Date(Date.now() + (hours || SESSION_DAYS * 24) * 36e5).toISOString();
   T('Sessions').insert({ token_hash: sha256(token), user_id: userId, created_at: nowIso(), expires_at: exp });
   return token;
 }
@@ -623,7 +625,7 @@ route('POST', '/api/auth/setup', { open: true }, function (c) {
   setSetting('config', JSON.stringify(FV.emptyConfig())); setSetting('config_version', '1'); setSetting('created_at', t);
   var u = T('Users').insert({ id: newId(), email: email, name: name, role: 'owner', org_label: orgName, access: '*', pw_salt: salt, pw_hash: hashPw(b.password, salt), must_change: false, active: true, created_at: t, last_login: t });
   log(u, 'setup', orgName);
-  return { ok: true, token: startSession(u.id), mustChange: false };
+  return { ok: true, token: startSession(u.id, sessionHours(c)), mustChange: false };
 });
 route('POST', '/api/auth/login', { open: true }, function (c) {
   var email = str(c.body.email, 200).toLowerCase();
@@ -634,7 +636,7 @@ route('POST', '/api/auth/login', { open: true }, function (c) {
   T('Users').update(u, { last_login: nowIso() });
   T('Sessions').removeWhere(function (r) { return r.expires_at < nowIso(); });
   log(u, 'login', '');
-  return { ok: true, token: startSession(u.id), mustChange: u.must_change };
+  return { ok: true, token: startSession(u.id, sessionHours(c)), mustChange: u.must_change };
 });
 /* Auditors can create their own account with a username and password, unless an admin turned this off. */
 route('POST', '/api/auth/signup', { open: true }, function (c) {
@@ -648,7 +650,7 @@ route('POST', '/api/auth/signup', { open: true }, function (c) {
   var salt = newId(), t = nowIso();
   var u = T('Users').insert({ id: newId(), email: login, name: login, role: 'auditor', org_label: getSetting('org_name', ''), access: '*', pw_salt: salt, pw_hash: hashPw(b.password, salt), must_change: false, active: true, created_at: t, last_login: t });
   log(u, 'signup', login);
-  return { ok: true, token: startSession(u.id), mustChange: false };
+  return { ok: true, token: startSession(u.id, sessionHours(c)), mustChange: false };
 });
 route('POST', '/api/auth/logout', function (c) { T('Sessions').removeWhere(function (r) { return r.token_hash === c.user._tokenHash; }); return { ok: true }; });
 route('POST', '/api/auth/password', function (c) {
