@@ -341,6 +341,7 @@ var SCHEMA = {
   Farms:      ['id', 'farm', 'farmer', 'location', 'phone', 'type', 'notes', 'active', 'created_at', 'updated_at'],
   Visits:     ['id', 'visit_no', 'date', 'farm_id', 'farm', 'farmer', 'type', 'auditor', 'user_id', 'score', 'rating', 'kpis', 'data', 'created_at', 'updated_at'],
   Signatures: ['visit_id', 'sig_auditor', 'sig_farmer'],
+  Photos:     ['file_id', 'visit_id', 'kind', 'created_at'],
   Blobs:      ['id', 'seq', 'chunk'],
   Audit:      ['at', 'user', 'action', 'detail']
 };
@@ -552,6 +553,38 @@ function visitList(u, since) {
 }
 var SIG = /^data:image\/png;base64,[A-Za-z0-9+\/=]{20,40000}$/;
 
+/* Farm photos and the auditor selfie are kept as JPEG files in a "Farm Visit photos" folder in the
+   owner's Google Drive; a visit only stores {f: fileId} for each. The app sends {d: dataURL} for a new one. */
+var PHOTO_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{100,}$/, PHOTO_MAX = 450000, PHOTO_COUNT = 6;
+function photoFolder() {
+  var id = getSetting('photo_folder', '');
+  if (id) { try { return DriveApp.getFolderById(id); } catch (e) {} }
+  var f = DriveApp.createFolder('Farm Visit photos'); setSetting('photo_folder', f.getId()); return f;
+}
+function takePhotos(visitId, data, no, farm) {
+  var pt = T('Photos'), keep = {}, n = 0;
+  function one(item, kind) {
+    if (!item || typeof item !== 'object') return null;
+    if (typeof item.f === 'string' && pt.find(function (r) { return r.file_id === item.f && r.visit_id === visitId; })) { keep[item.f] = 1; return { f: item.f }; }
+    if (typeof item.d === 'string' && item.d.length <= PHOTO_MAX && PHOTO_RE.test(item.d)) {
+      var name = [no || visitId, farm, kind === 'selfie' ? 'auditor selfie' : 'photo ' + (++n)].filter(String).join(' - ') + '.jpg';
+      var file = photoFolder().createFile(Utilities.newBlob(Utilities.base64Decode(item.d.slice(item.d.indexOf(',') + 1)), 'image/jpeg', name));
+      var fid = file.getId();
+      pt.insert({ file_id: fid, visit_id: visitId, kind: kind, created_at: nowIso() }); keep[fid] = 1;
+      return { f: fid };
+    }
+    return null;
+  }
+  var photos = (Array.isArray(data.photos) ? data.photos : []).slice(0, PHOTO_COUNT).map(function (p) { return one(p, 'farm'); }).filter(Boolean);
+  return { photos: photos, selfie: one(data.selfie, 'selfie'), keep: keep };
+}
+function dropPhotos(visitId, keep) {
+  var gone = T('Photos').all().filter(function (r) { return r.visit_id === visitId && !keep[r.file_id]; });
+  if (!gone.length) return;
+  gone.forEach(function (r) { try { DriveApp.getFileById(r.file_id).setTrashed(true); } catch (e) {} });
+  T('Photos').removeWhere(function (r) { return r.visit_id === visitId && !keep[r.file_id]; });
+}
+
 /* An admin saving a new report for a named auditor (used by the demo loader and imports) credits that auditor. */
 function attributeTo(u, auditorName) {
   if (!isAdmin(u) || !auditorName) return u.id;
@@ -572,6 +605,8 @@ function saveVisit(u, id, body) {
   }).filter(function (k) { return k[0]; });
   var sigA = SIG.test(data.sigA || '') ? data.sigA : '', sigF = SIG.test(data.sigF || '') ? data.sigF : '';
   var clean = {}; for (var k in data) if (k !== 'sigA' && k !== 'sigF') clean[k] = data[k];
+  var ph = takePhotos(id, data, str(data.no, 40), str(data.farm, 80));
+  clean.photos = ph.photos; clean.selfie = ph.selfie;
   var json = JSON.stringify(clean);
   if (json.length > 400000) throw new HttpError(413, 'Report is too large');
   var kjson = JSON.stringify(kpis); if (kjson.length > CELL_MAX) { kjson = JSON.stringify(kpis.slice(0, 120)); }
@@ -598,8 +633,9 @@ function saveVisit(u, id, body) {
   var oldSig = st.by('visit_id', id);
   if (sigA || sigF) { if (oldSig) st.update(oldSig, { sig_auditor: sigA, sig_farmer: sigF }); else st.insert({ visit_id: id, sig_auditor: sigA, sig_farmer: sigF }); }
   else if (oldSig) st.removeWhere(function (r) { return r.visit_id === id; });
+  dropPhotos(id, ph.keep);
   log(u, cur ? 'visit-update' : 'visit-save', str(clean.no, 40) + ' ' + str(clean.farm, 60));
-  return { id: id, farmId: clean.farmId, updatedAt: t };
+  return { id: id, farmId: clean.farmId, updatedAt: t, photos: ph.photos, selfie: ph.selfie };
 }
 
 /* ---------------- routes ---------------- */
@@ -789,12 +825,18 @@ route('GET', '/api/visits/:id', function (c) {
   return out;
 });
 route('PUT', '/api/visits/:id', function (c) { return saveVisit(c.user, c.params.id, c.body); });
+route('GET', '/api/photos/:id', function (c) {
+  var p = T('Photos').by('file_id', c.params.id), v = p && T('Visits').by('id', p.visit_id);
+  if (!v || !canSeeVisit(c.user, v)) throw new HttpError(404, 'Photo not found');
+  return { src: 'data:image/jpeg;base64,' + Utilities.base64Encode(DriveApp.getFileById(p.file_id).getBlob().getBytes()) };
+});
 route('DELETE', '/api/visits/:id', function (c) {
   var v = T('Visits').by('id', c.params.id);
   if (!v || !canSeeVisit(c.user, v) || (!isAdmin(c.user) && v.user_id !== c.user.id)) throw new HttpError(404, 'Report not found');
   T('Visits').removeWhere(function (r) { return r.id === v.id; });
   T('Signatures').removeWhere(function (r) { return r.visit_id === v.id; });
   if (v.data === '@blob') T('Blobs').removeWhere(function (r) { return r.id === v.id; });
+  dropPhotos(v.id, {});
   log(c.user, 'visit-delete', v.visit_no);
   return { ok: true };
 });
@@ -945,4 +987,4 @@ function doPost(e) {
   return handle(req.m.toUpperCase(), path, req.t || '', req.b && typeof req.b === 'object' ? req.b : {}, q);
 }
 /* Run once from the editor to create the tabs and authorise the script. */
-function setup() { _ss = null; _tables = {}; Object.keys(SCHEMA).forEach(function (n) { T(n); }); Logger.log('Tabs ready: ' + Object.keys(SCHEMA).join(', ')); }
+function setup() { _ss = null; _tables = {}; Object.keys(SCHEMA).forEach(function (n) { T(n); }); photoFolder(); Logger.log('Tabs ready: ' + Object.keys(SCHEMA).join(', ') + '. Photos go to the Drive folder "Farm Visit photos".'); }
