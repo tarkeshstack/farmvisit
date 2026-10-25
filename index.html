@@ -1626,7 +1626,7 @@ function hero(){
   return`<div class="hero"><div class="hg">${eggSVG(C.pct)}</div><div class="hi"><b>${esc(D.farm||'Choose a farm')}</b><span class="sb">${esc(D.farmer?D.farmer+(D.location?', '+D.location:''):'Pick the farmer and farm below')}</span><div class="hc">${chips.map(c=>`<span class="chp">${esc(c)}</span>`).join('')}</div></div><div class="hs"><b>${C.pct==null?'\u2014':C.pct.toFixed(0)+'%'}</b><small>audit score</small></div></div>`;
 }
 function r1(){
-  return`${hero()}<h3 class="sub" style="margin-top:22px">Visit details</h3>${G([dtile('date','Visit date'),ltile('purpose','Purpose',D.purpose),ltile('farmer','Farmer',D.farmer),ltile('farm','Farm',D.farm),ltile('auditor','Auditor',D.auditor)])}
+  return`${hero()}<button type="button" class="chip" data-act="sample" style="margin-top:14px">🧪 Sample bharo (test ke liye)</button><h3 class="sub" style="margin-top:22px">Visit details</h3>${G([dtile('date','Visit date'),ltile('purpose','Purpose',D.purpose),ltile('farmer','Farmer',D.farmer),ltile('farm','Farm',D.farm),ltile('auditor','Auditor',D.auditor)])}
   <div class="grid2" style="margin-top:12px">${tf('location','Location')}${tf('phone','Phone',{type:'tel',im:'tel'})}</div>`;
 }
 function r2(){
@@ -2167,6 +2167,20 @@ function initSig(boxId,key){
   c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
 }
 function commitSign(){}
+/* Test ke liye: fills the whole visit with realistic sample figures for the chosen farm (or a random one),
+   so a new auditor can try the form, Live readings and the PDF without typing. It saves only when they press Save visit. */
+async function fillSample(){
+  if((num(D.placed)||num(D.feed)||num(D.wt))&&!(await ask('Sample data bharein?','Is visit mein bhare hue numbers sample numbers se badal jayenge.','Haan, bharo')))return;
+  const farm=DEMO.find(x=>x.id===D.farmId)||DEMO[Math.floor(Math.random()*DEMO.length)]||null;
+  const type=(farm&&farm.type)||D.type||'Layer',pool=SAMPLE.filter(x=>x.type===type),src=pool[Math.floor(Math.random()*pool.length)]||SAMPLE[0];
+  D=Object.assign(newDraft(),{id:D.id,date:D.date,purpose:D.purpose,auditor:D.auditor,org:D.org});
+  Object.keys(src).forEach(k=>{if(k!=='id')D[k]=typeof src[k]==='number'?String(src[k]):src[k]});
+  if(farm){['farmer','farm','location','phone'].forEach(k=>D[k]=farm[k]||'');D.farmId=farm.id}
+  D.type=type;D.hatch=addDays(D.date,-num(D.age));D.prevdate=addDays(D.date,-num(D.prevdays||14));
+  stdFields(D);autoFlagOn(D);suggestOn(D);D.agree=true;
+  MK={};renderAll();demoSig();saveNow();renderAll();
+  toast('Sample data bhar diya. Check karke Save visit dabaiye.');
+}
 function demoSig(){
   [['sgA','sigA',D.auditor],['sgF','sigF',D.farmer]].forEach(([id,key,name])=>{
     const box=$('#'+id);if(!box)return;const r=box.getBoundingClientRect(),dpr=2;
@@ -2246,6 +2260,7 @@ function openSettings(){
   ${(isAdmin()&&ST.realRole!=='viewer')?li('admin','Admin console','Metrics, baselines, farms, users and all data'):''}
   ${window.FV_APP==='reports'?li('frm','Visit form','Open the form used on farm visits'):li('rep','Reports','Read-only reports across farms')}
   ${li('me','Signed in as',esc(ST.me)+(ST.roleName?', '+esc(ST.roleName):'')+(ST.orgName?', '+esc(ST.orgName):''))}
+  ${window.FV_APP==='reports'?'':li('sample','Sample data bharo','Test ke liye poora visit sample numbers se bhar dein')}
   ${li('pw','Change password','')}
   ${li('export','Download a backup','My saved reports, as one file')}
   <label class="li" style="cursor:pointer"><span>Restore a backup<small>Adds reports from a backup file</small></span>${chev}<input type="file" accept=".json" id="imp" style="display:none"></label>
@@ -2263,6 +2278,7 @@ function openSettings(){
     if(b.dataset.s==='rep')location.href='reports.html';
     if(b.dataset.s==='frm')location.href='index.html';
     if(b.dataset.s==='pw')openPassword();
+    if(b.dataset.s==='sample'){closeSheet();setView('entry');fillSample()}
     if(b.dataset.s==='out')signOut();
     if(b.dataset.s==='export'){download('farm-visit-backup-'+today()+'.json',new Blob([JSON.stringify({visits:VIS},null,1)],{type:'application/json'}));closeSheet()}
   });
@@ -2334,6 +2350,7 @@ document.addEventListener('click',e=>{
     case'delaction':D.actions.splice(+d.i,1);saveDraft();paint();return;
     case'sigclear':{const key=d.k,box=$('#'+(key==='sigA'?'sgA':'sgF')),c=$('canvas',box);c.getContext('2d').clearRect(0,0,c.width,c.height);box.classList.remove('signed');D[key]='';saveDraft();renderRail();return}
     case'savevisit':return saveVisit();
+    case'sample':return fillSample();
   }
 });
 document.addEventListener('input',e=>{
