@@ -1083,6 +1083,45 @@ function kpiDlg(i){
 }
 
 /* ---------- farms ---------- */
+/* Sample data for testing. Visits are built by the visit form itself (hidden frame) so every
+   score uses the real engine; they get ids starting "sample-" and the farms the note "Sample data",
+   which is how "Sample data hatao" finds them again. */
+const SAMPLE_NOTE='Sample data',isSample=id=>/^(sample|demo)-/.test(id||'');
+function smpStatus(t){const e=$('#smpst');if(e)e.textContent=t}
+async function addSample(btn){
+  btn.disabled=true;smpStatus('Visit form khol rahe hain…');
+  const keep=localStorage.getItem('fv_token'),mine=localStorage.getItem('fv_token_admin');
+  if(mine)localStorage.setItem('fv_token',mine);      // the hidden form saves as this admin
+  const fr=document.createElement('iframe');fr.setAttribute('aria-hidden','true');fr.style.cssText='position:fixed;left:-9999px;top:0;width:420px;height:800px;border:0';fr.src='index.html?demo=1';document.body.appendChild(fr);
+  const done=()=>{fr.remove();if(keep)localStorage.setItem('fv_token',keep);else localStorage.removeItem('fv_token');btn.disabled=false};
+  try{
+    const w=await new Promise((ok,no)=>{let n=0;const t=setInterval(()=>{n++;try{const w=fr.contentWindow;if(w.eval('typeof ST!=="undefined"&&!!ST.uid&&typeof seedVisits==="function"')){clearInterval(t);ok(w)}}catch(_){}if(n>600){clearInterval(t);no(new Error('Visit form nahi khula. Internet check kijiye.'))}},100)});
+    smpStatus('Sample farms jod rahe hain…');
+    const farms=w.eval('SAMPLE.map(f=>({farmer:f.farmer,farm:f.farm,location:f.location,phone:f.phone,type:f.type}))');
+    await api('POST','/api/farms/bulk',{farms:farms.map(f=>Object.assign(f,{notes:SAMPLE_NOTE}))});
+    const all=await api('GET','/api/farms');
+    w.eval('while(AUDITORS.length<3)AUDITORS.push(AUDITORS[0]||{n:ST.me,o:ST.org})');
+    const vs=w.eval('seedVisits()');
+    vs.forEach(v=>{const f=all.find(x=>x.farm===v.farm&&x.farmer===v.farmer);if(f)v.farmId=f.id;v.id='sample-'+v.id.replace(/^demo-/,'');v.agree=true});
+    vs.forEach(v=>w.queueSave(v));
+    await new Promise((ok,no)=>{let k=0;const t=setInterval(()=>{k++;let left=-1;try{left=w.eval('Object.keys(OB).length')}catch(_){}
+      if(left>=0)smpStatus('Visits save ho rahe hain… '+(vs.length-left)+' / '+vs.length);
+      if(left===0){clearInterval(t);ok()}else if(k>1500){clearInterval(t);no(new Error('Kuch visits save nahi hue. Dobara try kijiye.'))}},200)});
+    done();smpStatus(vs.length+' sample visits jud gaye.');toast('Sample data jud gaya');
+    await loadFarms();await loadVisits();OV=null;render();
+  }catch(err){done();smpStatus('');throw err}
+}
+async function removeSample(btn){
+  btn.disabled=true;
+  try{
+    const vs=(await api('GET','/api/visits')).filter(v=>isSample(v.id));let n=0;
+    for(const v of vs){smpStatus('Visits hata rahe hain… '+(++n)+' / '+vs.length);await api('DELETE','/api/visits/'+v.id)}
+    const fs=(await api('GET','/api/farms?all=1')).filter(f=>f.notes===SAMPLE_NOTE&&f.active!==false);
+    for(const f of fs){smpStatus('Sample farms archive…');await api('DELETE','/api/farms/'+f.id)}
+    smpStatus(vs.length+' sample visits hataye, '+fs.length+' sample farms archive kiye.');toast('Sample data hat gaya');
+    await loadFarms();await loadVisits();OV=null;render();
+  }finally{btn.disabled=false}
+}
 async function loadFarms(){FARMS=await api('GET','/api/farms?all=1')}
 function pFarms(){
   const q=farmQ.toLowerCase(),list=FARMS.filter(f=>(showArch||f.active)&&(!q||(f.farm+f.farmer+f.location).toLowerCase().includes(q)));
@@ -1149,6 +1188,7 @@ function pOrg(){
   return`<h1>Organisation</h1><p class="lead">Settings that apply to everyone in ${esc(ORG.name)}.</p>
   <div class="card pad" style="max-width:560px"><label class="f"><span>Organisation name</span><input id="o_n" maxlength="80" value="${esc(ORG.name)}"></label><div class="g2"><label class="f"><span>Currency</span><select id="o_c">${cur.map(c=>`<option ${ORG.currency===c?'selected':''}>${c}</option>`).join('')}</select></label><label class="f"><span>Default language in the app</span><select id="o_l">${[['en','English'],['hi','Hinglish'],['dv','Hindi (Devanagari)']].map(([v,n])=>`<option value="${v}" ${ORG.language===v?'selected':''}>${n}</option>`).join('')}</select></label><label class="f"><span>Auditor sign-up</span><select id="o_s"><option value="on" ${ORG.selfSignup!==false?'selected':''}>Auditors can create their own account</option><option value="off" ${ORG.selfSignup===false?'selected':''}>Only admins add people</option></select></label></div><button class="btn pri" data-act="osave">Save organisation</button></div>
   ${LOCAL?`<h2>Data on this device</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">This single-page version keeps its SQLite database inside this browser. Download the file regularly as a backup, or move it to another browser with Restore.</p><div class="row"><button class="btn" data-act="dbdl">Download database file</button><label class="btn" style="cursor:pointer">Restore from file<input type="file" id="dbup" accept=".sqlite,.db,.sqlite3" hidden></label><button class="btn bad" data-act="dbwipe">Erase everything</button></div></div>`:''}
+  <h2>Sample data (test ke liye)</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">Sample farms aur pichhle kuch hafton ke ~27 sample visits daaliye, taaki Admin, Reports aur app mein graphs aur findings dekh sakein. Asli data ko yeh nahi chhoota. Test ke baad “Sample data hatao” dabaiye.</p><div class="row"><button class="btn pri" data-act="sampleadd">Sample data daalo</button><button class="btn bad" data-act="sampledel">Sample data hatao</button></div><p class="hint" id="smpst" style="margin-bottom:0"></p></div>
   <h2>Your Google Sheet</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">All farms, people, settings and visits live in one Google Sheet. Open it to filter, pivot or chart anything.</p><div class="row"><button class="btn pri" data-act="sheet">Open the Google Sheet</button><button class="btn" data-act="kpisheet">Refresh the “KPI readings” tab</button></div></div>
   <h2>Links for your team</h2><div class="card pad" style="max-width:560px"><p class="hint" style="margin-top:0">Each link already knows where your sheet is, so people only sign in. Send the form link to auditors and the reports link to anyone who only reads.</p>
   ${[['Visit form (auditors)','index.html'],['Reports (viewers)','reports.html']].map(([n,p])=>'<label class="f"><span>'+n+'</span><input readonly value="'+esc(FVR.shareLink(p))+'" onfocus="this.select()"></label>').join('')}</div>
@@ -1201,6 +1241,8 @@ document.addEventListener('click',async e=>{
     case'utog':{const u=USERS.find(x=>x.id===id);await api('PATCH','/api/users/'+id,{active:!u.active});await loadUsers();render();toast(u.active?'Deactivated':'Reactivated');break}
     case'vdel':if(await confirmDlg('Delete this visit?','The report and its readings are removed for everyone. This cannot be undone.','Delete')){await api('DELETE','/api/visits/'+id);await loadVisits();OV=null;render()}break;
     case'vmore':visMax+=200;render();break;
+    case'sampleadd':if(await confirmDlg('Sample data daalein?','6 sample farms aur lagbhag 27 sample visits Google Sheet mein jud jayenge. Isme ek-do minute lagte hain.','Daalo'))await addSample(b);break;
+    case'sampledel':if(await confirmDlg('Sample data hatayein?','Saare sample visits delete ho jayenge aur sample farms archive. Asli visits aur farms bane rahenge.','Hatao'))await removeSample(b);break;
     case'sheet':{const r=await api('GET','/api/admin/sheet');window.open(r.url,'_blank','noopener');break}
     case'kisheet':case'kpisheet':{const r=await api('POST','/api/admin/rebuild-kpi-sheet',{});toast('Updated: '+r.rows+' readings written to the “KPI readings” tab');break}
     case'dbdl':LOCAL.downloadDb();break;
