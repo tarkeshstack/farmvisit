@@ -1,0 +1,26 @@
+name: Photo check
+
+# Run by hand (Actions → Photo check → Run workflow) after updating Code.gs, to confirm photos
+# reach Google Drive. It saves one test visit with a tiny photo as testauditor, reads the photo
+# back, then deletes the test visit (and with it the photo).
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save, read back and delete a test photo
+        run: |
+          URL=$(curl -sS https://tarkeshstack.github.io/farmvisit/index.html | grep -o 'https://script.google.com/macros/s/[^"]*/exec' | head -1)
+          post() { curl -sSL -m 120 -H 'Content-Type: text/plain;charset=utf-8' --data "$1" "$URL"; }
+          TOK=$(post '{"m":"POST","p":"/api/auth/login","t":"","b":{"email":"testauditor","password":"FarmTest1","app":"form"}}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["d"]["token"])')
+          ID="phototest-$(date +%s)"
+          PHOTO="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAB4AKADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB9FFFeMZBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUqqzuERSzMcAAZJNXodF1KZSyWjgA4+chD+RxVKLeyGUKK0ZND1OKMu1oxA/usGP5A5qhJHJFIY5UZHHVWGCPwocWt0A2iiipEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFaWj6TJqU2TlLdD87/wBB7/y/nDpdi+oXyQLwo+aQ5xhc8/jXeQQx28KwwoEjQYCiumhR59XsUlchs7C1so1W3iUMF2lyBub6mrNFFd6SSsiwqG5tbe6XbcQpIMEDcMkZ64PapqKbV9wOM1rRH0/E0BaS2PBJ6off29/8nHr0plV1KOoZWGCCMgiuI13Tf7OvP3YxBLzHzkj1H4Zrgr0eX3o7ENGZRRRXKSFFFFABRRRQAUUUUAFFFFABRRRQB1fhK2VbSW6ZCHkbaCR/CPT8c/l7V0FZnhz/AJAdv/wL/wBCNaderSVoI0WwUUUVoMKKKKACsnxLbLPpLybCZISGUgc4zg/hjn8K1qran/yC7v8A64v/AOgmomrxaBnntFFFeSZBRRRQAUUUUAFFFFABRRRQAUUUUAdf4TuPM054C+WhfgY6KeR+u6tyuD0W/Gn6gsrAGNxscnPCkjn8MV3asrqHRgysMgg5BFelh580LdjSL0FooorcYUUUUAFZniG4+z6PNh9rSYjXjOc9R+Wa064zxHqKXt4scO1ooMhXBzuJxn8OKxrz5YMTehj0UUV5hmFFFFABRRRQAUUUUAFFFFABRRRQAVs6FrTWLiC4Ja2Y/Uxn1Ht7f5ONRVRk4u6GekQTR3EKzQuHjcZDCn15zb3E1rKJbeVo3HdT19j6j2rUh8S6jGpD+VKc53OmD9OMV2xxUX8SK5jsqRmVFLuwVVGSScACuPk8Tag8ZVVgjJ/iVDkfmSKzLq8ubyTfczNIR0z0H0HQdKJYqK2Qcxs67rwuVNtYsfJI+eTBBb2Ht/P6defoorjnNzd2S3cKKKKgQUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/2Q=="
+          BODY=$(python3 -c 'import json,sys;print(json.dumps({"m":"PUT","p":"/api/visits/"+sys.argv[1],"t":sys.argv[2],"b":{"data":{"date":"2026-10-25","no":"PHOTO-TEST","farm":"Green Acres","farmer":"Ravi Kumar","type":"Layer","auditor":"Test Auditor","photos":[{"d":sys.argv[3]}]},"summary":{}}}))' "$ID" "$TOK" "$PHOTO")
+          echo "--- save visit with photo ---"; SAVE=$(post "$BODY"); echo "$SAVE" | head -c 400; echo
+          FID=$(echo "$SAVE" | python3 -c 'import sys,json;d=json.load(sys.stdin)["d"];print((d.get("photos") or [{}])[0].get("f",""))')
+          if [ -z "$FID" ]; then echo "RESULT: photo was NOT stored (is the new Code.gs deployed and Drive allowed via setup?)"; fi
+          if [ -n "$FID" ]; then echo "--- read photo back ---"; post "{\"m\":\"GET\",\"p\":\"/api/photos/$FID\",\"t\":\"$TOK\",\"b\":{}}" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("status",d["s"],"| bytes",len((d["d"] or {}).get("src","")),"|",(d["d"] or {}).get("error",""))'; fi
+          echo "--- delete test visit ---"; post "{\"m\":\"DELETE\",\"p\":\"/api/visits/$ID\",\"t\":\"$TOK\",\"b\":{}}" | head -c 200; echo
+          [ -n "$FID" ] && echo "RESULT: photos work"
