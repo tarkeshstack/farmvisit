@@ -17,5 +17,10 @@ jobs:
           curl -sSL -m 60 "$URL" | head -c 600; echo
           echo "--- POST /api/auth/status ---"
           curl -sSL -m 60 -H 'Content-Type: text/plain;charset=utf-8' --data '{"m":"GET","p":"/api/auth/status","t":"","b":{}}' "$URL" | head -c 600; echo
-          echo "--- POST /api/auth/login (testviewer) ---"
-          curl -sSL -m 60 -H 'Content-Type: text/plain;charset=utf-8' --data '{"m":"POST","p":"/api/auth/login","t":"","b":{"email":"testviewer","password":"FarmTest1","app":"reports"}}' "$URL" | sed 's/"token":"[^"]*"/"token":"(hidden)"/' | head -c 600; echo
+          for U in testviewer testauditor testadmin; do
+            echo "--- sign in as $U and load data ---"
+            APP=reports; [ $U = testadmin ] && APP=admin
+            TOK=$(curl -sSL -m 60 -H 'Content-Type: text/plain;charset=utf-8' --data "{\"m\":\"POST\",\"p\":\"/api/auth/login\",\"t\":\"\",\"b\":{\"email\":\"$U\",\"password\":\"FarmTest1\",\"app\":\"$APP\"}}" "$URL" | python3 -c 'import sys,json;d=json.load(sys.stdin);print(d["d"].get("token","") or "LOGIN FAILED: "+json.dumps(d))')
+            case "$TOK" in LOGIN*) echo "$TOK"; continue;; esac
+            curl -sSL -m 90 -H 'Content-Type: text/plain;charset=utf-8' --data "{\"m\":\"GET\",\"p\":\"/api/bootstrap\",\"t\":\"$TOK\",\"b\":{}}" "$URL" | python3 -c 'import sys,json;d=json.load(sys.stdin);b=d.get("d",{});print("status",d.get("s"),"| role",b.get("user",{}).get("role"),"| farms",len(b.get("farms",[])),"| visits",len(b.get("visits",[])),"|",(b.get("error") or ""))'
+          done
