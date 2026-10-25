@@ -1,0 +1,21 @@
+name: Backend check
+
+# Run by hand (Actions → Backend check → Run workflow) to see whether the
+# Google Sheet backend answers. It only reads; nothing is changed.
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the backend
+        run: |
+          URL=$(curl -sS https://tarkeshstack.github.io/farmvisit/index.html | grep -o 'https://script.google.com/macros/s/[^"]*/exec' | head -1)
+          echo "Backend: $URL"
+          echo "--- GET (plain visit) ---"
+          curl -sSL -m 60 "$URL" | head -c 600; echo
+          echo "--- POST /api/auth/status ---"
+          curl -sSL -m 60 -H 'Content-Type: text/plain;charset=utf-8' --data '{"m":"GET","p":"/api/auth/status","t":"","b":{}}' "$URL" | head -c 600; echo
+          echo "--- POST /api/auth/login (testviewer) ---"
+          curl -sSL -m 60 -H 'Content-Type: text/plain;charset=utf-8' --data '{"m":"POST","p":"/api/auth/login","t":"","b":{"email":"testviewer","password":"FarmTest1","app":"reports"}}' "$URL" | sed 's/"token":"[^"]*"/"token":"(hidden)"/' | head -c 600; echo
