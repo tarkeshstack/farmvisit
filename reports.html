@@ -1670,10 +1670,17 @@ function shrinkPhoto(file,label){return new Promise((ok,no)=>{const u=URL.create
     URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.62))};
   im.onerror=()=>{URL.revokeObjectURL(u);no(new Error('Photo nahi khul payi. Dobara lijiye.'))};im.src=u})}
 function stampText(kind){const n=new Date();return[kind==='selfie'?(D.auditor||'Auditor'):(D.farm||'Farm'),n.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+' '+n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})].join(' · ')}
+/* The Android app opens the camera itself and hands the picture over here. */
+async function photoFromApp(kind,dataUrl){
+  try{const blob=await (await fetch(dataUrl)).blob(),d=await shrinkPhoto(blob,stampText(kind));
+    if(kind==='selfie')D.selfie={d};else(D.photos=D.photos||[]).push({d});saveNow();paint();toast(kind==='selfie'?'Selfie jud gayi':'Photo jud gayi')}
+  catch(e){toast((e&&e.message)||'Photo nahi judi. Dobara lijiye.')}
+}
 function takePhoto(kind){
   if(kind!=='selfie'&&(D.photos||[]).length>=6){toast('Ek visit mein 6 photos tak le sakte hain.');return}
   const i=document.createElement('input');i.type='file';i.accept='image/*';i.setAttribute('capture',kind==='selfie'?'user':'environment');
-  i.onchange=async()=>{const f=i.files&&i.files[0];if(!f)return;
+  document.querySelectorAll('.ph-in').forEach(e=>e.remove());i.className='ph-in';i.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;width:1px;height:1px';document.body.appendChild(i);   // kept in the page so every browser opens the picker
+  i.onchange=async()=>{const f=i.files&&i.files[0];i.remove();if(!f)return;
     try{const d=await shrinkPhoto(f,stampText(kind));if(kind==='selfie')D.selfie={d};else(D.photos=D.photos||[]).push({d});saveNow();paint();toast(kind==='selfie'?'Selfie jud gayi':'Photo jud gayi')}catch(e){toast(e.message)}};
   i.click();
 }

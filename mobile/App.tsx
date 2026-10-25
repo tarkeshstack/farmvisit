@@ -6,6 +6,7 @@ import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import * as ImagePicker from 'expo-image-picker';
 
 /* The app shows the same visit form that is published on GitHub Pages, so it talks to the same
    Google Sheet as the Admin console and Reports. The page's service worker keeps a copy for
@@ -20,6 +21,7 @@ const BRIDGE = `(function(){
   function sendBlob(name,blob){var r=new FileReader();r.onload=function(){var s=String(r.result);send({type:'file',name:name,mime:blob.type||'application/octet-stream',b64:s.slice(s.indexOf(',')+1)})};r.readAsDataURL(blob)}
   function patch(){
     if(typeof download==='function'&&!download.fv){var d=function(name,blob){sendBlob(name,blob)};d.fv=1;window.download=d}
+    if(typeof takePhoto==='function'&&!takePhoto.fv){var tp=function(kind){if(kind!=='selfie'&&(D.photos||[]).length>=6){toast('Ek visit mein 6 photos tak le sakte hain.');return}send({type:'camera',kind:kind})};tp.fv=1;window.takePhoto=tp}   // an Android WebView cannot open the camera itself: the app does it
     window.print=function(){try{toast('To print, press Share and pick a printer')}catch(e){}};
   }
   if(!window.fvApp){
@@ -32,7 +34,7 @@ const BRIDGE = `(function(){
   patch();
 })();true;`;
 
-type Msg = { type: 'file'; name: string; mime: string; b64: string } | { type: 'exit' };
+type Msg = { type: 'file'; name: string; mime: string; b64: string } | { type: 'camera'; kind: 'farm' | 'selfie' } | { type: 'exit' };
 
 export default function App() {
   const web = useRef<WebView>(null);
@@ -51,6 +53,22 @@ export default function App() {
     let m: Msg;
     try { m = JSON.parse(e.nativeEvent.data); } catch { return; }
     if (m.type === 'exit') { BackHandler.exitApp(); return; }
+    if (m.type === 'camera') {
+      const say = (t: string) => web.current?.injectJavaScript(`toast(${JSON.stringify(t)});true;`);
+      try {
+        const perm = await ImagePicker.requestCameraPermissionsAsync();
+        if (!perm.granted) { say('Camera ki permission chahiye: Phone Settings → Apps → Farm Visit → Permissions → Camera.'); return; }
+        const r = await ImagePicker.launchCameraAsync({
+          cameraType: m.kind === 'selfie' ? ImagePicker.CameraType.front : ImagePicker.CameraType.back,
+          quality: 0.4, base64: true, allowsEditing: false,
+        });
+        const a = r.canceled ? null : r.assets[0];
+        if (!a || !a.base64) return;
+        const uri = 'data:' + (a.mimeType || 'image/jpeg') + ';base64,' + a.base64;
+        web.current?.injectJavaScript(`photoFromApp(${JSON.stringify(m.kind)},${JSON.stringify(uri)});true;`);
+      } catch (e) { say('Camera nahi khul paya. Dobara try kijiye.'); }
+      return;
+    }
     if (m.type === 'file') {
       const name = m.name.replace(/[^\w.-]+/g, '_') || 'farm-visit-file';
       const f = new File(Paths.cache, name);

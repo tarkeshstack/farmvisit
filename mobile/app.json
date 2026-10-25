@@ -27,6 +27,16 @@
     "ios": {
       "bundleIdentifier": "com.tarkeshstack.farmvisit",
       "supportsTablet": true
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Farm Visit ko farm ki photo aur selfie ke liye camera chahiye.",
+          "photosPermission": false,
+          "microphonePermission": false
+        }
+      ]
+    ]
   }
 }
