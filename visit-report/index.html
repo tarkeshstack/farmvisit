@@ -86,24 +86,25 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
 .sigb button{margin-top:0}
 .phn{padding:0 12px 10px;color:var(--mut);font-size:13px}
 @media (max-width:520px){.hd{grid-template-columns:72px 1fr;padding:12px}.badge{width:72px;height:62px}.badge b{font-size:22px}.badge small{font-size:6px}.hd h1{font-size:17px}.hd h2{font-size:13px}.hd .t{font-size:20px}.tools b{display:none}.tools{justify-content:flex-end}}
+.dd{display:flex;flex-direction:column;gap:6px;min-width:0}.dd select{width:100%;font:600 16px var(--f);border:1.5px solid var(--line);border-radius:8px;padding:9px 10px;min-height:42px;background:#fff;color:var(--ink);text-align:center;text-align-last:center}.hid{display:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @page{size:A4;margin:10mm}
 @media print{
  body{background:#fff;padding:0;color:#000}.tools,.bar,#toast,.sig button,.sig .hint,.err{display:none!important}
  :root{--paper:#fff;--ink:#000;--line:#999;--bar:#d9d9d9;--mut:#444}
- .sheet{margin:0;border:0;box-shadow:none;max-width:none;font-size:12.5px}
- .row{padding:2px 10px;gap:2px 10px}.sec{padding:2px 10px;font-size:13px}.hd{padding:10px 14px}.hd h1{font-size:19px}.hd .t{font-size:20px;margin-top:3px}.badge{width:80px;height:64px}
+ .sheet{margin:0;border:0;box-shadow:none;max-width:none;font-size:11px}
+ .row{padding:0 10px;gap:2px 10px;line-height:1.1}.sec{padding:1px 10px;font-size:11.5px}.hd{padding:5px 14px}.hd h1{font-size:16px}.hd h2{font-size:11px}.hd .t{font-size:16px;margin-top:1px}.badge{width:64px;height:50px}
  #mtHint{display:none}.pair{gap:2px}
  .sig{padding:4px 10px}.foot{padding:5px 10px}
- input,textarea{font-size:12.5px!important}.calc{font-size:12.5px;padding:0}
+ input,textarea{font-size:11px!important}.calc{font-size:11px;padding:0}
  input,textarea,select{border:0!important;background:transparent!important;padding:2px 4px;min-height:0;text-align:center;font-weight:600;appearance:none;-webkit-appearance:none}
  .calc{border:0!important;background:transparent!important;min-height:0}
  input[type=date],input[type=time]{display:none}.pr{display:inline}
- textarea{text-align:left;min-height:44px}
- .sig .box{border:0;height:56px;background:none}
+ textarea{text-align:left;min-height:30px;height:34px;resize:none}
+ .sig .box{border:0;height:42px;background:none}
  ::placeholder{color:transparent!important}
- #phSec{break-before:page}
- .phb,.sigb,.phn{display:none!important}.ph{grid-template-columns:repeat(4,1fr);gap:5px;padding:4px 10px}.ph button{display:none}.ph figure{break-inside:avoid}
+ .dd select{display:none!important}.dd input.hid{display:block!important}#phSec{break-inside:avoid}
+ .phb,.sigb,.phn{display:none!important}.ph{grid-template-columns:repeat(4,1fr);gap:4px;padding:2px 10px}.ph figure{aspect-ratio:4/3;max-height:26mm}.ph button{display:none}.ph figure{break-inside:avoid}
  .hd{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sec{-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -132,7 +133,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
  <div class="row"><label for="time">Time</label><div><input id="time" type="time"><span class="pr" id="timePr"></span></div></div>
  <div class="row"><label for="addr">Address</label><input id="addr" autocomplete="off" placeholder="Village / town"></div>
  <div class="row"><label for="mob">Mobile Number</label><input id="mob" type="tel" inputmode="tel" autocomplete="off" placeholder="10 digit number"></div>
- <div class="row"><label for="breed">Breed name</label><input id="breed" list="breeds" autocomplete="off" placeholder="e.g. Venkys"><datalist id="breeds"><option>Venkys</option><option>Hy-Line</option><option>Bovans</option><option>Lohmann</option><option>ISA Brown</option><option>H&amp;N</option></datalist></div>
+ <div class="row"><label for="breed">Breed name</label><input id="breed" autocomplete="off" placeholder="e.g. Venkys"></div>
  <div class="row"><label for="placed">Chicks placement</label><input id="placed" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
  <div class="row"><label for="live">Live Birds</label><input id="live" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
  <div class="row"><span class="l">Birds's age</span><div class="pair"><div class="cell"><input id="wk" type="number" inputmode="numeric" min="0" step="1" placeholder="Weeks" aria-label="Weeks"></div><div class="cell"><input id="dy" type="number" inputmode="numeric" min="0" max="6" step="1" placeholder="Days" aria-label="Days"></div></div></div>
@@ -153,12 +154,12 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
  <div class="row"><span class="l">Today's feed cons. per bird</span><div class="calc" id="feedBird">–</div></div>
 
  <h2 class="sec">FEED NAME</h2>
- <div class="row"><label for="fco">Feed company</label><input id="fco" list="fcos" autocomplete="off" placeholder="e.g. Maa Kamakhya"><datalist id="fcos"><option>Maa Kamakhya</option></datalist></div>
- <div class="row"><label for="ftype">Feed type</label><input id="ftype" list="ftypes" autocomplete="off" placeholder="e.g. PH-1"><datalist id="ftypes"><option>Starter</option><option>Grower</option><option>Pre-layer</option><option>PH-1</option><option>PH-2</option><option>PH-3</option></datalist></div>
+ <div class="row"><label for="fco">Feed company</label><input id="fco" autocomplete="off" placeholder="e.g. Maa Kamakhya"></div>
+ <div class="row"><label for="ftype">Feed type</label><input id="ftype" autocomplete="off" placeholder="e.g. PH-1"></div>
 
  <h2 class="sec">TODAY'S EGG PRODUCTION</h2>
  <div class="row"><label for="sell">Selling egg</label><input id="sell" type="number" inputmode="numeric" min="0" step="1"></div>
- <div class="row"><label for="brk">Broken egg</label><input id="brk" type="number" inputmode="numeric" min="0" step="1"></div>
+ <div class="row"><label for="brk">Broken egg</label><div class="pair"><input id="brk" type="number" inputmode="numeric" min="0" step="1" placeholder="0"><div class="calc" id="brkP">–</div></div></div>
  <div class="row"><span class="l">Total egg prod.</span><div class="calc" id="eggT">–</div></div>
  <div class="row"><span class="l">Egg %</span><div class="calc" id="eggP">–</div></div>
 
@@ -229,6 +230,7 @@ function calc(){
   $('#feedBird').textContent=kg!=null&&live?(kg/live*1000).toFixed(1)+' g  ('+(kg/live).toFixed(3)+' kg)':'–';
   var s=n($('#sell').value),b=n($('#brk').value),tot=s!=null||b!=null?(s||0)+(b||0):null;
   $('#eggT').textContent=tot==null?'–':tot.toLocaleString('en-IN');
+  $('#brkP').textContent=tot&&b!=null?pct(b,tot):'–';
   $('#eggP').textContent=tot!=null&&live?Math.round(tot/live*100)+'%':'–';
   $('#datePr').textContent=fmtDate($('#date').value);$('#timePr').textContent=fmtTime($('#time').value);
   $('#tag').textContent=[$('#party').value||'Farm',fmtDate($('#date').value),fmtTime($('#time').value)].filter(Boolean).join('_').replace(/ /g,'_')||'–';
@@ -252,7 +254,7 @@ function showErr(list){var e=$('#err');e.innerHTML=list.map(esc).join('<br>');e.
 function read(){var d={};IDS.forEach(function(k){d[k]=$('#'+k).value});d.mtTouched=mtTouched;d.sig=sig;d.np=photos.length;d.sp=sigPhoto?1:0;return d}
 function write(d){
   IDS.forEach(function(k){$('#'+k).value=d[k]==null?'':d[k]});
-  mtTouched=!!d.mtTouched;sig=d.sig||'';sigPhoto=d.sigPhoto||'';photos=d.photos||[];drawSig();drawPhotos();calc();showErr([]);
+  mtTouched=!!d.mtTouched;sig=d.sig||'';sigPhoto=d.sigPhoto||'';photos=d.photos||[];drawSig();drawPhotos();Object.keys(OPT).forEach(ddSync);calc();showErr([]);
 }
 function blank(){
   var last=ls(LAST,{});
@@ -281,6 +283,7 @@ function save(){
 }
 function fillLists(){
   var names={};ls(KEY,[]).forEach(function(r){if(r.data.party)names[r.data.party]=r.data});
+  PARTIES.forEach(function(p){if(!names[p])names[p]=null});
   $('#parties').innerHTML=Object.keys(names).map(function(k){return'<option value="'+esc(k)+'">'}).join('');
 }
 $('#party').addEventListener('change',function(){   /* pick a known farm: fill its fixed details */
@@ -321,6 +324,17 @@ function share(){
   if(navigator.share){navigator.share(data).catch(function(){})}
   else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener');
 }
+
+/* ---------- dropdown fields: pick from a list, or choose Other and type ---------- */
+var OPT={breed:['Venkys','Hy-Line','Bovans','Lohmann','ISA Brown','H&N','Babcock'],fco:['Maa Kamakhya','Godrej','Suguna','Avanti','Cargill'],ftype:['Starter','Grower','Pre-layer','PH-1','PH-2','PH-3'],bagkg:['25','30','40','50']};
+var PARTIES=['R.D Layer Farm','Shree Ganesh Poultry','Mahto Egg Farm','Sunrise Layers'];
+function ddSync(id){var s=$('#'+id+'Sel'),i=$('#'+id),v=i.value;s.value=v&&OPT[id].indexOf(v)>=0?v:(v?'__o':'');i.classList.toggle('hid',s.value!=='__o')}
+Object.keys(OPT).forEach(function(id){
+  var i=$('#'+id),w=document.createElement('div'),s=document.createElement('select');w.className='dd';s.id=id+'Sel';s.setAttribute('aria-label',(document.querySelector('label[for='+id+']')||{}).textContent||id);
+  s.innerHTML='<option value="">Select…</option>'+OPT[id].map(function(o){return'<option>'+esc(o)+'</option>'}).join('')+'<option value="__o">Other (type it)…</option>';
+  i.parentNode.insertBefore(w,i);w.appendChild(s);w.appendChild(i);
+  s.addEventListener('change',function(){if(s.value==='__o'){i.value='';i.classList.remove('hid');i.focus()}else{i.value=s.value;i.classList.add('hid')}i.dispatchEvent(new Event('input',{bubbles:true}));if(id!=='bagkg')i.dispatchEvent(new Event('change',{bubbles:true}))});
+});
 function printIt(){
   var errs=problems();showErr(errs);if(errs.length)return;
   var old=document.title;document.title=$('#tag').textContent||'Farm Visit Report';
@@ -335,13 +349,18 @@ function scene(i){
   x.fillStyle='#c9ccd1';x.fillRect(110,230,680,230);x.fillStyle='#8c9097';x.beginPath();x.moveTo(90,230);x.lineTo(450,130);x.lineTo(810,230);x.closePath();x.fill();
   x.fillStyle='#5f6368';for(var k=0;k<6;k++)x.fillRect(150+k*105,290,70,150);
   x.fillStyle='#f4efe4';for(var j=0;j<14;j++){var px=120+((j*137+i*53)%660),py=480+((j*61)%120);x.beginPath();x.ellipse(px,py,16,11,0,0,7);x.fill();x.fillStyle='#d9534f';x.fillRect(px+10,py-14,5,6);x.fillStyle='#f4efe4'}
-  x.fillStyle='rgba(0,0,0,.45)';x.font='bold 30px sans-serif';x.fillText(['House 1 front','Feeders and birds','Egg collection area'][i%3],24,620);
+  x.fillStyle='rgba(0,0,0,.45)';x.font='bold 30px sans-serif';x.fillText(['House 1 front','Feeders and birds','Egg collection area','Water line','Egg tray','Shed inside'][i%6],24,620);
   return c.toDataURL('image/jpeg',.6)}
 function sigScene(){var c=document.createElement('canvas');c.width=600;c.height=200;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,600,200);x.strokeStyle='#14264a';x.lineWidth=5;x.lineCap='round';x.beginPath();x.moveTo(40,130);x.bezierCurveTo(80,20,120,190,170,80);x.bezierCurveTo(210,10,240,150,300,90);x.bezierCurveTo(350,40,380,150,470,70);x.stroke();return c.toDataURL('image/png')}
+var SAMPLES=[
+ {party:'R.D Layer Farm',date:'2022-02-21',time:'17:16',addr:'Giridhi',mob:'6294000937',breed:'Venkys',placed:'25000',live:'19850',wk:'60',dy:'6',bw:'1.510',m7:'16',m15:'23',m30:'45',bags:'46',bagkg:'50',fco:'Maa Kamakhya',ftype:'PH-1',sell:'17073',brk:'130',sug:'Egg production is 87% for a bird of 60 weeks. Keep feed at 115 g per bird. Add shell grit twice a week and clean the water line every day.',n:3},
+ {party:'Shree Ganesh Poultry',date:'2022-03-05',time:'10:40',addr:'Chas, Bokaro',mob:'9431122334',breed:'Hy-Line',placed:'12000',live:'11620',wk:'28',dy:'3',bw:'1.420',m7:'20',m15:'31',m30:'60',bags:'22',bagkg:'25',fco:'Godrej',ftype:'PH-2',sell:'10240',brk:'96',sug:'Peak production is on track. Check beak trimming and keep light at 16 hours.',n:6},
+ {party:'Mahto Egg Farm',date:'2022-03-18',time:'15:05',addr:'Ramgarh',mob:'7004556677',breed:'Brown Nick',placed:'8000',live:'7410',wk:'45',dy:'0',bw:'1.690',m7:'10',m15:'12',m30:'25',bags:'30',bagkg:'40',fco:'Local mill',ftype:'Pre-layer',sell:'5800',brk:'210',sug:'Broken eggs are high. Collect eggs 3 times a day and check cage floor slope.',n:8},
+ {party:'Sunrise Layers',date:'2022-04-02',time:'08:30',addr:'Dhanbad',mob:'8210998877',breed:'Bovans',placed:'5000',live:'4930',wk:'12',dy:'4',bw:'0.980',m7:'8',m15:'14',m30:'22',bags:'8',bagkg:'30',fco:'Suguna',ftype:'Grower',sell:'',brk:'',sug:'Young flock, not laying yet. Weight is slightly under target. Increase feed gently and give vitamins for a week.',n:1}];
+var sIdx=0;
 function sample(){
-  var v={party:'R.D Layer Farm',date:'2022-02-21',time:'17:16',addr:'Giridhi',mob:'6294000937',breed:'Venkys',placed:'25000',live:'19850',wk:'60',dy:'6',bw:'1.510',m7:'16',m15:'23',m30:'45',mt:'5150',bags:'46',bagkg:'50',fco:'Maa kamakhya',ftype:'PH-1',sell:'17073',brk:'130',
-    sug:'Egg production is 87% for a bird of 60 weeks. Keep feed at 115 g per bird. Add shell grit twice a week and clean the water line every day.',mtTouched:false};
-  curId=null;v.photos=[scene(0),scene(1),scene(2)];v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample data filled in. Press Save to keep it, or New report for a blank form.')}
+  var v=Object.assign({},SAMPLES[sIdx%SAMPLES.length]),k=v.n;delete v.n;sIdx++;v.mtTouched=false;v.mt='';
+  curId=null;v.photos=[];for(var i=0;i<k;i++)v.photos.push(scene(i+sIdx));v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample '+(((sIdx-1)%SAMPLES.length)+1)+' of '+SAMPLES.length+' filled in. Tap Sample data again for the next one.')}
 $('#bSample').onclick=function(){if(dirty()&&!confirm('Replace what you typed with sample data?'))return;sample()};
 
 /* ---------- PDF (built here, no library, so it works on every phone) ---------- */
@@ -368,18 +387,18 @@ function buildPdf(){return new Promise(function(resolve,reject){
     var ph=all[0].filter(Boolean),sg=all[1];
     var y=M;page();
     /* header */
-    rect(M,y,W-2*M,84,'#1d4f91');rect(M+12,y+10,70,56,'#6b3f1d');rect(M+14,y+12,66,52,'#8a5a2b');
+    rect(M,y,W-2*M,80,'#1d4f91');rect(M+12,y+10,70,56,'#6b3f1d');rect(M+14,y+12,66,52,'#8a5a2b');
     text('MKP',M+47,y+44,24,{b:1,c:1,col:'#fff3d6'});text('PRODUCTS PVT. LTD.',M+47,y+57,5.5,{b:1,c:1,col:'#fff3d6'});
     text('MAA KAMAKHYA',W/2+30,y+23,18,{b:1,c:1,col:'#ffffff'});text('POULTRY PRODUCTS PVT. LTD.',W/2+30,y+38,11,{b:1,c:1,col:'#ffffff'});
     text('TALGARIA MORE CHAS, BOKARO JHARKHAND',W/2+30,y+50,8.5,{b:1,c:1,col:'#ffffff'});text('Farm Visit Report',W/2+30,y+72,17,{b:1,c:1,col:'#fff2b8'});
-    y+=90;
-    var RH=16.2,X1=M+8,XR=W-M,VX=214,C1=(VX+XR)/2;
+    y+=84;
+    var RH=14.4,X1=M+8,XR=W-M,VX=214,C1=(VX+XR)/2;
     /* columns inside the value area: whole width, or two or three cells */
     var A1=[VX,XR],A2=[VX,396,XR],A3=[VX,320,420,XR];
     function ctr(arr,i){return(arr[i]+arr[i+1])/2}
-    function sec(t){rect(M,y,W-2*M,15,'#dfe3e6');text(t,W/2,y+11,10,{b:1,c:1});y+=15}
+    function sec(t){rect(M,y,W-2*M,14,'#dfe3e6');text(t,W/2,y+10.4,10,{b:1,c:1});y+=14}
     function row(label,cells,grid){
-      var by=y+RH-4.8;text(label,X1,by,9.5);
+      var by=y+RH-4.4;text(label,X1,by,9.5);
       (cells||[]).forEach(function(cl,i){if(cl==null)return;var g=grid||A1;
         if(typeof cl==='string'){if(cl!=='')text(cl,ctr(g,i),by,9.5,{b:1,c:1})}
         else if(cl.v!==''&&cl.v!=null){ /* caption on the left of the cell, value centred in the rest */
@@ -404,19 +423,21 @@ function buildPdf(){return new Promise(function(resolve,reject){
     row("Today's feed cons. per bird",[c.kg!=null&&c.live?(c.kg/c.live*1000).toFixed(1)+' g  ('+(c.kg/c.live).toFixed(3)+' kg)':'']);
     sec('FEED NAME');row('Feed company',[d.fco]);row('Feed type',[d.ftype]);
     sec("TODAY'S EGG PRODUCTION");
-    row('Selling egg',[d.sell]);row('Broken egg',[d.brk]);row('Total egg prod.',[c.tot==null?'':c.tot.toLocaleString('en-IN')]);
+    row('Selling egg',[d.sell]);row('Broken egg',[d.brk,{k:'Broken %',v:c.tot&&c.b!=null?pct(c.b,c.tot):''}],D2);row('Total egg prod.',[c.tot==null?'':c.tot.toLocaleString('en-IN')]);
     row('Egg %',[c.tot!=null&&c.live?Math.round(c.tot/c.live*100)+'%':'']);
     sec('OBSERVATION');
-    text('Suggestion',X1,y+RH-5,9.5);y+=RH;
-    wrap(d.sug,W-2*M-24,9.5).slice(0,5).forEach(function(l){text(l,X1+10,y+8,9.5);y+=12});y+=4;line(M,W-M,y,'#999999',1);
-    text('Farmer Signature',X1,y+14,9.5);
-    if(sg){var bh=Math.min(54,150*sg.h/sg.w),bw=Math.min(150,bh*sg.w/sg.h);imgs.push(sg);img(imgs.length,C1-bw/2,y+4,bw,bh)}
-    y+=62;line(M,W-M,y,'#999999',1);
-    text(((d.party||'Farm')+'_'+fmtDate(d.date)+'_'+fmtTime(d.time)).replace(/ /g,'_'),XR-6,y+13,9,{r:1});
-    /* photo pages */
-    for(var i=0;i<ph.length;i+=6){page();var py=M;text((d.party||'Farm')+' - farm photos, '+fmtDate(d.date)+'  ('+(i+1)+'-'+Math.min(i+6,ph.length)+' of '+ph.length+')',M,py+10,12,{b:1});py+=24;
-      ph.slice(i,i+6).forEach(function(p,k){var cw=(W-2*M-12)/2,ch=(H-2*M-40-3*14)/3,col=k%2,rw=Math.floor(k/2),sc=Math.min(cw/p.w,ch/p.h),w=p.w*sc,h=p.h*sc,x0=M+col*(cw+12),y0=py+rw*(ch+26);
-        imgs.push(p);rect(x0,y0,cw,ch,'#f0f2f4');img(imgs.length,x0+(cw-w)/2,y0+(ch-h)/2,w,h);text('Photo '+(i+k+1),x0,y0+ch+11,9,{col:'#555555'})})}
+    text('Suggestion',X1,y+RH-4.4,9.5);y+=RH;
+    wrap(d.sug,W-2*M-24,9.5).slice(0,3).forEach(function(l){text(l,X1+10,y+7,9.5);y+=11.5});y+=3;line(M,W-M,y,'#999999',1);
+    text('Farmer Signature',X1,y+13,9.5);
+    text(((d.party||'Farm')+'_'+fmtDate(d.date)+'_'+fmtTime(d.time)).replace(/ /g,'_'),XR-6,y+43,8,{r:1,col:'#555555'});
+    if(sg){var bh=Math.min(40,140*sg.h/sg.w),bw=Math.min(140,bh*sg.w/sg.h);imgs.push(sg);img(imgs.length,VX+6,y+3,bw,bh)}
+    y+=46;line(M,W-M,y,'#999999',1);
+    /* farm photos: on this same page, in the space left under the signature */
+    if(ph.length){
+      var top=y+4,avail=H-M-top;text('FARM PHOTOS ('+ph.length+')',M+2,top+9,9,{b:1});top+=13;avail-=13;
+      var rows=ph.length>4?2:1,cols=Math.ceil(ph.length/rows),gap=5,cw=(W-2*M-(cols-1)*gap)/cols,ch=(avail-(rows-1)*gap)/rows;
+      ph.forEach(function(p,k){var col=k%cols,rw=Math.floor(k/cols),sc=Math.min(cw/p.w,ch/p.h),w=p.w*sc,h=p.h*sc,x0=M+col*(cw+gap),y0=top+rw*(ch+gap);
+        imgs.push(p);rect(x0,y0,cw,ch,'#f0f2f4');img(imgs.length,x0+(cw-w)/2,y0+(ch-h)/2,w,h)})}
     /* assemble the file */
     var parts=[],pos=0,offs=[];
     function put(x){var b=typeof x==='string'?strBytes(x):x;parts.push(b);pos+=b.length}
