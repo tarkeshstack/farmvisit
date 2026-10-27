@@ -108,7 +108,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
 <body>
 <div class="tools" role="toolbar" aria-label="Report tools">
  <b>Farm Visit Report</b>
- <div class="r"><button id="bHist" type="button">Saved reports</button><button id="bNew" type="button">New report</button></div>
+ <div class="r"><button id="bSample" type="button">Sample data</button><button id="bHist" type="button">Saved reports</button><button id="bNew" type="button">New report</button></div>
 </div>
 
 <main class="sheet" id="sheet">
@@ -178,7 +178,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
 <div class="bar">
  <button class="pri" id="bSave" type="button">Save</button>
  <button class="wa" id="bWa" type="button">Share</button>
- <button class="sec2" id="bPdf" type="button">Print / PDF</button>
+ <button class="sec2" id="bPdf" type="button">PDF</button><button class="sec2" id="bPrint" type="button" style="max-width:90px">Print</button>
 </div>
 
 <dialog id="dlg" aria-labelledby="dt"><div class="dh"><h3 id="dt">Saved reports</h3><button type="button" id="dx">Close</button></div><div class="db" id="dbody"></div></dialog>
@@ -328,6 +328,115 @@ function printIt(){
   window.print();setTimeout(function(){document.title=old},500);
 }
 
+
+/* ---------- sample data ---------- */
+function scene(i){
+  var c=document.createElement('canvas');c.width=900;c.height=650;var x=c.getContext('2d'),sky=['#9fd0f2','#f6c58b','#b9dcb0'][i%3];
+  var g=x.createLinearGradient(0,0,0,650);g.addColorStop(0,sky);g.addColorStop(.55,'#eaf3ff');g.addColorStop(.56,'#7aa85a');g.addColorStop(1,'#587f3d');x.fillStyle=g;x.fillRect(0,0,900,650);
+  x.fillStyle='#c9ccd1';x.fillRect(110,230,680,230);x.fillStyle='#8c9097';x.beginPath();x.moveTo(90,230);x.lineTo(450,130);x.lineTo(810,230);x.closePath();x.fill();
+  x.fillStyle='#5f6368';for(var k=0;k<6;k++)x.fillRect(150+k*105,290,70,150);
+  x.fillStyle='#f4efe4';for(var j=0;j<14;j++){var px=120+((j*137+i*53)%660),py=480+((j*61)%120);x.beginPath();x.ellipse(px,py,16,11,0,0,7);x.fill();x.fillStyle='#d9534f';x.fillRect(px+10,py-14,5,6);x.fillStyle='#f4efe4'}
+  x.fillStyle='rgba(0,0,0,.45)';x.font='bold 30px sans-serif';x.fillText(['House 1 front','Feeders and birds','Egg collection area'][i%3],24,620);
+  return c.toDataURL('image/jpeg',.6)}
+function sigScene(){var c=document.createElement('canvas');c.width=600;c.height=200;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,600,200);x.strokeStyle='#14264a';x.lineWidth=5;x.lineCap='round';x.beginPath();x.moveTo(40,130);x.bezierCurveTo(80,20,120,190,170,80);x.bezierCurveTo(210,10,240,150,300,90);x.bezierCurveTo(350,40,380,150,470,70);x.stroke();return c.toDataURL('image/png')}
+function sample(){
+  var v={party:'R.D Layer Farm',date:'2022-02-21',time:'17:16',addr:'Giridhi',mob:'6294000937',breed:'Venkys',placed:'25000',live:'19850',wk:'60',dy:'6',bw:'1.510',m7:'16',m15:'23',m30:'45',mt:'5150',bags:'46',bagkg:'50',fco:'Maa kamakhya',ftype:'PH-1',sell:'17073',brk:'130',
+    sug:'Egg production is 87% for a bird of 60 weeks. Keep feed at 115 g per bird. Add shell grit twice a week and clean the water line every day.',mtTouched:false};
+  curId=null;v.photos=[scene(0),scene(1),scene(2)];v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample data filled in. Press Save to keep it, or New report for a blank form.')}
+$('#bSample').onclick=function(){if(dirty()&&!confirm('Replace what you typed with sample data?'))return;sample()};
+
+/* ---------- PDF (built here, no library, so it works on every phone) ---------- */
+function buildPdf(){return new Promise(function(resolve,reject){
+  var W=595.28,H=841.89,M=28,pages=[],cur=null,imgs=[],mc=document.createElement('canvas').getContext('2d');
+  var enc=function(t){return String(t==null?'':t).replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,'-').replace(/·/g,'-').replace(/[^\x20-\x7e\xa0-\xff]/g,'?').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')};
+  var f2=function(v){return(Math.round(v*100)/100).toString()};
+  function tw(t,size,bold){mc.font=(bold?'bold ':'')+size+'px Helvetica, Arial, sans-serif';return mc.measureText(String(t)).width}
+  function page(){cur=[];pages.push(cur)}
+  function rgb(h){return[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255].map(f2).join(' ')}
+  function rect(x,y,w,h,fill){cur.push(rgb(fill)+' rg '+f2(x)+' '+f2(H-y-h)+' '+f2(w)+' '+f2(h)+' re f')}
+  function line(x1,x2,y,col,dash){cur.push((dash?'[1.5 2] 0 d ':'[] 0 d ')+rgb(col)+' RG 0.5 w '+f2(x1)+' '+f2(H-y)+' m '+f2(x2)+' '+f2(H-y)+' l S')}
+  function text(t,x,y,size,o){o=o||{};var w=tw(t,size,o.b);var px=o.c?x-w/2:o.r?x-w:x;cur.push('BT /'+(o.b?'F2':'F1')+' '+size+' Tf '+rgb(o.col||'#000000')+' rg '+f2(px)+' '+f2(H-y)+' Td ('+enc(t)+') Tj ET')}
+  function wrap(t,w,size){var out=[];String(t||'').split(/\r?\n/).forEach(function(par){var l='';par.split(/\s+/).forEach(function(wd){var tr=l?l+' '+wd:wd;if(tw(tr,size)>w&&l){out.push(l);l=wd}else l=tr});out.push(l)});return out}
+  function img(i,x,y,w,h){cur.push('q '+f2(w)+' 0 0 '+f2(h)+' '+f2(x)+' '+f2(H-y-h)+' cm /Im'+i+' Do Q')}
+  function loadImg(u){return new Promise(function(res){var im=new Image();im.onload=function(){
+      /* PDF embeds JPEG directly; anything else (the drawn signature is PNG) is redrawn as JPEG on white */
+      var c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0);
+      var j=/^data:image\/jpeg/.test(u)?u:c.toDataURL('image/jpeg',.85),b=atob(j.split(',')[1]),a=new Uint8Array(b.length);for(var k=0;k<b.length;k++)a[k]=b.charCodeAt(k);res({w:c.width,h:c.height,bytes:a})};im.onerror=function(){res(null)};im.src=u})}
+  var d=read(),c=calc(),P=Promise.all(photos.map(loadImg)).then(function(a){return Promise.all([Promise.resolve(a),loadImg(sigPhoto||sig||'data:,')])});
+  P.then(function(all){
+    var ph=all[0].filter(Boolean),sg=all[1];
+    var y=M;page();
+    /* header */
+    rect(M,y,W-2*M,84,'#1d4f91');rect(M+12,y+10,70,56,'#6b3f1d');rect(M+14,y+12,66,52,'#8a5a2b');
+    text('MKP',M+47,y+44,24,{b:1,c:1,col:'#fff3d6'});text('PRODUCTS PVT. LTD.',M+47,y+57,5.5,{b:1,c:1,col:'#fff3d6'});
+    text('MAA KAMAKHYA',W/2+30,y+23,18,{b:1,c:1,col:'#ffffff'});text('POULTRY PRODUCTS PVT. LTD.',W/2+30,y+38,11,{b:1,c:1,col:'#ffffff'});
+    text('TALGARIA MORE CHAS, BOKARO JHARKHAND',W/2+30,y+50,8.5,{b:1,c:1,col:'#ffffff'});text('Farm Visit Report',W/2+30,y+72,17,{b:1,c:1,col:'#fff2b8'});
+    y+=90;
+    var RH=16.2,X1=M+8,X2=330,X3=470,XR=W-M-8;
+    function sec(t){rect(M,y,W-2*M,15,'#dfe3e6');text(t,W/2,y+11,10,{b:1,c:1});y+=15}
+    function row(label,vals,cols){var by=y+RH-5;text(label,X1,by,9.5);(vals||[]).forEach(function(v,i){if(v==null||v==='')return;var cx=cols?cols[i]:XR-110;text(v,cx,by,9.5,{b:1,c:1})});line(M,W-M,y+RH,'#999999',1);y+=RH}
+    var dsp=function(v){return v===''||v==null?'-':v};
+    sec('PARTY DETAILS');
+    row('Name of the Party',[d.party,'Date: '+fmtDate(d.date)],[X2+40,XR-50]);
+    row('Address',[d.addr,'Time: '+fmtTime(d.time)],[X2+40,XR-50]);
+    row('Mobile Number',[d.mob]);row('Breed name',[d.breed]);row('Chicks placement',[d.placed]);row('Live Birds',[d.live]);
+    row("Birds's age",[c.wk!=null||c.dy!=null?(c.wk||0)+' weeks':'', c.wk!=null||c.dy!=null?(c.dy||0)+' days':'', c.td!=null?c.td+' days / '+(c.td/30).toFixed(1)+' months':''],[X2-20,X2+55,XR-45]);
+    row('Birds body weight',[c.bw!=null?d.bw+' kg':'',c.bw!=null?Math.round(c.bw*1000)+' g':''],[X2-20,X2+70]);
+    sec('MORTALITY');
+    [['Mortality after 7 days','m7'],['Mortality after 15 days','m15'],['Mortality after 1 month','m30']].forEach(function(a){var v=n(d[a[1]]);row(a[0],[d[a[1]],pct(v,c.placed)],[X2,X3])});
+    row('Total mortality',[c.mt==null?'':String(c.mt),pct(c.mt,c.placed)],[X2,X3]);
+    sec('FEED CONSUMPTION');
+    row("Today's feed intake: Bag",[d.bags,d.bags?'x '+d.bagkg+' kg':''],[X2,X3]);
+    row('Total cons. in kg',[c.kg==null?'':c.kg.toLocaleString('en-IN')+' kg']);
+    row("Today's feed cons. per bird",[c.kg!=null&&c.live?(c.kg/c.live*1000).toFixed(1)+' g  ('+(c.kg/c.live).toFixed(3)+' kg)':'']);
+    sec('FEED NAME');row('Feed company',[d.fco]);row('Feed type',[d.ftype]);
+    sec("TODAY'S EGG PRODUCTION");
+    row('Selling egg',[d.sell]);row('Broken egg',[d.brk]);row('Total egg prod.',[c.tot==null?'':c.tot.toLocaleString('en-IN')]);
+    row('Egg %',[c.tot!=null&&c.live?Math.round(c.tot/c.live*100)+'%':'']);
+    sec('OBSERVATION');
+    text('Suggestion',X1,y+RH-5,9.5);y+=RH;
+    wrap(d.sug,W-2*M-24,9.5).slice(0,5).forEach(function(l){text(l,X1+10,y+8,9.5);y+=12});y+=4;line(M,W-M,y,'#999999',1);
+    text('Farmer Signature',X1,y+14,9.5);
+    if(sg){var bw=150,bh=Math.min(54,bw*sg.h/sg.w);imgs.push(sg);img(imgs.length,X2+10,y+4,Math.min(bw,bh*sg.w/sg.h),bh)}
+    y+=62;line(M,W-M,y,'#999999',1);
+    text(((d.party||'Farm')+'_'+fmtDate(d.date)+'_'+fmtTime(d.time)).replace(/ /g,'_'),W-M-6,y+13,9,{r:1});
+    /* photo pages */
+    for(var i=0;i<ph.length;i+=6){page();var py=M;text(((d.party||'Farm')+' - photos, '+fmtDate(d.date)),M,py+10,12,{b:1});py+=22;
+      ph.slice(i,i+6).forEach(function(p,k){var cw=(W-2*M-12)/2,ch=(H-2*M-40-24)/3,col=k%2,rw=Math.floor(k/2),s=Math.min(cw/p.w,ch/p.h),w=p.w*s,h=p.h*s;imgs.push(p);img(imgs.length,M+col*(cw+12)+(cw-w)/2,py+rw*(ch+12)+(ch-h)/2,w,h)})}
+    /* assemble the file */
+    var parts=[],pos=0,offs=[];
+    function put(x){var b=typeof x==='string'?strBytes(x):x;parts.push(b);pos+=b.length}
+    function strBytes(t){var a=new Uint8Array(t.length);for(var i=0;i<t.length;i++)a[i]=t.charCodeAt(i)&255;return a}
+    function obj(id,body){offs[id]=pos;put(id+' 0 obj\n'+body+'\nendobj\n')}
+    var nP=pages.length,firstImg=5+nP*2;
+    put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2,'<< /Type /Pages /Kids ['+pages.map(function(_,i){return(5+i*2)+' 0 R'}).join(' ')+'] /Count '+nP+' >>');
+    obj(3,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    obj(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    var xo=imgs.map(function(_,i){return'/Im'+(i+1)+' '+(firstImg+i)+' 0 R'}).join(' ');
+    pages.forEach(function(cmds,i){var cid=6+i*2,body=cmds.join('\n');
+      obj(5+i*2,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+f2(W)+' '+f2(H)+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << '+xo+' >> >> /Contents '+cid+' 0 R >>');
+      obj(cid,'<< /Length '+body.length+' >>\nstream\n'+body+'\nendstream')});
+    imgs.forEach(function(im,i){var id=firstImg+i;offs[id]=pos;put(id+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n');put(im.bytes);put('\nendstream\nendobj\n')});
+    var total=firstImg+imgs.length,xref=pos;
+    put('xref\n0 '+total+'\n0000000000 65535 f \n');
+    for(var k=1;k<total;k++)put(('0000000000'+offs[k]).slice(-10)+' 00000 n \n');
+    put('trailer\n<< /Size '+total+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');
+    resolve(new Blob(parts,{type:'application/pdf'}));
+  }).catch(reject)})}
+function pdfName(){return(($('#party').value||'Farm')+'_'+fmtDate($('#date').value)+'_'+fmtTime($('#time').value)).replace(/[^A-Za-z0-9._-]+/g,'_')+'.pdf'}
+function pdfIt(){
+  var errs=problems();showErr(errs);if(errs.length)return;
+  toast('Making the PDF…');
+  buildPdf().then(function(blob){
+    var name=pdfName(),file=new File([blob],name,{type:'application/pdf'}),touch=matchMedia('(pointer:coarse)').matches;
+    if(touch&&navigator.canShare&&navigator.canShare({files:[file]})){return navigator.share({files:[file],title:name}).catch(function(e){if(e&&e.name!=='AbortError')dl(blob,name)})}
+    dl(blob,name);toast('PDF downloaded: '+name);
+  }).catch(function(e){toast('Could not make the PDF. '+(e&&e.message||'')+' Try Print instead.')});
+}
+function dl(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},4000)}
+
 /* ---------- saved reports ---------- */
 function csvCell(v){v=v==null?'':String(v);if(/^[=+\-@]/.test(v)&&isNaN(Number(v)))v="'"+v;return/[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function exportCsv(){
@@ -390,13 +499,13 @@ document.addEventListener('input',function(e){
   if(e.target.id==='live'||e.target.id==='placed'){if(!$('#mt').value)mtTouched=false}
   calc();draftSoon();
 });
-$('#bSave').onclick=function(){save()};$('#bWa').onclick=share;$('#bPdf').onclick=printIt;$('#bNew').onclick=function(){newReport(true)};$('#bHist').onclick=openHist;$('#dx').onclick=function(){$('#dlg').close()};
+$('#bSave').onclick=function(){save()};$('#bWa').onclick=share;$('#bPdf').onclick=pdfIt;$('#bPrint').onclick=printIt;$('#bNew').onclick=function(){newReport(true)};$('#bHist').onclick=openHist;$('#dx').onclick=function(){$('#dlg').close()};
 addEventListener('resize',function(){if(!sig)fit()});
 addEventListener('beforeunload',function(e){if(dirty()){lsSet(DRAFT,{id:curId,d:read()})}});
 fit();fillLists();
 var dr=ls(DRAFT,null);
-if(dr&&dr.d&&(dr.d.party||dr.d.placed||dr.d.live||dr.d.np)){curId=dr.id||null;write(dr.d);mark();pGet('draft').then(function(x){if(x&&((x.photos&&x.photos.length)||x.sigPhoto)){photos=x.photos||[];sigPhoto=x.sigPhoto||'';drawPhotos();drawSig();mark()}});toast('Your unsaved report is back')}else{write(blank());mark()}
-window.__mkp={calc:calc,read:read,write:write,save:save,summary:summary,get photos(){return photos},get sigPhoto(){return sigPhoto}};
+if(dr&&dr.d&&(dr.d.party||dr.d.placed||dr.d.live||dr.d.np)){curId=dr.id||null;write(dr.d);mark();pGet('draft').then(function(x){if(x&&((x.photos&&x.photos.length)||x.sigPhoto)){photos=x.photos||[];sigPhoto=x.sigPhoto||'';drawPhotos();drawSig();mark()}});toast('Your unsaved report is back')}else if(!ls(KEY,[]).length&&!ls('mkp_seen_v1',0)){lsSet('mkp_seen_v1',1);sample()}else{write(blank());mark()}
+window.__mkp={pdf:buildPdf,sample:sample,calc:calc,read:read,write:write,save:save,summary:summary,get photos(){return photos},get sigPhoto(){return sigPhoto}};
 })();
 </script>
 </body>
