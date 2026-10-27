@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1d4f91">
+<title>Farm Visit Report · Maa Kamakhya Poultry Products</title>
+<style>
+:root{--blue:#1d4f91;--blue-d:#143a6c;--ink:#14212b;--mut:#5b6b78;--line:#cfd6dc;--bar:#dfe3e6;--bg:#eef1f4;--paper:#fff;--ok:#1b7f4b;--bad:#c0392b;--gold:#f2b632;
+ --f:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-print]){--ink:#e8eef3;--mut:#9fb0be;--line:#33424f;--bar:#26323c;--bg:#0f161c;--paper:#18222b}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--f);padding-bottom:84px}
+.tools{position:sticky;top:0;z-index:20;display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px max(12px,env(safe-area-inset-left));background:var(--blue-d);color:#fff}
+.tools b{font-size:15px}
+.tools .r{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+button,.btn{font:600 14px var(--f);border:0;border-radius:10px;padding:9px 12px;background:rgba(255,255,255,.16);color:#fff;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.sheet{max-width:760px;margin:14px auto;background:var(--paper);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.hd{position:relative;background:linear-gradient(115deg,#173f78 0%,#2b6cb8 55%,#1d4f91 100%);color:#fff;padding:16px 16px 14px;display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center}
+.badge{width:96px;height:78px;border-radius:10px;background:#6b3f1d;border:3px solid #e9c98a;display:grid;place-items:center;text-align:center;color:#fff3d6;line-height:1}
+.badge b{font:900 30px Georgia,"Times New Roman",serif;letter-spacing:.04em;text-shadow:0 2px 0 #3d2410}
+.badge small{display:block;font:700 7.5px var(--f);letter-spacing:.08em;margin-top:3px}
+.hd h1{margin:0;font:800 22px/1.1 var(--f);letter-spacing:.01em;text-align:center}
+.hd h2{margin:3px 0 0;font:700 15px/1.2 var(--f);text-align:center}
+.hd p{margin:2px 0 0;text-align:center;font:600 12px/1.25 var(--f);opacity:.95}
+.hd .t{margin-top:6px;font:800 24px/1 var(--f);color:#fff2b8;text-align:center}
+.sec{margin:0;padding:6px 12px;background:var(--bar);font:800 15px var(--f);text-align:center;letter-spacing:.02em}
+.row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(130px,1.1fr);gap:6px 12px;align-items:center;padding:7px 12px;border-bottom:1px dotted var(--line)}
+.row>label,.row>.l{font-weight:600}
+.row.three{grid-template-columns:minmax(110px,.9fr) 1fr 1fr}
+.row.four{grid-template-columns:minmax(90px,.8fr) 1fr 1fr 1fr}
+.cell{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cell small{font-size:12px;color:var(--mut);font-weight:600}
+input,select,textarea{width:100%;font:600 16px var(--f);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:8px;padding:9px 10px;min-height:42px}
+input[type=number]{text-align:center}
+input[readonly],.calc{background:rgba(29,79,145,.07);border-style:dashed;text-align:center;font-weight:800}
+.calc{display:flex;align-items:center;justify-content:center;min-height:42px;border:1.5px dashed var(--line);border-radius:8px;padding:6px 8px;text-align:center}
+.calc.warn{color:var(--bad);border-color:var(--bad)}
+.calc.good{color:var(--ok)}
+.pct{font-size:13px;color:var(--mut);font-weight:700;text-align:center}
+.pr{display:none}
+textarea{min-height:92px;resize:vertical;font-weight:500}
+.sig{padding:8px 12px 12px}
+.sig .box{position:relative;border:1.5px dashed var(--line);border-radius:10px;height:120px;background:repeating-linear-gradient(transparent,transparent 29px,rgba(0,0,0,.05) 30px)}
+.sig canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.sig .hint{position:absolute;left:10px;top:8px;color:var(--mut);font-size:13px;pointer-events:none}
+.sig button{margin-top:6px;background:var(--bar);color:var(--ink)}
+.foot{padding:10px 14px;text-align:right;font:600 13px var(--f);color:var(--mut);border-top:1px dotted var(--line)}
+.err{margin:8px 12px;padding:9px 12px;border-radius:10px;background:#fadedb;color:#8e241b;font-weight:700;font-size:14px;display:none}
+.err.on{display:block}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:8px;justify-content:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line)}
+.bar button{flex:1;max-width:220px;padding:13px 8px;font-size:15px}
+.bar .pri{background:var(--blue);color:#fff}
+.bar .sec2{background:var(--bar);color:var(--ink)}
+.bar .wa{background:#1fa855;color:#fff}
+dialog{width:min(560px,94vw);max-height:84vh;border:0;border-radius:16px;padding:0;background:var(--paper);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog .dh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+dialog .dh h3{margin:0;font-size:18px}
+dialog .dh button{background:var(--bar);color:var(--ink)}
+dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
+.h{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 4px;border-bottom:1px solid var(--line);align-items:center}
+.h b{font-size:15px}.h span{color:var(--mut);font-size:13px}
+.h .a{grid-row:1/3;grid-column:2;display:flex;gap:6px}
+.h .a button{background:var(--bar);color:var(--ink);padding:8px 10px}
+.h .a .d{color:var(--bad)}
+.empty{padding:26px 8px;text-align:center;color:var(--mut)}
+#toast{position:fixed;left:50%;bottom:86px;transform:translate(-50%,16px);opacity:0;background:#14212b;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;transition:.2s;z-index:50;pointer-events:none;max-width:92vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:520px){.hd{grid-template-columns:72px 1fr;padding:12px}.badge{width:72px;height:62px}.badge b{font-size:22px}.badge small{font-size:6px}.hd h1{font-size:17px}.hd h2{font-size:13px}.hd .t{font-size:20px}.row{grid-template-columns:1fr 1fr}.row.three,.row.four{grid-template-columns:1fr 1fr}.row.three>.l,.row.four>.l{grid-column:1/-1}.tools b{display:none}.tools{justify-content:flex-end}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:A4;margin:10mm}
+@media print{
+ body{background:#fff;padding:0;color:#000}.tools,.bar,#toast,.sig button,.sig .hint,.err{display:none!important}
+ :root{--paper:#fff;--ink:#000;--line:#999;--bar:#d9d9d9;--mut:#444}
+ .sheet{margin:0;border:0;box-shadow:none;max-width:none;font-size:12.5px}
+ .row{padding:2px 10px;gap:2px 10px}.sec{padding:2px 10px;font-size:13px}.hd{padding:10px 14px}.hd h1{font-size:19px}.hd .t{font-size:20px;margin-top:3px}.badge{width:80px;height:64px}
+ #mtHint,.cell small{font-size:10px}.row:has(#mtHint){display:none}
+ .sig{padding:4px 10px}.foot{padding:5px 10px}
+ input,textarea{font-size:12.5px!important}.calc{font-size:12.5px;padding:0}
+ input,textarea,select{border:0!important;background:transparent!important;padding:2px 4px;min-height:0;text-align:center;font-weight:600;appearance:none;-webkit-appearance:none}
+ .calc{border:0!important;background:transparent!important;min-height:0}
+ input[type=date],input[type=time]{display:none}.pr{display:inline}
+ textarea{text-align:left;min-height:44px}
+ .sig .box{border:0;height:56px;background:none}
+ .hd{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sec{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="tools" role="toolbar" aria-label="Report tools">
+ <b>Farm Visit Report</b>
+ <div class="r"><button id="bHist" type="button">Saved reports</button><button id="bNew" type="button">New report</button></div>
+</div>
+
+<main class="sheet" id="sheet">
+ <header class="hd">
+  <div class="badge" aria-hidden="true"><div><b>MKP</b><small>PRODUCTS PVT. LTD.</small></div></div>
+  <div>
+   <h1>MAA KAMAKHYA</h1>
+   <h2>POULTRY PRODUCTS PVT. LTD.</h2>
+   <p>TALGARIA MORE CHAS<br>BOKARO JHARKHAND</p>
+   <div class="t">Farm Visit Report</div>
+  </div>
+ </header>
+
+ <h2 class="sec">PARTY DETAILS</h2>
+ <div class="row three"><label class="l" for="party">Name of the Party</label>
+  <div class="cell"><input id="party" list="parties" autocomplete="off" placeholder="Farm / party name"><datalist id="parties"></datalist></div>
+  <div class="cell"><small>Date</small><input id="date" type="date"><span class="pr" id="datePr"></span></div></div>
+ <div class="row three"><label class="l" for="addr">Address</label>
+  <div class="cell"><input id="addr" autocomplete="off" placeholder="Village / town"></div>
+  <div class="cell"><small>Time</small><input id="time" type="time"><span class="pr" id="timePr"></span></div></div>
+ <div class="row"><label for="mob">Mobile Number</label><input id="mob" type="tel" inputmode="tel" autocomplete="off" placeholder="10 digit number"></div>
+ <div class="row"><label for="breed">Breed name</label><input id="breed" list="breeds" autocomplete="off" placeholder="e.g. Venkys"><datalist id="breeds"><option>Venkys</option><option>Hy-Line</option><option>Bovans</option><option>Lohmann</option><option>ISA Brown</option><option>H&amp;N</option></datalist></div>
+ <div class="row"><label for="placed">Chicks placement</label><input id="placed" type="number" inputmode="numeric" min="0" step="1"></div>
+ <div class="row"><label for="live">Live Birds</label><input id="live" type="number" inputmode="numeric" min="0" step="1"></div>
+ <div class="row four"><span class="l">Birds's age</span>
+  <div class="cell"><small>Weeks</small><input id="wk" type="number" inputmode="numeric" min="0" step="1"></div>
+  <div class="cell"><small>Days</small><input id="dy" type="number" inputmode="numeric" min="0" max="6" step="1"></div>
+  <div class="cell"><small>Total days · Total month</small><div class="calc" id="ageOut">–</div></div></div>
+ <div class="row three"><label class="l" for="bw">Birds body weight</label>
+  <div class="cell"><small>Kg</small><input id="bw" type="number" inputmode="decimal" min="0" step="0.001" placeholder="1.510"></div>
+  <div class="cell"><small>Grams</small><div class="calc" id="bwg">–</div></div></div>
+
+ <h2 class="sec">MORTALITY</h2>
+ <div class="row three"><label class="l" for="m7">Mortality after 7 days</label><input id="m7" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="m7p">–</div></div>
+ <div class="row three"><label class="l" for="m15">Mortality after 15 days</label><input id="m15" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="m15p">–</div></div>
+ <div class="row three"><label class="l" for="m30">Mortality after 1 month</label><input id="m30" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="m30p">–</div></div>
+ <div class="row three"><label class="l" for="mt">Total mortality</label><input id="mt" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="mtp">–</div></div>
+ <div class="row"><span class="l"></span><span class="pct" id="mtHint">Total mortality fills itself from chicks placed minus live birds. Type a number to override it.</span></div>
+
+ <h2 class="sec">FEED CONSUMPTION</h2>
+ <div class="row three"><label class="l" for="bags">Today's feed intake: Bag</label><input id="bags" type="number" inputmode="decimal" min="0" step="0.5"><div class="cell"><small>Kg per bag</small><input id="bagkg" type="number" inputmode="decimal" min="0" step="0.5" value="50"></div></div>
+ <div class="row"><span class="l">Total cons. in kg</span><div class="calc" id="feedKg">–</div></div>
+ <div class="row"><span class="l">Today's feed cons. per bird</span><div class="calc" id="feedBird">–</div></div>
+
+ <h2 class="sec">FEED NAME</h2>
+ <div class="row"><label for="fco">Feed company</label><input id="fco" list="fcos" autocomplete="off" placeholder="e.g. Maa Kamakhya"><datalist id="fcos"><option>Maa Kamakhya</option></datalist></div>
+ <div class="row"><label for="ftype">Feed type</label><input id="ftype" list="ftypes" autocomplete="off" placeholder="e.g. PH-1"><datalist id="ftypes"><option>Starter</option><option>Grower</option><option>Pre-layer</option><option>PH-1</option><option>PH-2</option><option>PH-3</option></datalist></div>
+
+ <h2 class="sec">TODAY'S EGG PRODUCTION</h2>
+ <div class="row"><label for="sell">Selling egg</label><input id="sell" type="number" inputmode="numeric" min="0" step="1"></div>
+ <div class="row"><label for="brk">Broken egg</label><input id="brk" type="number" inputmode="numeric" min="0" step="1"></div>
+ <div class="row"><span class="l">Total egg prod.</span><div class="calc" id="eggT">–</div></div>
+ <div class="row"><span class="l">Egg %</span><div class="calc" id="eggP">–</div></div>
+
+ <h2 class="sec">OBSERVATION</h2>
+ <div class="row" style="grid-template-columns:1fr"><label for="sug">Suggestion</label><textarea id="sug" placeholder="What you saw and what the farmer should do"></textarea></div>
+ <div class="sig"><div class="l" style="font-weight:600;margin:4px 0">Farmer Signature</div>
+  <div class="box"><canvas id="pad" aria-label="Farmer signature. Draw with a finger or mouse."></canvas><span class="hint" id="sigHint">Farmer signs here</span><img id="sigImg" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:contain"></div>
+  <button id="sigClr" type="button">Clear signature</button></div>
+ <p class="err" id="err" role="alert"></p>
+ <div class="foot" id="tag">–</div>
+</main>
+
+<div class="bar">
+ <button class="pri" id="bSave" type="button">Save</button>
+ <button class="wa" id="bWa" type="button">Share</button>
+ <button class="sec2" id="bPdf" type="button">Print / PDF</button>
+</div>
+
+<dialog id="dlg" aria-labelledby="dt"><div class="dh"><h3 id="dt">Saved reports</h3><button type="button" id="dx">Close</button></div><div class="db" id="dbody"></div></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return(r||document).querySelector(s)};
+var KEY='mkp_reports_v1',LAST='mkp_last_party_v1',DRAFT='mkp_draft_v1';
+var IDS=['party','date','time','addr','mob','breed','placed','live','wk','dy','bw','m7','m15','m30','mt','bags','bagkg','fco','ftype','sell','brk','sug'];
+var mtTouched=false,sig='',curId=null;
+function ls(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+var n=function(v){var x=parseFloat(v);return isFinite(x)?x:null};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?m[3]+'-'+MON[+m[2]-1]+'-'+m[1].slice(2):''}
+function fmtTime(s){var m=/^(\d{1,2}):(\d{2})/.exec(s||'');if(!m)return'';var h=+m[1],ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+m[2]+' '+ap}
+function toast(t){var e=$('#toast');e.textContent=t;e.className='on';clearTimeout(toast.t);toast.t=setTimeout(function(){e.className=''},2600)}
+function todayISO(){var d=new Date(),p=function(x){return(x<10?'0':'')+x};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function nowHM(){var d=new Date(),p=function(x){return(x<10?'0':'')+x};return p(d.getHours())+':'+p(d.getMinutes())}
+function pct(a,b,dec){return a!=null&&b?(a/b*100).toFixed(dec==null?1:dec)+'%':'–'}
+
+/* ---------- calculations (same rules as the paper sheet) ---------- */
+function calc(){
+  var placed=n($('#placed').value),live=n($('#live').value),wk=n($('#wk').value),dy=n($('#dy').value),bw=n($('#bw').value);
+  var td=(wk!=null||dy!=null)?(wk||0)*7+(dy||0):null;
+  $('#ageOut').textContent=td==null?'–':td+' days · '+(td/30).toFixed(1)+' mo';
+  $('#bwg').textContent=bw==null?'–':Math.round(bw*1000)+' g';
+  ['m7','m15','m30'].forEach(function(k){$('#'+k+'p').textContent=pct(n($('#'+k).value),placed)});
+  if(!mtTouched){var auto=placed!=null&&live!=null&&placed>=live?placed-live:null;$('#mt').value=auto==null?'':auto}
+  var mt=n($('#mt').value);$('#mtp').textContent=pct(mt,placed);
+  var mp=placed&&mt!=null?mt/placed*100:null;$('#mtp').classList.toggle('warn',mp!=null&&mp>10);
+  var bags=n($('#bags').value),bk=n($('#bagkg').value);
+  var kg=bags!=null&&bk!=null?bags*bk:null;
+  $('#feedKg').textContent=kg==null?'–':kg.toLocaleString('en-IN')+' kg';
+  $('#feedBird').textContent=kg!=null&&live?(kg/live*1000).toFixed(1)+' g  ('+(kg/live).toFixed(3)+' kg)':'–';
+  var s=n($('#sell').value),b=n($('#brk').value),tot=s!=null||b!=null?(s||0)+(b||0):null;
+  $('#eggT').textContent=tot==null?'–':tot.toLocaleString('en-IN');
+  $('#eggP').textContent=tot!=null&&live?Math.round(tot/live*100)+'%':'–';
+  $('#datePr').textContent=fmtDate($('#date').value);$('#timePr').textContent=fmtTime($('#time').value);
+  $('#tag').textContent=[$('#party').value||'Farm',fmtDate($('#date').value),fmtTime($('#time').value)].filter(Boolean).join('_').replace(/ /g,'_')||'–';
+  return{placed:placed,live:live,td:td,bw:bw,mt:mt,mp:mp,kg:kg,tot:tot,s:s,b:b,wk:wk,dy:dy};
+}
+function problems(){
+  var c=calc(),e=[];
+  if(!$('#party').value.trim())e.push('Enter the name of the party.');
+  if(!$('#date').value)e.push('Enter the visit date.');
+  if(c.placed==null)e.push('Enter chicks placement.');
+  if(c.live==null)e.push('Enter live birds.');
+  if(c.placed!=null&&c.live!=null&&c.live>c.placed)e.push('Live birds cannot be more than chicks placed.');
+  if($('#dy').value!==''&&n($('#dy').value)>6)e.push('Days must be 0 to 6. Put full weeks in Weeks.');
+  if(c.mt!=null&&c.placed!=null&&c.mt>c.placed)e.push('Total mortality cannot be more than chicks placed.');
+  var m=$('#mob').value.replace(/\D/g,'');if(m&&m.length<10)e.push('Mobile number needs 10 digits.');
+  return e;
+}
+function showErr(list){var e=$('#err');e.innerHTML=list.map(esc).join('<br>');e.className='err'+(list.length?' on':'');if(list.length)e.scrollIntoView({block:'center',behavior:'smooth'})}
+
+/* ---------- data in / out ---------- */
+function read(){var d={};IDS.forEach(function(k){d[k]=$('#'+k).value});d.mtTouched=mtTouched;d.sig=sig;return d}
+function write(d){
+  IDS.forEach(function(k){$('#'+k).value=d[k]==null?'':d[k]});
+  mtTouched=!!d.mtTouched;sig=d.sig||'';drawSig();calc();showErr([]);
+}
+function blank(){
+  var last=ls(LAST,{});
+  var d={date:todayISO(),time:nowHM(),bagkg:'50'};
+  ['party','addr','mob','breed','placed','fco','ftype'].forEach(function(k){if(last[k])d[k]=last[k]});   /* same farm again: carry the fixed details */
+  return d;
+}
+function newReport(ask){
+  if(ask&&dirty()&&!confirm('Start a new report? What you typed and did not save will be cleared.'))return;
+  curId=null;write(blank());
+  try{localStorage.removeItem(DRAFT)}catch(e){}mark();
+  window.scrollTo(0,0);
+}
+var snapshot='';function dirty(){return JSON.stringify(read())!==snapshot}
+function mark(){snapshot=JSON.stringify(read())}
+
+function save(){
+  var errs=problems();showErr(errs);if(errs.length)return false;
+  var all=ls(KEY,[]),d=read(),id=curId||('r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),rec={id:id,savedAt:new Date().toISOString(),data:d};
+  var i=all.findIndex(function(x){return x.id===id});if(i>=0)all[i]=rec;else all.unshift(rec);
+  if(!lsSet(KEY,all)){toast('Could not save. This browser is full or blocks storage.');return false}
+  curId=id;lsSet(LAST,{party:d.party,addr:d.addr,mob:d.mob,breed:d.breed,placed:d.placed,fco:d.fco,ftype:d.ftype});
+  try{localStorage.removeItem(DRAFT)}catch(e){}
+  mark();fillLists();toast('Saved: '+d.party+', '+fmtDate(d.date));return true;
+}
+function fillLists(){
+  var names={};ls(KEY,[]).forEach(function(r){if(r.data.party)names[r.data.party]=r.data});
+  $('#parties').innerHTML=Object.keys(names).map(function(k){return'<option value="'+esc(k)+'">'}).join('');
+}
+$('#party').addEventListener('change',function(){   /* pick a known farm: fill its fixed details */
+  var all=ls(KEY,[]),hit=all.find(function(r){return r.data.party&&r.data.party.toLowerCase()===$('#party').value.trim().toLowerCase()});
+  if(hit&&!curId){['addr','mob','breed','placed','fco','ftype'].forEach(function(k){if(!$('#'+k).value)$('#'+k).value=hit.data[k]||''});calc()}
+});
+
+/* ---------- share / print ---------- */
+function summary(){
+  var c=calc(),L=[];
+  L.push('*Farm Visit Report*','Maa Kamakhya Poultry Products Pvt. Ltd.','');
+  L.push('Party: '+$('#party').value+($('#addr').value?', '+$('#addr').value:''));
+  L.push('Date: '+fmtDate($('#date').value)+(fmtTime($('#time').value)?'  '+fmtTime($('#time').value):''));
+  if($('#breed').value)L.push('Breed: '+$('#breed').value);
+  L.push('Chicks placed: '+(c.placed==null?'-':c.placed)+'   Live birds: '+(c.live==null?'-':c.live));
+  if(c.td!=null)L.push('Age: '+(c.wk||0)+' weeks '+(c.dy||0)+' days ('+c.td+' days, '+(c.td/30).toFixed(1)+' months)');
+  if(c.bw!=null)L.push('Body weight: '+c.bw+' kg');
+  L.push('','*Mortality*');
+  [['m7','After 7 days'],['m15','After 15 days'],['m30','After 1 month']].forEach(function(a){if($('#'+a[0]).value!=='')L.push(a[1]+': '+$('#'+a[0]).value+' ('+pct(n($('#'+a[0]).value),c.placed)+')')});
+  L.push('Total: '+(c.mt==null?'-':c.mt)+' ('+pct(c.mt,c.placed)+')');
+  L.push('','*Feed*');
+  if(c.kg!=null)L.push($('#bags').value+' bags = '+c.kg+' kg'+(c.live?', '+(c.kg/c.live*1000).toFixed(1)+' g per bird':''));
+  if($('#fco').value||$('#ftype').value)L.push([$('#fco').value,$('#ftype').value].filter(Boolean).join(', '));
+  L.push('','*Eggs today*');
+  L.push('Selling: '+(c.s==null?'-':c.s)+'   Broken: '+(c.b==null?'-':c.b));
+  L.push('Total: '+(c.tot==null?'-':c.tot)+(c.tot!=null&&c.live?'   Egg %: '+Math.round(c.tot/c.live*100)+'%':''));
+  if($('#sug').value.trim())L.push('','*Suggestion*',$('#sug').value.trim());
+  return L.join('\n');
+}
+function share(){
+  var errs=problems();showErr(errs);if(errs.length)return;
+  var t=summary();
+  if(navigator.share){navigator.share({title:'Farm Visit Report',text:t}).catch(function(){})}
+  else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener');
+}
+function printIt(){
+  var errs=problems();showErr(errs);if(errs.length)return;
+  var old=document.title;document.title=$('#tag').textContent||'Farm Visit Report';
+  window.print();setTimeout(function(){document.title=old},500);
+}
+
+/* ---------- saved reports ---------- */
+function csvCell(v){v=v==null?'':String(v);if(/^[=+\-@]/.test(v)&&isNaN(Number(v)))v="'"+v;return/[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function exportCsv(){
+  var all=ls(KEY,[]);if(!all.length){toast('No saved reports yet.');return}
+  var head=['Date','Time','Party','Address','Mobile','Breed','Chicks placed','Live birds','Weeks','Days','Total days','Body weight kg','Mortality 7d','Mortality 15d','Mortality 1m','Total mortality','Total mortality %','Feed bags','Kg per bag','Feed kg','Feed g per bird','Feed company','Feed type','Selling eggs','Broken eggs','Total eggs','Egg %','Suggestion'];
+  var rows=all.slice().reverse().map(function(r){var d=r.data,p=n(d.placed),l=n(d.live),mt=n(d.mt),kg=n(d.bags)!=null&&n(d.bagkg)!=null?n(d.bags)*n(d.bagkg):null,t=(n(d.sell)||0)+(n(d.brk)||0);
+    return[d.date,d.time,d.party,d.addr,d.mob,d.breed,d.placed,d.live,d.wk,d.dy,(n(d.wk)||0)*7+(n(d.dy)||0),d.bw,d.m7,d.m15,d.m30,d.mt,p&&mt!=null?(mt/p*100).toFixed(1):'',d.bags,d.bagkg,kg==null?'':kg,kg!=null&&l?(kg/l*1000).toFixed(1):'',d.fco,d.ftype,d.sell,d.brk,t,l?Math.round(t/l*100):'',d.sug]});
+  var csv='﻿'+[head].concat(rows).map(function(r){return r.map(csvCell).join(',')}).join('\r\n')+'\r\n';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='farm-visit-reports.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},3000);
+}
+function openHist(){
+  var all=ls(KEY,[]).slice().sort(function(a,b){return(b.data.date||'')<(a.data.date||'')?-1:1}),b=$('#dbody');
+  b.innerHTML=(all.length?all.map(function(r){var d=r.data,l=n(d.live),t=(n(d.sell)||0)+(n(d.brk)||0);
+    return'<div class="h"><b>'+esc(d.party||'Untitled')+'</b><span>'+esc(fmtDate(d.date))+' · live '+esc(d.live||'-')+(l&&(d.sell||d.brk)?' · egg '+Math.round(t/l*100)+'%':'')+'</span><div class="a"><button type="button" data-o="'+r.id+'">Open</button><button type="button" class="d" data-x="'+r.id+'" aria-label="Delete '+esc(d.party)+'">Delete</button></div></div>'}).join(''):'<p class="empty">No saved reports yet. Fill in a visit and press Save.</p>')+
+   (all.length?'<p style="text-align:center;margin:12px 0 4px"><button type="button" id="csvB" style="background:var(--blue);color:#fff;padding:10px 14px">Download all as CSV</button></p><p class="empty" style="padding:4px">Reports are stored in this browser only. Download the CSV to keep a copy.</p>':'');
+  $('#dlg').showModal();
+}
+$('#dbody').addEventListener('click',function(e){
+  var o=e.target.closest('[data-o]'),x=e.target.closest('[data-x]');
+  if(o){var r=ls(KEY,[]).find(function(z){return z.id===o.dataset.o});if(r){$('#dlg').close();curId=r.id;write(r.data);mark();window.scrollTo(0,0);toast('Opened '+r.data.party)}}
+  else if(x){if(confirm('Delete this report?')){var all=ls(KEY,[]).filter(function(z){return z.id!==x.dataset.x});lsSet(KEY,all);if(curId===x.dataset.x)curId=null;fillLists();openHist()}}
+  else if(e.target.id==='csvB')exportCsv();
+});
+
+/* ---------- signature pad ---------- */
+var cv=$('#pad'),cx=cv.getContext('2d'),drawing=false,last=null;
+function fit(){var r=cv.getBoundingClientRect(),ratio=window.devicePixelRatio||1;if(!r.width)return;cv.width=r.width*ratio;cv.height=r.height*ratio;cx.setTransform(ratio,0,0,ratio,0,0);cx.lineWidth=2.4;cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle='#0d1f33';drawSig()}
+function drawSig(){
+  var img=$('#sigImg');cx.clearRect(0,0,cv.width,cv.height);
+  if(sig){img.src=sig;img.style.display='block';cv.style.display='none';$('#sigHint').style.display='none'}else{img.removeAttribute('src');img.style.display='none';cv.style.display='block';$('#sigHint').style.display='block'}
+}
+function pt(e){var r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+cv.addEventListener('pointerdown',function(e){drawing=true;last=pt(e);cv.setPointerCapture(e.pointerId);cx.beginPath();cx.moveTo(last.x,last.y);cx.lineTo(last.x+.1,last.y+.1);cx.stroke();$('#sigHint').style.display='none';e.preventDefault()});
+cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pt(e);cx.beginPath();cx.moveTo(last.x,last.y);cx.lineTo(p.x,p.y);cx.stroke();last=p;e.preventDefault()});
+function end(){if(!drawing)return;drawing=false;sig=cv.toDataURL('image/png');draftSoon()}
+cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+$('#sigClr').onclick=function(){sig='';cv.style.display='block';fit();draftSoon()};
+$('#sigImg').addEventListener('click',function(){});
+
+/* ---------- wiring ---------- */
+var dt=null;function draftSoon(){clearTimeout(dt);dt=setTimeout(function(){lsSet(DRAFT,{id:curId,d:read()})},400)}
+document.addEventListener('input',function(e){
+  if(e.target.id==='mt')mtTouched=e.target.value!=='';
+  if(e.target.id==='live'||e.target.id==='placed'){if(!$('#mt').value)mtTouched=false}
+  calc();draftSoon();
+});
+$('#bSave').onclick=save;$('#bWa').onclick=share;$('#bPdf').onclick=printIt;$('#bNew').onclick=function(){newReport(true)};$('#bHist').onclick=openHist;$('#dx').onclick=function(){$('#dlg').close()};
+addEventListener('resize',function(){if(!sig)fit()});
+addEventListener('beforeunload',function(e){if(dirty()){lsSet(DRAFT,{id:curId,d:read()})}});
+fit();fillLists();
+var dr=ls(DRAFT,null);
+if(dr&&dr.d&&(dr.d.party||dr.d.placed||dr.d.live)){curId=dr.id||null;write(dr.d);toast('Your unsaved report is back')}else write(blank());
+mark();
+window.__mkp={calc:calc,read:read,write:write,save:save,summary:summary};
+})();
+</script>
+</body>
+</html>
