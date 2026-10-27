@@ -27,21 +27,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hd p{margin:2px 0 0;text-align:center;font:600 12px/1.25 var(--f);opacity:.95}
 .hd .t{margin-top:6px;font:800 24px/1 var(--f);color:#fff2b8;text-align:center}
 .sec{margin:0;padding:6px 12px;background:var(--bar);font:800 15px var(--f);text-align:center;letter-spacing:.02em}
-.row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(130px,1.1fr);gap:6px 12px;align-items:center;padding:7px 12px;border-bottom:1px dotted var(--line)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:6px 12px;align-items:center;padding:6px 12px;border-bottom:1px dotted var(--line)}
+.row>label,.row>.l{line-height:1.25}
+.pair{display:flex;gap:6px;min-width:0}.pair>*{flex:1 1 0;min-width:0}
+.hintrow{margin:0;padding:6px 12px;color:var(--mut);font-size:13px;text-align:center;border-bottom:1px dotted var(--line)}
 .row>label,.row>.l{font-weight:600}
 .row.three{grid-template-columns:minmax(110px,.9fr) 1fr 1fr}
 .row.four{grid-template-columns:minmax(90px,.8fr) 1fr 1fr 1fr}
 .cell{display:flex;flex-direction:column;gap:2px;min-width:0}
 .cell small{font-size:12px;color:var(--mut);font-weight:600}
 input,select,textarea{width:100%;font:600 16px var(--f);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:8px;padding:9px 10px;min-height:42px}
-input[type=number]{text-align:center}
+input{text-align:center}input[type=date],input[type=time]{text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none}input::-webkit-date-and-time-value{text-align:center;margin:0}
+select{text-align:center}
 input[readonly],.calc{background:rgba(29,79,145,.07);border-style:dashed;text-align:center;font-weight:800}
 .calc{display:flex;align-items:center;justify-content:center;min-height:42px;border:1.5px dashed var(--line);border-radius:8px;padding:6px 8px;text-align:center}
 .calc.warn{color:var(--bad);border-color:var(--bad)}
 .calc.good{color:var(--ok)}
 .pct{font-size:13px;color:var(--mut);font-weight:700;text-align:center}
 .pr{display:none}
-textarea{min-height:92px;resize:vertical;font-weight:500}
+textarea{min-height:92px;resize:vertical;font-weight:500;text-align:left}
 .sig{padding:8px 12px 12px}
 .sig .box{position:relative;border:1.5px dashed var(--line);border-radius:10px;height:120px;background:repeating-linear-gradient(transparent,transparent 29px,rgba(0,0,0,.05) 30px)}
 .sig canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
@@ -81,7 +85,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
 .sigb{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .sigb button{margin-top:0}
 .phn{padding:0 12px 10px;color:var(--mut);font-size:13px}
-@media (max-width:520px){.hd{grid-template-columns:72px 1fr;padding:12px}.badge{width:72px;height:62px}.badge b{font-size:22px}.badge small{font-size:6px}.hd h1{font-size:17px}.hd h2{font-size:13px}.hd .t{font-size:20px}.row{grid-template-columns:1fr 1fr}.row.three,.row.four{grid-template-columns:1fr 1fr}.row.three>.l,.row.four>.l{grid-column:1/-1}.tools b{display:none}.tools{justify-content:flex-end}}
+@media (max-width:520px){.hd{grid-template-columns:72px 1fr;padding:12px}.badge{width:72px;height:62px}.badge b{font-size:22px}.badge small{font-size:6px}.hd h1{font-size:17px}.hd h2{font-size:13px}.hd .t{font-size:20px}.tools b{display:none}.tools{justify-content:flex-end}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @page{size:A4;margin:10mm}
 @media print{
@@ -89,7 +93,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
  :root{--paper:#fff;--ink:#000;--line:#999;--bar:#d9d9d9;--mut:#444}
  .sheet{margin:0;border:0;box-shadow:none;max-width:none;font-size:12.5px}
  .row{padding:2px 10px;gap:2px 10px}.sec{padding:2px 10px;font-size:13px}.hd{padding:10px 14px}.hd h1{font-size:19px}.hd .t{font-size:20px;margin-top:3px}.badge{width:80px;height:64px}
- #mtHint,.cell small{font-size:10px}.row:has(#mtHint){display:none}
+ #mtHint{display:none}.pair{gap:2px}
  .sig{padding:4px 10px}.foot{padding:5px 10px}
  input,textarea{font-size:12.5px!important}.calc{font-size:12.5px;padding:0}
  input,textarea,select{border:0!important;background:transparent!important;padding:2px 4px;min-height:0;text-align:center;font-weight:600;appearance:none;-webkit-appearance:none}
@@ -123,33 +127,28 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
  </header>
 
  <h2 class="sec">PARTY DETAILS</h2>
- <div class="row three"><label class="l" for="party">Name of the Party</label>
-  <div class="cell"><input id="party" list="parties" autocomplete="off" placeholder="Farm / party name"><datalist id="parties"></datalist></div>
-  <div class="cell"><small>Date</small><input id="date" type="date"><span class="pr" id="datePr"></span></div></div>
- <div class="row three"><label class="l" for="addr">Address</label>
-  <div class="cell"><input id="addr" autocomplete="off" placeholder="Village / town"></div>
-  <div class="cell"><small>Time</small><input id="time" type="time"><span class="pr" id="timePr"></span></div></div>
+ <div class="row"><label for="party">Name of the Party</label><div><input id="party" list="parties" autocomplete="off" placeholder="Farm / party name"><datalist id="parties"></datalist></div></div>
+ <div class="row"><label for="date">Date</label><div><input id="date" type="date"><span class="pr" id="datePr"></span></div></div>
+ <div class="row"><label for="time">Time</label><div><input id="time" type="time"><span class="pr" id="timePr"></span></div></div>
+ <div class="row"><label for="addr">Address</label><input id="addr" autocomplete="off" placeholder="Village / town"></div>
  <div class="row"><label for="mob">Mobile Number</label><input id="mob" type="tel" inputmode="tel" autocomplete="off" placeholder="10 digit number"></div>
  <div class="row"><label for="breed">Breed name</label><input id="breed" list="breeds" autocomplete="off" placeholder="e.g. Venkys"><datalist id="breeds"><option>Venkys</option><option>Hy-Line</option><option>Bovans</option><option>Lohmann</option><option>ISA Brown</option><option>H&amp;N</option></datalist></div>
- <div class="row"><label for="placed">Chicks placement</label><input id="placed" type="number" inputmode="numeric" min="0" step="1"></div>
- <div class="row"><label for="live">Live Birds</label><input id="live" type="number" inputmode="numeric" min="0" step="1"></div>
- <div class="row four"><span class="l">Birds's age</span>
-  <div class="cell"><small>Weeks</small><input id="wk" type="number" inputmode="numeric" min="0" step="1"></div>
-  <div class="cell"><small>Days</small><input id="dy" type="number" inputmode="numeric" min="0" max="6" step="1"></div>
-  <div class="cell"><small>Total days · Total month</small><div class="calc" id="ageOut">–</div></div></div>
- <div class="row three"><label class="l" for="bw">Birds body weight</label>
-  <div class="cell"><small>Kg</small><input id="bw" type="number" inputmode="decimal" min="0" step="0.001" placeholder="1.510"></div>
-  <div class="cell"><small>Grams</small><div class="calc" id="bwg">–</div></div></div>
+ <div class="row"><label for="placed">Chicks placement</label><input id="placed" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+ <div class="row"><label for="live">Live Birds</label><input id="live" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+ <div class="row"><span class="l">Birds's age</span><div class="pair"><div class="cell"><input id="wk" type="number" inputmode="numeric" min="0" step="1" placeholder="Weeks" aria-label="Weeks"></div><div class="cell"><input id="dy" type="number" inputmode="numeric" min="0" max="6" step="1" placeholder="Days" aria-label="Days"></div></div></div>
+ <div class="row"><span class="l">Total days / months</span><div class="calc" id="ageOut">–</div></div>
+ <div class="row"><label for="bw">Birds body weight</label><div class="pair"><input id="bw" type="number" inputmode="decimal" min="0" step="0.001" placeholder="Kg, e.g. 1.510" aria-label="Kg"><div class="calc" id="bwg">–</div></div></div>
 
  <h2 class="sec">MORTALITY</h2>
- <div class="row three"><label class="l" for="m7">Mortality after 7 days</label><input id="m7" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="m7p">–</div></div>
- <div class="row three"><label class="l" for="m15">Mortality after 15 days</label><input id="m15" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="m15p">–</div></div>
- <div class="row three"><label class="l" for="m30">Mortality after 1 month</label><input id="m30" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="m30p">–</div></div>
- <div class="row three"><label class="l" for="mt">Total mortality</label><input id="mt" type="number" inputmode="numeric" min="0" step="1"><div class="calc" id="mtp">–</div></div>
- <div class="row"><span class="l"></span><span class="pct" id="mtHint">Total mortality fills itself from chicks placed minus live birds. Type a number to override it.</span></div>
+ <div class="row"><label for="m7">Mortality after 7 days</label><div class="pair"><input id="m7" type="number" inputmode="numeric" min="0" step="1" placeholder="0"><div class="calc" id="m7p">–</div></div></div>
+ <div class="row"><label for="m15">Mortality after 15 days</label><div class="pair"><input id="m15" type="number" inputmode="numeric" min="0" step="1" placeholder="0"><div class="calc" id="m15p">–</div></div></div>
+ <div class="row"><label for="m30">Mortality after 1 month</label><div class="pair"><input id="m30" type="number" inputmode="numeric" min="0" step="1" placeholder="0"><div class="calc" id="m30p">–</div></div></div>
+ <div class="row"><label for="mt">Total mortality</label><div class="pair"><input id="mt" type="number" inputmode="numeric" min="0" step="1" placeholder="0"><div class="calc" id="mtp">–</div></div></div>
+ <p class="hintrow" id="mtHint">Total mortality fills itself from chicks placed minus live birds. Type a number to change it.</p>
 
  <h2 class="sec">FEED CONSUMPTION</h2>
- <div class="row three"><label class="l" for="bags">Today's feed intake: Bag</label><input id="bags" type="number" inputmode="decimal" min="0" step="0.5"><div class="cell"><small>Kg per bag</small><input id="bagkg" type="number" inputmode="decimal" min="0" step="0.5" value="50"></div></div>
+ <div class="row"><label for="bags">Today's feed intake: Bag</label><input id="bags" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0"></div>
+ <div class="row"><label for="bagkg">Kg per bag</label><input id="bagkg" type="number" inputmode="decimal" min="0" step="0.5" value="50"></div>
  <div class="row"><span class="l">Total cons. in kg</span><div class="calc" id="feedKg">–</div></div>
  <div class="row"><span class="l">Today's feed cons. per bird</span><div class="calc" id="feedBird">–</div></div>
 
