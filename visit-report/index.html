@@ -104,7 +104,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
  .sig .box{border:0;height:42px;background:none}
  ::placeholder{color:transparent!important}
  .dd select{display:none!important}.dd input.hid{display:block!important}#phSec{break-inside:avoid}
- .phb,.sigb,.phn{display:none!important}.ph{grid-template-columns:repeat(4,1fr);gap:4px;padding:2px 10px}.ph figure{aspect-ratio:4/3;max-height:27mm}.ph button{display:none}.ph figure{break-inside:avoid}
+ .phb,.sigb,.phn{display:none!important}.ph{grid-template-columns:repeat(8,1fr);gap:4px;padding:2px 10px;align-items:start}.ph figure{aspect-ratio:auto;max-height:none;border:0;background:none;border-radius:0}.ph img{height:auto;object-fit:contain}.ph button{display:none}.ph figure{break-inside:avoid}
  .hd{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sec{-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -435,9 +435,9 @@ function buildPdf(){return new Promise(function(resolve,reject){
     /* farm photos: on this same page, in the space left under the signature */
     if(ph.length){
       var top=y+4,avail=H-M-top;text('FARM PHOTOS ('+ph.length+')',M+2,top+9,9,{b:1});top+=13;avail-=13;
-      var rows=ph.length>4?2:1,cols=Math.ceil(ph.length/rows),gap=5,cw=(W-2*M-(cols-1)*gap)/cols,ch=(avail-(rows-1)*gap)/rows;
-      ph.forEach(function(p,k){var col=k%cols,rw=Math.floor(k/cols),sc=Math.min(cw/p.w,ch/p.h)*0.9,w=p.w*sc,h=p.h*sc,x0=M+col*(cw+gap),y0=top+rw*(ch+gap);
-        imgs.push(p);rect(x0,y0,cw,ch,'#f0f2f4');img(imgs.length,x0+(cw-w)/2,y0+(ch-h)/2,w,h)})}
+      var rows=1,cols=ph.length,gap=5,cw=(W-2*M-7*gap)/8,ch=avail;
+      ph.forEach(function(p,k){var col=k%cols,rw=Math.floor(k/cols),sc=Math.min(cw/p.w,ch/p.h),w=p.w*sc,h=p.h*sc,x0=M+col*(cw+gap),y0=top+rw*(ch+gap);
+        imgs.push(p);img(imgs.length,x0,y0,w,h)})}
     /* assemble the file */
     var parts=[],pos=0,offs=[];
     function put(x){var b=typeof x==='string'?strBytes(x):x;parts.push(b);pos+=b.length}
