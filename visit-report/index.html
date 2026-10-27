@@ -63,6 +63,7 @@ dialog{width:min(560px,94vw);max-height:84vh;border:0;border-radius:16px;padding
 dialog::backdrop{background:rgba(0,0,0,.5)}
 dialog .dh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
 dialog .dh h3{margin:0;font-size:18px}
+.pdfi{display:inline-block;background:#d93025;color:#fff;font:800 15px/1 var(--f);letter-spacing:.5px;padding:7px 8px 6px;border-radius:5px;position:relative}.pdfi:after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 9px 9px 0;border-color:transparent #fff transparent #f4a39c;border-top-right-radius:5px}
 .pvb{display:flex;gap:6px}.pvb button{min-width:42px;font-size:18px}.pvb .wa{background:#1fa855;display:flex;align-items:center;justify-content:center}
 dialog .dh button{background:var(--bar);color:var(--ink)}
 dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
@@ -114,7 +115,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
 <body>
 <div class="tools" role="toolbar" aria-label="Report tools">
  <b>Farm Visit Report</b>
- <div class="r"><button id="bSample" type="button" title="Fill sample data" aria-label="Fill sample data">&#129514;</button><button id="bHist" type="button" title="Saved reports" aria-label="Saved reports">&#128194;</button><button id="bNew" type="button" title="New report" aria-label="New report" style="font-size:22px;font-weight:800;color:#fff">+</button></div>
+ <div class="r"><button id="bSample" type="button" >Sample data</button><button id="bHist" type="button" >Saved reports</button><button id="bNew" type="button" title="New report" >New report</button></div>
 </div>
 
 <main class="sheet" id="sheet">
@@ -179,7 +180,7 @@ dialog .db{padding:6px 12px 14px;overflow:auto;max-height:64vh}
 <div class="bar">
  <button class="pri" id="bSave" type="button" title="Save" aria-label="Save">&#128190;</button>
  <button class="wa" id="bWa" type="button" title="Share picture on WhatsApp" aria-label="Share picture on WhatsApp">&#128172;</button>
- <button class="sec2" id="bPdf" type="button" title="Preview PDF" aria-label="Preview PDF">&#128196;</button>
+ <button class="sec2" id="bPdf" type="button" title="Preview PDF" aria-label="Preview PDF"><span class="pdfi">PDF</span></button>
 </div>
 
 <dialog id="pv" aria-label="PDF preview"><div class="dh"><h3>Preview</h3><div class="pvb"><button type="button" id="pvDl" title="Download PDF" aria-label="Download PDF">&#11015;&#65039;</button><button type="button" id="pvSh" title="Share PDF" aria-label="Share PDF">&#128228;</button><button type="button" id="pvWa" class="wa" title="Share picture on WhatsApp" aria-label="Share picture on WhatsApp">&#128172;</button><button type="button" id="pvX" title="Close" aria-label="Close">&#10005;</button></div></div><div class="db"><img id="pvImg" alt="PDF preview" style="width:100%;display:block;border:1px solid var(--line)"></div></dialog>
@@ -357,7 +358,7 @@ var SAMPLES=[
 var sIdx=0;
 function sample(){
   var v=Object.assign({},SAMPLES[sIdx%SAMPLES.length]),k=v.n;delete v.n;sIdx++;v.mtTouched=false;v.mt='';
-  curId=null;v.photos=[];for(var i=0;i<k;i++)v.photos.push(scene(i+sIdx));v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample '+(((sIdx-1)%SAMPLES.length)+1)+' of '+SAMPLES.length+' filled in. Tap the flask again for the next one.')}
+  curId=null;v.photos=[];for(var i=0;i<k;i++)v.photos.push(scene(i+sIdx));v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample '+(((sIdx-1)%SAMPLES.length)+1)+' of '+SAMPLES.length+' filled in. Tap Sample data again for the next one.')}
 $('#bSample').onclick=function(){if(dirty()&&!confirm('Replace what you typed with sample data?'))return;sample()};
 
 /* ---------- PDF (built here, no library, so it works on every phone) ---------- */
