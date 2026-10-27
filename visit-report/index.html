@@ -360,7 +360,7 @@ var SAMPLES=[
 var sIdx=0;
 function sample(){
   var v=Object.assign({},SAMPLES[sIdx%SAMPLES.length]),k=v.n;delete v.n;sIdx++;v.mtTouched=false;v.mt='';
-  curId=null;v.photos=[];for(var i=0;i<k;i++)v.photos.push(scene(i+sIdx));v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample '+(((sIdx-1)%SAMPLES.length)+1)+' of '+SAMPLES.length+' filled in. Tap Sample data again for the next one.')}
+  curId=null;v.photos=[];v.sigPhoto='';v.sig=sigScene();write(v);mark();draftSoon();toast('Sample '+(((sIdx-1)%SAMPLES.length)+1)+' of '+SAMPLES.length+' filled in. Tap Sample data again for the next one.')}
 $('#bSample').onclick=function(){if(dirty()&&!confirm('Replace what you typed with sample data?'))return;sample()};
 
 /* ---------- PDF (built here, no library, so it works on every phone) ---------- */
